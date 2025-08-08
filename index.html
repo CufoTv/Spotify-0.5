@@ -1,28 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Offline Music Player</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Offline Spotify-Style Player</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: white;
+    }
+    header {
+        background-color: #1db954;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    header h1 {
+        margin: 0;
+        font-size: 20px;
+    }
+    #searchBar {
+        width: 250px;
+        padding: 5px;
+        border: none;
+        border-radius: 20px;
+    }
+    .music-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+    .music-item {
+        background-color: #181818;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .music-item:hover {
+        background-color: #282828;
+    }
+    .music-item img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .music-item h3 {
+        margin: 10px 0 5px;
+        font-size: 16px;
+    }
+    .music-item p {
+        margin: 0;
+        color: #b3b3b3;
+        font-size: 14px;
+    }
+    audio {
+        width: 100%;
+        margin-top: 10px;
+    }
+</style>
 </head>
 <body>
+
+<header>
     <h1>Offline Music Player</h1>
-    <div id="player">
-        <img id="coverImg" src="" alt="Cover" style="display:none;">
-        <h2 id="trackTitle">Title</h2>
-        <h3 id="trackArtist">Artist</h3>
-        <audio id="audio" controls></audio>
-        <input type="range" id="seek" value="0">
-        <div>
-            <span id="cur">0:00</span> / <span id="dur">0:00</span>
-        </div>
-        <button id="prev">Prev</button>
-        <button id="play">Play</button>
-        <button id="next">Next</button>
-        <button id="shuffle">Shuffle</button>
-        <button id="repeat">Toggle Repeat</button>
-    </div>
-    <ul id="playlist"></ul>
-    <script src="script.js"></script>
+    <input type="text" id="searchBar" placeholder="Search or ask AI...">
+</header>
+
+<main>
+    <div class="music-list" id="musicList"></div>
+</main>
+
+<script>
+    async function loadMusic() {
+        const res = await fetch('service/music.json');
+        const musicData = await res.json();
+        window.allMusic = musicData;
+        displayMusic(musicData);
+    }
+
+    function displayMusic(list) {
+        const container = document.getElementById('musicList');
+        container.innerHTML = '';
+        list.forEach(track => {
+            const div = document.createElement('div');
+            div.classList.add('music-item');
+            div.innerHTML = `
+                <img src="${track.cover}" alt="${track.title}">
+                <h3>${track.title}</h3>
+                <p>${track.artist}</p>
+                <audio controls src="${track.file}"></audio>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function smartSearch(query) {
+        query = query.toLowerCase();
+        // If query looks like an AI request
+        if (query.includes('music with') || query.includes('song with') || query.includes('find')) {
+            const keywords = query.replace(/music with|song with|find|songs|music/gi, '').trim().split(/\s+/);
+            return window.allMusic.filter(track =>
+                track.tags.some(tag => keywords.includes(tag.toLowerCase()))
+            );
+        }
+        // Normal search
+        return window.allMusic.filter(track =>
+            track.title.toLowerCase().includes(query) ||
+            track.artist.toLowerCase().includes(query) ||
+            track.tags.some(tag => tag.toLowerCase().includes(query))
+        );
+    }
+
+    document.getElementById('searchBar').addEventListener('input', e => {
+        const query = e.target.value.trim();
+        if (query === '') {
+            displayMusic(window.allMusic);
+        } else {
+            displayMusic(smartSearch(query));
+        }
+    });
+
+    loadMusic();
+</script>
+
 </body>
 </html>

@@ -34,8 +34,8 @@ It allows you to:
 ### 1️⃣ Clone this repository
 If you have **Git**:
 ```bash
-git clone https://github.com/USERNAME/REPO_NAME.git
-cd REPO_NAME
+git clone https://github.com/CufoTv/Spotify-0.5.git
+cd Spotify-0.5
 ````
 
 ---

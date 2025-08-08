@@ -15,7 +15,6 @@ It allows you to:
 
 ## 📂 Project Structure
 
-```
 
 /
 ├── index.html          # Main HTML page
@@ -26,7 +25,6 @@ It allows you to:
 ├── /service
 │    └── music.json     # Metadata for your tracks
 └── README.md           # This file
-
 ````
 
 ---

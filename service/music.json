@@ -1,9 +1,9 @@
 [
   {
-    "file": "track1.mp3",
-    "title": "First Song",
-    "artist": "Artist A",
-    "cover": "cover/track1.jpg"
+    "file": "music/Stresi-Win-Win.mp3",
+    "title": "Win Win",
+    "artist": "Stresi",
+    "cover": "cover/Stresi-Win-Win.jpg"
   },
   {
     "file": "track2.mp3",

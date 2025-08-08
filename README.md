@@ -128,8 +128,8 @@ This will let you run the player **without internet**:
 3. Clone the repo:
 
    ```bash
-   git clone https://github.com/USERNAME/REPO_NAME.git
-   cd REPO_NAME
+   git clone https://github.com/CufoTv/Spotify-0.5.git
+   cd Spotify-0.5
    ```
 4. Start a local web server:
 

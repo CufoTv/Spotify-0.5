@@ -6,8 +6,21 @@
     "cover": "cover/Stresi-Win-Win.jpg"
   },
   {
-    "file": "track2.mp3",
-    "title": "Second Song",
-    "artist": "Artist B"
+    "file": "music/Stealth-Non-Stop.mp3",
+    "title": "Non Stop",
+    "artist": "Stealth",
+    "cover": "cover/Stealth-Non-Stop.jpg"
+  },
+  {
+    "file": "",
+    "title": "",
+    "artist": "",
+    "cover": ""
+  },
+  {
+    "file": "",
+    "title": "",
+    "artist": "",
+    "cover": ""
   }
 ]

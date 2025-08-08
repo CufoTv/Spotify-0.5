@@ -3,36 +3,42 @@
     "file": "music/Stresi-Win-Win.mp3",
     "title": "Win Win",
     "artist": "Stresi",
-    "cover": "cover/Stresi-Win-Win.jpg"
+    "cover": "cover/Stresi-Win-Win.jpg",
+    "tags": ["rap", "stresi", "hip hop", "albanian", "fast", "street"]
   },
   {
     "file": "music/Stealth-Non-Stop.mp3",
     "title": "Non Stop",
     "artist": "Stealth",
-    "cover": "cover/Stealth-Non-Stop.jpg"
+    "cover": "cover/Stealth-Non-Stop.jpg",
+    "tags": ["rap", "hip hop", "albanian", "energetic", "stealth", "fast"]
   },
   {
     "file": "music/Naldi-Nekrahetemia.mp3",
     "title": "Ne Krahet e Mia",
     "artist": "Naldi",
-    "cover": "cover/Naldi-Nekrahetemia.jpg"
+    "cover": "cover/Naldi-Nekrahetemia.jpg",
+    "tags": ["pop", "love", "romantic", "slow", "albanian"]
   },
   {
     "file": "music/Mossi-Autor.mp3",
     "title": "Autor",
     "artist": "Mossi",
-    "cover": "cover/Mossi-Autor.jpg"
+    "cover": "cover/Mossi-Autor.jpg",
+    "tags": ["rap", "Mossi", "hip hop", "street", "intense", "fast"]
   },
   {
     "file": "music/Kastro-KUR-JAM.mp3",
     "title": "KUR JAM",
     "artist": "Kastro",
-    "cover": "cover/Kastro-KUR-JAM.jpg"
+    "cover": "cover/Kastro-KUR-JAM.jpg",
+    "tags": ["rap", "kastro", "hip hop", "albanian", "fast", "energetic"]
   },
   {
     "file": "music/Kastro-Cunat.mp3",
     "title": "CUNAT",
     "artist": "Kastro",
-    "cover": "cover/Kastro-Cunat.jpg"
+    "cover": "cover/Kastro-Cunat.jpg",
+    "tags": ["rap", "hip hop", "kastro", "childhood", "albanian", "fast"]
   }
 ]

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Offline Music — Termux</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Offline Music Player</h1>
+      <p class="muted">Place your .mp3 files in the <code>music/</code> folder, covers in <code>cover/</code>, and a metadata file at <code>service/music.json</code>.</p>
+    </header>
+
+    <main>
+      <section class="player card">
+        <div class="cover-wrap">
+          <img id="coverImg" src="cover/default.jpg" alt="cover" onerror="this.style.display='none'">
+        </div>
+        <div class="now">
+          <div id="trackTitle">No track loaded</div>
+          <div id="trackArtist" class="muted"></div>
+          <audio id="audio" controls preload="none"></audio>
+        </div>
+
+        <div class="controls">
+          <button id="prev">◀◀</button>
+          <button id="play">Play</button>
+          <button id="next">▶▶</button>
+        </div>
+
+        <div class="progress-wrap">
+          <input id="seek" type="range" min="0" max="100" value="0">
+          <div class="time"><span id="cur">0:00</span> / <span id="dur">0:00</span></div>
+        </div>
+      </section>
+
+      <section class="playlist card">
+        <h2>Playlist</h2>
+        <ul id="playlist"></ul>
+        <p class="muted">If files don't appear, create <code>service/music.json</code> with entries for your tracks.</p>
+      </section>
+
+      <section class="extras card">
+        <h3>Quick actions</h3>
+        <button id="shuffle">Shuffle</button>
+        <button id="repeat">Toggle Repeat</button>
+      </section>
+    </main>
+
+    <footer>
+      <p class="muted">Serve locally in Termux: <code>python3 -m http.server 8000</code>, then open <code>http://127.0.0.1:8000</code> in the phone browser.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

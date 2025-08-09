@@ -212,6 +212,51 @@
             text-decoration: underline;
         }
         
+        .artist-link {
+            color: var(--spotify-gray);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .artist-link:hover {
+            color: var(--spotify-green);
+            text-decoration: underline;
+        }
+        
+        .search-result-item {
+            background: #282828;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background: #3e3e3e;
+        }
+        
+        .search-result-artist {
+            border-left: 3px solid var(--spotify-green);
+        }
+        
+        .search-result-track {
+            border-left: 3px solid #1DA1F2;
+        }
+        
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #282828;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -396,6 +441,7 @@
                             <input type="text" id="searchInput" placeholder="Search songs, artists..." 
                                    class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <div id="searchDropdown" class="search-dropdown hidden"></div>
                         </div>
                     </div>
                     
@@ -412,6 +458,7 @@
                             <input type="text" id="artistSearchInput" placeholder="Search artists..." 
                                    class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <div id="artistSearchDropdown" class="search-dropdown hidden"></div>
                         </div>
                     </div>
                     
@@ -480,7 +527,7 @@
                             <!-- Streaming Stats -->
                             <div class="stats-card p-6 rounded-lg">
                                 <h4 class="text-lg font-semibold mb-4">Streaming Statistics</h4>
-                                <div class="chart-container mb-4">
+                                <div class="chart-container mb-4" style="height: 300px;">
                                     <canvas id="artistChart"></canvas>
                                 </div>
                                 <div class="space-y-2">
@@ -848,6 +895,7 @@
                 this.currentArtistPage = 1;
                 this.tracksPerPage = 10;
                 this.artistChart = null;
+                this.searchTimeout = null;
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
@@ -951,6 +999,128 @@
                 });
             }
 
+            // Enhanced function to create clickable artist names
+            createClickableArtistNames(artistString) {
+                if (!artistString) return '';
+                
+                const artists = artistString.split(',').map(name => name.trim());
+                return artists.map(artist => 
+                    `<span class="artist-link" data-artist="${artist}">${artist}</span>`
+                ).join(', ');
+            }
+
+            // Add event listeners for clickable artist names
+            addArtistClickListeners(container) {
+                container.querySelectorAll('.artist-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const artistName = link.dataset.artist;
+                        this.showArtistProfile(artistName);
+                        
+                        // Update navigation
+                        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                        document.querySelector('.nav-item[data-page="artists"]').classList.add('active');
+                    });
+                });
+            }
+
+            // Enhanced search with artist profile results
+            performEnhancedSearch(query) {
+                if (!query.trim()) {
+                    return {
+                        tracks: [],
+                        artists: []
+                    };
+                }
+
+                const searchTerm = query.toLowerCase();
+                
+                // Search tracks
+                const tracks = this.musicData.filter(track => 
+                    track.title.toLowerCase().includes(searchTerm) ||
+                    track.artist.toLowerCase().includes(searchTerm) ||
+                    track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                ).slice(0, 5);
+
+                // Search artists
+                const artists = Array.from(this.artists.values()).filter(artist =>
+                    artist.name.toLowerCase().includes(searchTerm)
+                ).slice(0, 5);
+
+                return { tracks, artists };
+            }
+
+            showSearchDropdown(inputId, dropdownId, results) {
+                const dropdown = document.getElementById(dropdownId);
+                
+                if (results.tracks.length === 0 && results.artists.length === 0) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+
+                let html = '';
+
+                // Add artist results
+                if (results.artists.length > 0) {
+                    html += results.artists.map(artist => `
+                        <div class="search-result-item search-result-artist" data-type="artist" data-name="${artist.name}">
+                            <div class="flex items-center space-x-3">
+                                <img src="${artist.cover}" alt="${artist.name}" class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <h4 class="font-medium">${artist.name}</h4>
+                                    <p class="text-sm text-gray-400">Artist • ${artist.tracks.length} tracks</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Add track results
+                if (results.tracks.length > 0) {
+                    html += results.tracks.map((track, index) => {
+                        const globalIndex = this.musicData.findIndex(t => t === track);
+                        return `
+                            <div class="search-result-item search-result-track" data-type="track" data-index="${globalIndex}">
+                                <div class="flex items-center space-x-3">
+                                    <img src="${track.cover}" alt="${track.title}" class="w-10 h-10 rounded object-cover">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium">${track.title}</h4>
+                                        <p class="text-sm text-gray-400">${this.createClickableArtistNames(track.artist)}</p>
+                                    </div>
+                                    <i class="fas fa-play text-gray-400"></i>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                dropdown.innerHTML = html;
+                dropdown.classList.remove('hidden');
+
+                // Add click listeners
+                dropdown.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const type = item.dataset.type;
+                        
+                        if (type === 'artist') {
+                            const artistName = item.dataset.name;
+                            this.showArtistProfile(artistName);
+                            document.getElementById(inputId).value = '';
+                            dropdown.classList.add('hidden');
+                        } else if (type === 'track') {
+                            const index = parseInt(item.dataset.index);
+                            this.filteredMusic = [...this.musicData];
+                            this.playTrack(index);
+                            document.getElementById(inputId).value = '';
+                            dropdown.classList.add('hidden');
+                        }
+                    });
+                });
+
+                // Add artist link listeners for track results
+                this.addArtistClickListeners(dropdown);
+            }
+
             async saveMusicDatabase() {
                 try {
                     const musicJson = JSON.stringify(this.musicData, null, 2);
@@ -1015,10 +1185,47 @@
                 document.getElementById('repeatBtn').addEventListener('click', () => this.toggleRepeat());
                 document.getElementById('likeCurrentBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
 
-                // Search
-                document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                // Enhanced search functionality
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    const query = e.target.value;
+                    clearTimeout(this.searchTimeout);
+                    
+                    if (query.trim()) {
+                        this.searchTimeout = setTimeout(() => {
+                            const results = this.performEnhancedSearch(query);
+                            this.showSearchDropdown('searchInput', 'searchDropdown', results);
+                        }, 300);
+                    } else {
+                        document.getElementById('searchDropdown').classList.add('hidden');
+                        this.filteredMusic = [...this.musicData];
+                        this.renderMusic();
+                    }
+                });
+
+                document.getElementById('artistSearchInput').addEventListener('input', (e) => {
+                    const query = e.target.value;
+                    clearTimeout(this.searchTimeout);
+                    
+                    if (query.trim()) {
+                        this.searchTimeout = setTimeout(() => {
+                            const results = this.performEnhancedSearch(query);
+                            this.showSearchDropdown('artistSearchInput', 'artistSearchDropdown', results);
+                        }, 300);
+                    } else {
+                        document.getElementById('artistSearchDropdown').classList.add('hidden');
+                        this.renderArtists();
+                    }
+                });
+
+                // Hide dropdowns when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.relative')) {
+                        document.getElementById('searchDropdown').classList.add('hidden');
+                        document.getElementById('artistSearchDropdown').classList.add('hidden');
+                    }
+                });
+
                 document.getElementById('manageSearchInput').addEventListener('input', (e) => this.handleManageSearch(e.target.value));
-                document.getElementById('artistSearchInput').addEventListener('input', (e) => this.handleArtistSearch(e.target.value));
 
                 // Artist profile controls
                 document.getElementById('playArtistBtn').addEventListener('click', () => this.playArtistTracks());
@@ -1226,6 +1433,10 @@
                 document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
                 document.getElementById(pageId + 'Page').classList.remove('hidden');
                 
+                // Hide search dropdowns when changing pages
+                document.getElementById('searchDropdown').classList.add('hidden');
+                document.getElementById('artistSearchDropdown').classList.add('hidden');
+                
                 if (pageId === 'library') {
                     this.updateLibraryPage();
                 } else if (pageId === 'manage') {
@@ -1306,7 +1517,7 @@
                                 <img src="${track.cover}" alt="${track.title}" class="w-10 h-10 rounded">
                                 <div class="flex-1 min-w-0">
                                     <h4 class="font-medium truncate">${track.title}</h4>
-                                    <p class="text-sm text-gray-400 truncate">${track.artist}</p>
+                                    <p class="text-sm text-gray-400 truncate">${this.createClickableArtistNames(track.artist)}</p>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-4">
@@ -1340,6 +1551,9 @@
                         this.toggleLikeTrack(track, index);
                     });
                 });
+
+                // Add artist click listeners
+                this.addArtistClickListeners(container);
 
                 // Update pagination
                 this.updateArtistPagination();
@@ -1547,63 +1761,6 @@
                 });
             }
 
-            handleArtistSearch(query) {
-                const container = document.getElementById('artistsGrid');
-                let filteredArtists = Array.from(this.artists.values());
-
-                if (query.trim()) {
-                    const searchTerm = query.toLowerCase();
-                    filteredArtists = filteredArtists.filter(artist => 
-                        artist.name.toLowerCase().includes(searchTerm)
-                    );
-                }
-
-                filteredArtists.sort((a, b) => b.totalStreams - a.totalStreams);
-
-                if (filteredArtists.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-16 col-span-full">
-                            <i class="fas fa-search text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">No artists found</h3>
-                            <p>Try searching with different keywords</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = filteredArtists.map(artist => `
-                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
-                        <div class="relative mb-4">
-                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto shadow-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-black"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate mb-1">${artist.name}</h3>
-                        <p class="text-gray-400 text-sm">${artist.tracks.length} ${artist.tracks.length === 1 ? 'track' : 'tracks'}</p>
-                    </div>
-                `).join('');
-
-                // Add click listeners
-                container.querySelectorAll('.music-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const artistName = card.dataset.artist;
-                        this.showArtistProfile(artistName);
-                    });
-
-                    const playBtn = card.querySelector('button');
-                    playBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const artistName = card.dataset.artist;
-                        const artist = this.artists.get(artistName);
-                        if (artist && artist.tracks.length > 0) {
-                            this.filteredMusic = [...artist.tracks];
-                            this.playTrack(0);
-                        }
-                    });
-                });
-            }
-
             renderMusic() {
                 const grid = document.getElementById('musicGrid');
                 if (!grid) return;
@@ -1631,7 +1788,7 @@
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                         <div class="flex items-center justify-between mt-2">
                             <span class="text-xs text-gray-500">${track.tags[0]}</span>
                             <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-green-500' : ''}" data-action="like" data-index="${index}">
@@ -1652,6 +1809,9 @@
                         e.stopPropagation();
                         this.toggleLikeTrack(track, index);
                     });
+
+                    // Add artist click listeners
+                    this.addArtistClickListeners(card);
 
                     grid.appendChild(card);
                 });
@@ -1683,7 +1843,7 @@
                                 <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded object-cover">
                                 <div>
                                     <h3 class="font-semibold">${track.title}</h3>
-                                    <p class="text-gray-400 text-sm">${track.artist}</p>
+                                    <p class="text-gray-400 text-sm">${this.createClickableArtistNames(track.artist)}</p>
                                     <div class="flex flex-wrap gap-1 mt-1">
                                         ${track.tags.slice(0, 3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}
                                     </div>
@@ -1703,6 +1863,9 @@
                         </div>
                     `;
                 }).join('');
+
+                // Add artist click listeners to manage page
+                this.addArtistClickListeners(container);
             }
 
             playTrackFromManage(index) {
@@ -1766,29 +1929,6 @@
                     this.updateUI();
                     alert('Track deleted successfully! Don\'t forget to save the database.');
                 }
-            }
-
-            handleSearch(query) {
-                if (!query.trim()) {
-                    this.filteredMusic = [...this.musicData];
-                } else {
-                    const searchTerm = query.toLowerCase();
-                    this.filteredMusic = this.musicData.filter(track => 
-                        track.title.toLowerCase().includes(searchTerm) ||
-                        track.artist.toLowerCase().includes(searchTerm) ||
-                        track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-                    );
-
-                    this.filteredMusic.forEach(track => {
-                        track.tags.forEach(tag => {
-                            if (!this.userData.searches[tag]) this.userData.searches[tag] = 0;
-                            this.userData.searches[tag] += 0.1;
-                        });
-                    });
-                    this.saveUserData();
-                }
-
-                this.renderMusic();
             }
 
             handleManageSearch(query) {
@@ -1955,7 +2095,11 @@
                 if (!this.currentTrack) return;
 
                 document.getElementById('currentTitle').textContent = this.currentTrack.title;
-                document.getElementById('currentArtist').textContent = this.currentTrack.artist;
+                
+                // Create clickable artist names for current playing track
+                const currentArtistElement = document.getElementById('currentArtist');
+                currentArtistElement.innerHTML = this.createClickableArtistNames(this.currentTrack.artist);
+                this.addArtistClickListeners(currentArtistElement.parentElement);
                 
                 const coverImg = document.getElementById('currentCover');
                 coverImg.src = this.currentTrack.cover;
@@ -2046,7 +2190,7 @@
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                     </div>
                 `).join('');
 
@@ -2060,6 +2204,9 @@
                         }
                     });
                 });
+
+                // Add artist click listeners
+                this.addArtistClickListeners(container);
             }
 
             updateRecentlyPlayed() {
@@ -2086,7 +2233,7 @@
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                     </div>
                 `).join('');
 
@@ -2100,6 +2247,9 @@
                         }
                     });
                 });
+
+                // Add artist click listeners
+                this.addArtistClickListeners(container);
             }
 
             updateLibraryPage() {
@@ -2133,7 +2283,7 @@
                                     </button>
                                 </div>
                                 <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                                <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                                <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                                 <div class="flex items-center justify-between mt-2">
                                     <span class="text-xs text-gray-500">${track.tags[0]}</span>
                                     <button class="text-green-500 hover:text-white" data-library-unlike="${index}">
@@ -2164,6 +2314,9 @@
                         this.toggleLikeTrack(track, index);
                     });
                 });
+
+                // Add artist click listeners
+                this.addArtistClickListeners(container);
             }
 
             updateProfileStats() {

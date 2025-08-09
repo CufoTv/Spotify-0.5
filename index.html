@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Music Player</title>
+    <title>Spotify Music Player - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
@@ -12,6 +12,7 @@
             --spotify-dark: #191414;
             --spotify-darker: #121212;
             --spotify-gray: #b3b3b3;
+            --spotify-gold: #ffb700;
         }
         
         body {
@@ -100,6 +101,63 @@
             border-left: 3px solid var(--spotify-green);
         }
         
+        .premium-badge {
+            background: linear-gradient(45deg, var(--spotify-gold), #ff9800);
+            color: black;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .tag-input {
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        
+        .tag-item {
+            background: var(--spotify-green);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .upload-area {
+            border: 2px dashed #555;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--spotify-green);
+            background: rgba(29, 185, 84, 0.1);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--spotify-green);
+            background: rgba(29, 185, 84, 0.2);
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -153,6 +211,27 @@
                         </a>
                     </li>
                 </ul>
+
+                <hr class="my-6 border-gray-600">
+
+                <!-- Private Section -->
+                <div class="mb-4">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Private</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="upload">
+                                <i class="fas fa-upload mr-3"></i>
+                                Upload
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="manage">
+                                <i class="fas fa-cog mr-3"></i>
+                                Manage Music
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
                 <hr class="my-6 border-gray-600">
 
@@ -229,6 +308,112 @@
                     </div>
                 </div>
 
+                <!-- Upload Page -->
+                <div id="uploadPage" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Upload Music</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Music Upload -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Music File</h3>
+                            <div class="upload-area" id="musicUploadArea">
+                                <i class="fas fa-music text-4xl text-gray-400 mb-4"></i>
+                                <p class="text-lg mb-2">Drop your MP3 file here</p>
+                                <p class="text-sm text-gray-400 mb-4">or click to browse</p>
+                                <input type="file" id="musicFileInput" accept=".mp3" class="hidden">
+                                <button class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded" onclick="document.getElementById('musicFileInput').click()">
+                                    Select File
+                                </button>
+                            </div>
+                            <div id="musicFileInfo" class="mt-4 hidden">
+                                <p class="text-sm text-green-400"><i class="fas fa-check mr-2"></i>File selected: <span id="musicFileName"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Cover Upload -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Cover Image</h3>
+                            <div class="upload-area" id="coverUploadArea">
+                                <i class="fas fa-image text-4xl text-gray-400 mb-4"></i>
+                                <p class="text-lg mb-2">Drop your JPG file here</p>
+                                <p class="text-sm text-gray-400 mb-4">or click to browse</p>
+                                <input type="file" id="coverFileInput" accept=".jpg,.jpeg,.png" class="hidden">
+                                <button class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded" onclick="document.getElementById('coverFileInput').click()">
+                                    Select Image
+                                </button>
+                            </div>
+                            <div id="coverFileInfo" class="mt-4 hidden">
+                                <p class="text-sm text-green-400"><i class="fas fa-check mr-2"></i>Image selected: <span id="coverFileName"></span></p>
+                                <img id="coverPreview" src="" alt="Cover Preview" class="mt-2 w-32 h-32 object-cover rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Track Information -->
+                    <div class="bg-gray-800 p-6 rounded-lg mt-8">
+                        <h3 class="text-xl font-semibold mb-4">Track Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Track Title</label>
+                                <input type="text" id="trackTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter track title">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Artist Name</label>
+                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter artist name">
+                            </div>
+                        </div>
+
+                        <!-- Tags Section -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium mb-2">Tags</label>
+                            <div id="selectedTags" class="mb-4 min-h-8">
+                                <!-- Selected tags will appear here -->
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium mb-2">Popular Tags</h4>
+                                <div id="popularTags" class="flex flex-wrap gap-2">
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="hip hop">hip hop</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="rap">rap</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="pop">pop</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="trap">trap</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="albanian">albanian</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="melodic">melodic</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="energetic">energetic</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="modern">modern</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <input type="text" id="customTagInput" class="flex-1 bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Add custom tag">
+                                <button id="addCustomTag" class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Add</button>
+                            </div>
+                        </div>
+
+                        <button id="uploadTrack" class="w-full bg-spotify-green hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Track
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manage Music Page -->
+                <div id="managePage" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Manage Music</h2>
+                    
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" id="manageSearchInput" placeholder="Search tracks to edit..." 
+                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="manageGrid" class="space-y-4">
+                        <!-- Manage items will be populated here -->
+                    </div>
+                </div>
+
                 <!-- Profile Page -->
                 <div id="profilePage" class="page hidden">
                     <h2 class="text-3xl font-bold mb-6">Admin Profile</h2>
@@ -241,8 +426,16 @@
                                     A
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">Admin</h3>
+                                    <h3 class="text-2xl font-bold flex items-center gap-2">
+                                        Admin
+                                        <span class="premium-badge">PREMIUM</span>
+                                        <span class="admin-badge">ADMIN</span>
+                                    </h3>
                                     <p class="text-gray-400">Music Administrator</p>
+                                    <p class="text-xs text-green-400 mt-1">
+                                        <i class="fas fa-crown mr-1"></i>
+                                        Premium Account with Admin Privileges
+                                    </p>
                                 </div>
                             </div>
                             
@@ -259,6 +452,10 @@
                                     <span>Searches Made</span>
                                     <span id="searchCount" class="font-semibold">0</span>
                                 </div>
+                                <div class="flex justify-between">
+                                    <span>Uploaded Tracks</span>
+                                    <span id="uploadedCount" class="font-semibold">0</span>
+                                </div>
                             </div>
                         </div>
 
@@ -269,6 +466,10 @@
                                 <button id="exportData" class="w-full bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-download mr-2"></i>
                                     Export Data to server/info.json
+                                </button>
+                                <button id="exportMusic" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
+                                    <i class="fas fa-database mr-2"></i>
+                                    Export Music Database
                                 </button>
                                 <button id="clearData" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-trash mr-2"></i>
@@ -352,6 +553,33 @@
     <!-- Audio Element -->
     <audio id="audioPlayer" preload="metadata"></audio>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-semibold mb-4">Edit Track</h3>
+            <form id="editForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Title</label>
+                        <input type="text" id="editTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Artist</label>
+                        <input type="text" id="editArtist" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Tags (comma-separated)</label>
+                        <input type="text" id="editTags" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="flex-1 bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         class SpotifyMusicPlayer {
             constructor() {
@@ -365,11 +593,14 @@
                     listens: {},
                     searches: {},
                     savedSongs: [],
-                    recentlyPlayed: []
+                    recentlyPlayed: [],
+                    uploadedTracks: []
                 };
                 this.shuffle = false;
                 this.repeat = false;
                 this.volume = 0.5;
+                this.selectedTags = [];
+                this.currentEditIndex = -1;
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
@@ -388,6 +619,9 @@
                 if (saved) {
                     try {
                         this.userData = JSON.parse(saved);
+                        if (!this.userData.uploadedTracks) {
+                            this.userData.uploadedTracks = [];
+                        }
                     } catch (e) {
                         console.error('Error loading user data:', e);
                     }
@@ -401,125 +635,39 @@
             }
 
             async loadMusicData() {
-                // Using the provided Albanian music collection
-                this.musicData = [
-                    {
-                        "file": "music/Stresi-Win-Win.mp3",
-                        "title": "Win Win",
-                        "artist": "Stresi",
-                        "cover": "cover/Stresi-Win-Win.jpg",
-                        "tags": ["hip hop", "rap", "stresi", "albanian", "street", "2022"]
-                    },
-                    {
-                        "file": "music/Stealth-Non-Stop.mp3",
-                        "title": "Non Stop",
-                        "artist": "Stealth",
-                        "cover": "cover/Stealth-Non-Stop.jpg",
-                        "tags": ["hip hop", "rap", "stealth", "albanian", "energetic", "club"]
-                    },
-                    {
-                        "file": "music/Naldi-Nekrahetemia.mp3",
-                        "title": "Ne Krahet e Mia",
-                        "artist": "Naldi",
-                        "cover": "cover/Naldi-Nekrahetemia.jpg",
-                        "tags": ["pop", "naldi", "albanian", "romantic", "melodic", "slow"]
-                    },
-                    {
-                        "file": "music/Mossi-Autor.mp3",
-                        "title": "Autor",
-                        "artist": "Mossi",
-                        "cover": "cover/Mossi-Autor.jpg",
-                        "tags": ["hip hop", "rap", "mossi", "street", "intense", "modern"]
-                    },
-                    {
-                        "file": "music/Kastro-KUR-JAM.mp3",
-                        "title": "KUR JAM",
-                        "artist": "Kastro",
-                        "cover": "cover/Kastro-KUR-JAM.jpg",
-                        "tags": ["hip hop", "rap", "kastro", "albanian", "anthem", "energetic"]
-                    },
-                    {
-                        "file": "music/Finem-Anakonda.mp3",
-                        "title": "Anakonda",
-                        "artist": "Finem",
-                        "cover": "cover/Finem-Anakonda.jpg",
-                        "tags": ["hip hop", "rap", "finem", "trap", "dark", "energetic"]
-                    },
-                    {
-                        "file": "music/Fero-ARSENAL.mp3",
-                        "title": "ARSENAL",
-                        "artist": "Fero",
-                        "cover": "cover/Fero-ARSENAL.jpg",
-                        "tags": ["hip hop", "rap", "fero", "albanian", "modern", "banger"]
-                    },
-                    {
-                        "file": "music/Ever-b-Pare-Si-Arab.mp3",
-                        "title": "Pare Si ArB",
-                        "artist": "Ever B",
-                        "cover": "cover/Ever-b-Pare-Si-Arab.jpg",
-                        "tags": ["trap", "hip hop", "ever b", "albanian", "melodic", "modern"]
-                    },
-                    {
-                        "file": "music/Elai-Nokia.mp3",
-                        "title": "Nokia",
-                        "artist": "Elai",
-                        "cover": "cover/Elai-Nokia.jpg",
-                        "tags": ["hip hop", "rap", "elai", "melodic", "pop", "catchy"]
-                    },
-                    {
-                        "file": "music/Elai-LALE.mp3",
-                        "title": "LALE",
-                        "artist": "Elai",
-                        "cover": "cover/Elai-LALE.jpg",
-                        "tags": ["hip hop", "rap", "elai", "melodic", "romantic", "chart"]
-                    },
-                    {
-                        "file": "music/Don-Xhoni-TESTOM.mp3",
-                        "title": "TESTOM",
-                        "artist": "Don Xhoni",
-                        "cover": "cover/Don-Xhoni-TESTOM.jpg",
-                        "tags": ["hip hop", "rap", "don xhoni", "trap", "dark", "intense"]
-                    },
-                    {
-                        "file": "music/Don-Xhoni-Katile.mp3",
-                        "title": "Katile",
-                        "artist": "Don Xhoni",
-                        "cover": "cover/Don-Xhoni-Katile.jpg",
-                        "tags": ["hip hop", "rap", "don xhoni", "trap", "energetic", "street"]
-                    },
-                    {
-                        "file": "music/Don-Xhoni-Deri-Kur.mp3",
-                        "title": "Deri Kur",
-                        "artist": "Don Xhoni",
-                        "cover": "cover/Don-Xhoni-Deri-Kur.jpg",
-                        "tags": ["hip hop", "rap", "don xhoni", "emotional", "albanian", "melodic"]
-                    },
-                    {
-                        "file": "music/Don-Xhoni-DILEMA.mp3",
-                        "title": "DILEMA",
-                        "artist": "Don Xhoni",
-                        "cover": "cover/Don-Xhoni-DILEMA.jpg",
-                        "tags": ["hip hop", "rap", "don xhoni", "trap", "moody", "modern"]
-                    },
-                    {
-                        "file": "music/Buta-Nelly-Kelly.mp3",
-                        "title": "Nelly Kelly",
-                        "artist": "Buta",
-                        "cover": "cover/Buta-Nelly-Kelly.jpg",
-                        "tags": ["hip hop", "rap", "buta", "melodic", "pop-rap", "modern"]
-                    },
-                    {
-                        "file": "music/BM-Welcome-Te-Gazza.mp3",
-                        "title": "Welcome Te Gazza",
-                        "artist": "BM",
-                        "cover": "cover/BM-Welcome-Te-Gazza.jpg",
-                        "tags": ["hip hop", "rap", "bm", "gritty", "street", "drill"]
+                try {
+                    const response = await fetch('service/music.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                ];
-                
-                this.filteredMusic = [...this.musicData];
-                this.renderMusic();
-                this.updateRecommendations();
+                    this.musicData = await response.json();
+                    
+                    // Add uploaded tracks from local storage
+                    if (this.userData.uploadedTracks) {
+                        this.musicData = [...this.musicData, ...this.userData.uploadedTracks];
+                    }
+                    
+                    this.filteredMusic = [...this.musicData];
+                    this.renderMusic();
+                    this.updateRecommendations();
+                } catch (error) {
+                    console.error('Error loading music data:', error);
+                    // Fallback to empty array or default data
+                    this.musicData = [];
+                    this.filteredMusic = [];
+                    
+                    // Show error message to user
+                    const musicGrid = document.getElementById('musicGrid');
+                    if (musicGrid) {
+                        musicGrid.innerHTML = `
+                            <div class="text-center text-red-400 py-8 col-span-full">
+                                <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                                <p>Error loading music database</p>
+                                <p class="text-sm text-gray-400 mt-2">Please check if service/music.json exists and is accessible</p>
+                            </div>
+                        `;
+                    }
+                }
             }
 
             setupEventListeners() {
@@ -550,13 +698,22 @@
 
                 // Search
                 document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                document.getElementById('manageSearchInput').addEventListener('input', (e) => this.handleManageSearch(e.target.value));
 
                 // Browse music button
                 document.getElementById('browseMusic').addEventListener('click', () => this.showPage('music'));
 
                 // Profile actions
                 document.getElementById('exportData').addEventListener('click', () => this.exportData());
+                document.getElementById('exportMusic').addEventListener('click', () => this.exportMusicData());
                 document.getElementById('clearData').addEventListener('click', () => this.clearData());
+
+                // Upload functionality
+                this.setupUploadListeners();
+
+                // Edit modal
+                document.getElementById('cancelEdit').addEventListener('click', () => this.closeEditModal());
+                document.getElementById('editForm').addEventListener('submit', (e) => this.handleEditSubmit(e));
 
                 // Audio events
                 this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
@@ -566,17 +723,195 @@
                 this.audio.addEventListener('pause', () => this.handlePause());
             }
 
+            setupUploadListeners() {
+                // File inputs
+                document.getElementById('musicFileInput').addEventListener('change', (e) => this.handleMusicFileSelect(e));
+                document.getElementById('coverFileInput').addEventListener('change', (e) => this.handleCoverFileSelect(e));
+
+                // Upload areas
+                const musicUploadArea = document.getElementById('musicUploadArea');
+                const coverUploadArea = document.getElementById('coverUploadArea');
+
+                this.setupDropZone(musicUploadArea, 'musicFileInput');
+                this.setupDropZone(coverUploadArea, 'coverFileInput');
+
+                // Tag functionality
+                document.getElementById('addCustomTag').addEventListener('click', () => this.addCustomTag());
+                document.getElementById('customTagInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addCustomTag();
+                    }
+                });
+
+                document.querySelectorAll('#popularTags .tag-item').forEach(tag => {
+                    tag.addEventListener('click', () => this.toggleTag(tag.dataset.tag));
+                });
+
+                // Upload button
+                document.getElementById('uploadTrack').addEventListener('click', () => this.handleUpload());
+            }
+
+            setupDropZone(area, inputId) {
+                area.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    area.classList.add('dragover');
+                });
+
+                area.addEventListener('dragleave', () => {
+                    area.classList.remove('dragover');
+                });
+
+                area.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    area.classList.remove('dragover');
+                    
+                    const files = Array.from(e.dataTransfer.files);
+                    const input = document.getElementById(inputId);
+                    
+                    if (files.length > 0) {
+                        input.files = e.dataTransfer.files;
+                        input.dispatchEvent(new Event('change'));
+                    }
+                });
+
+                area.addEventListener('click', () => {
+                    document.getElementById(inputId).click();
+                });
+            }
+
+            handleMusicFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('musicFileName').textContent = file.name;
+                    document.getElementById('musicFileInfo').classList.remove('hidden');
+                    
+                    // Auto-fill track title from filename
+                    const title = file.name.replace('.mp3', '').replace(/[-_]/g, ' ');
+                    document.getElementById('trackTitle').value = title;
+                }
+            }
+
+            handleCoverFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('coverFileName').textContent = file.name;
+                    document.getElementById('coverFileInfo').classList.remove('hidden');
+                    
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('coverPreview').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            addCustomTag() {
+                const input = document.getElementById('customTagInput');
+                const tag = input.value.trim().toLowerCase();
+                
+                if (tag && !this.selectedTags.includes(tag)) {
+                    this.selectedTags.push(tag);
+                    this.renderSelectedTags();
+                    input.value = '';
+                }
+            }
+
+            toggleTag(tag) {
+                const index = this.selectedTags.indexOf(tag);
+                if (index > -1) {
+                    this.selectedTags.splice(index, 1);
+                } else {
+                    this.selectedTags.push(tag);
+                }
+                this.renderSelectedTags();
+            }
+
+            renderSelectedTags() {
+                const container = document.getElementById('selectedTags');
+                container.innerHTML = this.selectedTags.map(tag => `
+                    <span class="tag-item">
+                        ${tag}
+                        <button class="ml-2 hover:text-red-300" onclick="spotifyPlayer.removeTag('${tag}')">×</button>
+                    </span>
+                `).join('');
+            }
+
+            removeTag(tag) {
+                const index = this.selectedTags.indexOf(tag);
+                if (index > -1) {
+                    this.selectedTags.splice(index, 1);
+                    this.renderSelectedTags();
+                }
+            }
+
+            handleUpload() {
+                const musicFile = document.getElementById('musicFileInput').files[0];
+                const coverFile = document.getElementById('coverFileInput').files[0];
+                const title = document.getElementById('trackTitle').value.trim();
+                const artist = document.getElementById('artistName').value.trim();
+
+                if (!musicFile || !coverFile || !title || !artist || this.selectedTags.length === 0) {
+                    alert('Please fill in all fields and select at least one tag');
+                    return;
+                }
+
+                // Simulate file upload (in a real app, you'd upload to a server)
+                const trackId = Date.now().toString();
+                const musicPath = `music/${trackId}_${musicFile.name}`;
+                const coverPath = `cover/${trackId}_${coverFile.name}`;
+
+                const newTrack = {
+                    file: musicPath,
+                    title: title,
+                    artist: artist,
+                    cover: coverPath,
+                    tags: [...this.selectedTags],
+                    uploadedAt: new Date().toISOString(),
+                    id: trackId
+                };
+
+                // Add to uploaded tracks
+                this.userData.uploadedTracks.push(newTrack);
+                this.musicData.push(newTrack);
+                this.filteredMusic = [...this.musicData];
+
+                this.saveUserData();
+                this.updateUI();
+
+                // Reset upload form
+                this.resetUploadForm();
+
+                alert('Track uploaded successfully! (Note: This is a demo - files are not actually uploaded)');
+            }
+
+            resetUploadForm() {
+                document.getElementById('musicFileInput').value = '';
+                document.getElementById('coverFileInput').value = '';
+                document.getElementById('trackTitle').value = '';
+                document.getElementById('artistName').value = '';
+                document.getElementById('customTagInput').value = '';
+                document.getElementById('musicFileInfo').classList.add('hidden');
+                document.getElementById('coverFileInfo').classList.add('hidden');
+                this.selectedTags = [];
+                this.renderSelectedTags();
+            }
+
             showPage(pageId) {
                 document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
                 document.getElementById(pageId + 'Page').classList.remove('hidden');
                 
                 if (pageId === 'library') {
                     this.updateLibraryPage();
+                } else if (pageId === 'manage') {
+                    this.updateManagePage();
                 }
             }
 
             renderMusic() {
                 const grid = document.getElementById('musicGrid');
+                if (!grid) return;
+
                 grid.innerHTML = '';
 
                 this.filteredMusic.forEach((track, index) => {
@@ -617,6 +952,117 @@
                 });
             }
 
+            updateManagePage() {
+                const container = document.getElementById('manageGrid');
+                if (!container) return;
+
+                const tracks = this.musicData.filter(track => track.id || this.userData.uploadedTracks.includes(track));
+
+                if (tracks.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-400 py-16">
+                            <i class="fas fa-music text-6xl mb-6"></i>
+                            <h3 class="text-xl font-semibold mb-2">No tracks to manage</h3>
+                            <p class="mb-4">Upload some music to get started</p>
+                            <button onclick="spotifyPlayer.showPage('upload')" class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold">
+                                Upload Music
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = tracks.map((track, index) => `
+                    <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded object-cover">
+                            <div>
+                                <h3 class="font-semibold">${track.title}</h3>
+                                <p class="text-gray-400 text-sm">${track.artist}</p>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${track.tags.slice(0, 3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.editTrack(${this.musicData.indexOf(track)})">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                            <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.deleteTrack(${this.musicData.indexOf(track)})">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            editTrack(index) {
+                if (index < 0 || index >= this.musicData.length) return;
+                
+                const track = this.musicData[index];
+                this.currentEditIndex = index;
+
+                document.getElementById('editTitle').value = track.title;
+                document.getElementById('editArtist').value = track.artist;
+                document.getElementById('editTags').value = track.tags.join(', ');
+
+                document.getElementById('editModal').classList.remove('hidden');
+                document.getElementById('editModal').classList.add('flex');
+            }
+
+            closeEditModal() {
+                document.getElementById('editModal').classList.add('hidden');
+                document.getElementById('editModal').classList.remove('flex');
+                this.currentEditIndex = -1;
+            }
+
+            handleEditSubmit(e) {
+                e.preventDefault();
+                
+                if (this.currentEditIndex === -1) return;
+
+                const track = this.musicData[this.currentEditIndex];
+                track.title = document.getElementById('editTitle').value.trim();
+                track.artist = document.getElementById('editArtist').value.trim();
+                track.tags = document.getElementById('editTags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+
+                // Update uploaded tracks if this is a user-uploaded track
+                if (track.id) {
+                    const uploadedIndex = this.userData.uploadedTracks.findIndex(t => t.id === track.id);
+                    if (uploadedIndex > -1) {
+                        this.userData.uploadedTracks[uploadedIndex] = track;
+                    }
+                }
+
+                this.saveUserData();
+                this.updateUI();
+                this.closeEditModal();
+
+                alert('Track updated successfully!');
+            }
+
+            deleteTrack(index) {
+                if (index < 0 || index >= this.musicData.length) return;
+                
+                const track = this.musicData[index];
+                
+                if (confirm(`Are you sure you want to delete "${track.title}" by ${track.artist}?`)) {
+                    // Remove from main music data
+                    this.musicData.splice(index, 1);
+                    this.filteredMusic = [...this.musicData];
+
+                    // Remove from uploaded tracks if it's a user-uploaded track
+                    if (track.id) {
+                        this.userData.uploadedTracks = this.userData.uploadedTracks.filter(t => t.id !== track.id);
+                    }
+
+                    this.saveUserData();
+                    this.updateUI();
+
+                    alert('Track deleted successfully!');
+                }
+            }
+
             handleSearch(query) {
                 if (!query.trim()) {
                     this.filteredMusic = [...this.musicData];
@@ -641,6 +1087,11 @@
                 this.renderMusic();
             }
 
+            handleManageSearch(query) {
+                // Similar to handleSearch but for manage page
+                // Implementation depends on your needs
+            }
+
             playTrack(index) {
                 if (index < 0 || index >= this.filteredMusic.length) return;
                 
@@ -649,7 +1100,10 @@
                 
                 this.audio.src = this.currentTrack.file;
                 this.audio.load();
-                this.audio.play();
+                this.audio.play().catch(error => {
+                    console.error('Error playing audio:', error);
+                    alert('Error playing this track. The file may not exist or be corrupted.');
+                });
 
                 this.updateNowPlaying();
                 this.addToRecentlyPlayed(this.currentTrack);
@@ -667,7 +1121,9 @@
                 if (this.isPlaying) {
                     this.audio.pause();
                 } else {
-                    this.audio.play();
+                    this.audio.play().catch(error => {
+                        console.error('Error playing audio:', error);
+                    });
                 }
             }
 
@@ -815,6 +1271,7 @@
 
             updateRecommendations() {
                 const container = document.getElementById('recommendations');
+                if (!container) return;
                 
                 // Calculate tag scores
                 const tagScores = {};
@@ -877,6 +1334,7 @@
 
             updateRecentlyPlayed() {
                 const container = document.getElementById('recentlyPlayed');
+                if (!container) return;
                 
                 if (this.userData.recentlyPlayed.length === 0) {
                     container.innerHTML = `
@@ -917,6 +1375,7 @@
 
             updateLibraryPage() {
                 const container = document.getElementById('libraryContent');
+                if (!container) return;
                 
                 if (this.userData.savedSongs.length === 0) {
                     container.innerHTML = `
@@ -980,13 +1439,24 @@
             }
 
             updateProfileStats() {
-                document.getElementById('savedCount').textContent = this.userData.savedSongs.length;
-                document.getElementById('listenCount').textContent = Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0);
-                document.getElementById('searchCount').textContent = Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0);
+                const elements = {
+                    savedCount: this.userData.savedSongs.length,
+                    listenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
+                    searchCount: Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0),
+                    uploadedCount: this.userData.uploadedTracks.length
+                };
+
+                Object.entries(elements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = value;
+                });
             }
 
             updateUserDataDisplay() {
-                document.getElementById('userDataDisplay').textContent = JSON.stringify(this.userData, null, 2);
+                const element = document.getElementById('userDataDisplay');
+                if (element) {
+                    element.textContent = JSON.stringify(this.userData, null, 2);
+                }
             }
 
             async exportData() {
@@ -1015,6 +1485,32 @@
                 }
             }
 
+            async exportMusicData() {
+                try {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'music.json',
+                        types: [{
+                            description: 'JSON Files',
+                            accept: {'application/json': ['.json']},
+                        }],
+                    });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(this.musicData, null, 2));
+                    await writable.close();
+                    alert('Music database exported successfully!');
+                } catch (e) {
+                    console.error('Export failed:', e);
+                    // Fallback: download as file
+                    const blob = new Blob([JSON.stringify(this.musicData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'music.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }
+
             clearData() {
                 if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
                     this.userData = {
@@ -1022,7 +1518,8 @@
                         listens: {},
                         searches: {},
                         savedSongs: [],
-                        recentlyPlayed: []
+                        recentlyPlayed: [],
+                        uploadedTracks: []
                     };
                     localStorage.removeItem('spotifyUserData');
                     this.updateUI();
@@ -1037,6 +1534,7 @@
                 this.updateRecommendations();
                 this.updateRecentlyPlayed();
                 this.updateLibraryPage();
+                this.updateManagePage();
             }
 
             handlePlay() {
@@ -1052,7 +1550,7 @@
             handleTrackEnd() {
                 if (this.repeat) {
                     this.audio.currentTime = 0;
-                    this.audio.play();
+                    this.audio.play().catch(console.error);
                 } else {
                     this.nextTrack();
                 }
@@ -1084,8 +1582,9 @@
         }
 
         // Initialize the music player when DOM is loaded
+        let spotifyPlayer;
         document.addEventListener('DOMContentLoaded', () => {
-            new SpotifyMusicPlayer();
+            spotifyPlayer = new SpotifyMusicPlayer();
         });
     </script>
 </body>

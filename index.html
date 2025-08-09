@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Music Player - Enhanced Admin</title>
+    <title>Spotify Music Player - Enhanced with Artist Profiles</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --spotify-green: #1db954;
@@ -119,6 +120,15 @@
             font-weight: bold;
         }
         
+        .verified-badge {
+            background: linear-gradient(45deg, #1DA1F2, #0d8bd0);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
         .tag-input {
             background: #333;
             border: 1px solid #555;
@@ -156,6 +166,50 @@
         .upload-area.dragover {
             border-color: var(--spotify-green);
             background: rgba(29, 185, 84, 0.2);
+        }
+        
+        .artist-header {
+            background: linear-gradient(180deg, rgba(29, 185, 84, 0.4) 0%, transparent 100%);
+            padding: 40px 0;
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .pagination-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--spotify-green);
+            transform: translateY(-1px);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: var(--spotify-gray);
+        }
+        
+        .breadcrumb a {
+            color: var(--spotify-green);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         
         @media (max-width: 768px) {
@@ -202,6 +256,12 @@
                         <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="music">
                             <i class="fas fa-music mr-3"></i>
                             Browse Music
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="artists">
+                            <i class="fas fa-user-music mr-3"></i>
+                            Artists
                         </a>
                     </li>
                     <li>
@@ -255,7 +315,7 @@
                     <h2 class="text-3xl font-bold mb-6">Good evening, Admin</h2>
                     
                     <!-- Quick Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                         <div class="bg-gray-800 p-6 rounded-lg">
                             <div class="flex items-center justify-between">
                                 <div>
@@ -263,6 +323,15 @@
                                     <p id="totalTracks" class="text-2xl font-bold">0</p>
                                 </div>
                                 <i class="fas fa-music text-spotify-green text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Artists</p>
+                                    <p id="totalArtists" class="text-2xl font-bold">0</p>
+                                </div>
+                                <i class="fas fa-user-music text-blue-500 text-2xl"></i>
                             </div>
                         </div>
                         <div class="bg-gray-800 p-6 rounded-lg">
@@ -282,6 +351,17 @@
                                 </div>
                                 <i class="fas fa-play text-spotify-green text-2xl"></i>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Artists -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold">Top Artists</h3>
+                            <a href="#" class="text-spotify-green hover:underline text-sm" data-page="artists">Show all</a>
+                        </div>
+                        <div id="topArtists" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                            <!-- Top artists will be populated here -->
                         </div>
                     </div>
                     
@@ -321,6 +401,125 @@
                     
                     <div id="musicGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         <!-- Music items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Artists Page -->
+                <div id="artistsPage" class="page hidden">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold mb-4">Artists</h2>
+                        <div class="relative">
+                            <input type="text" id="artistSearchInput" placeholder="Search artists..." 
+                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="artistsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        <!-- Artists will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Artist Profile Page -->
+                <div id="artistProfilePage" class="page hidden">
+                    <!-- Breadcrumb -->
+                    <div class="breadcrumb mb-4">
+                        <a href="#" data-page="artists">Artists</a> / <span id="artistBreadcrumb">Artist</span>
+                    </div>
+                    
+                    <!-- Artist Header -->
+                    <div class="artist-header mb-8">
+                        <div class="flex items-end space-x-6">
+                            <img id="artistAvatar" src="" alt="" class="w-48 h-48 rounded-full object-cover shadow-2xl">
+                            <div>
+                                <p class="text-sm text-gray-300 mb-2">
+                                    <span class="verified-badge mr-2">
+                                        <i class="fas fa-check mr-1"></i>VERIFIED ARTIST
+                                    </span>
+                                </p>
+                                <h1 id="artistName" class="text-6xl font-bold mb-4">Artist Name</h1>
+                                <p id="artistStats" class="text-lg text-gray-300">0 monthly listeners</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Artist Controls -->
+                    <div class="flex items-center space-x-4 mb-8">
+                        <button id="playArtistBtn" class="bg-spotify-green hover:bg-green-600 text-black px-8 py-3 rounded-full font-semibold flex items-center">
+                            <i class="fas fa-play mr-2"></i>Play
+                        </button>
+                        <button id="followArtistBtn" class="border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold">
+                            Follow
+                        </button>
+                        <button class="text-gray-400 hover:text-white">
+                            <i class="fas fa-ellipsis-h text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Artist Statistics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="lg:col-span-2">
+                            <h3 class="text-xl font-semibold mb-4">Popular</h3>
+                            <div id="artistTracks" class="space-y-2">
+                                <!-- Artist tracks will be populated here -->
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div id="artistPagination" class="flex items-center justify-center space-x-4 mt-8">
+                                <button id="prevPageBtn" class="pagination-btn bg-gray-700 text-white px-4 py-2 rounded">
+                                    <i class="fas fa-chevron-left mr-2"></i>Previous
+                                </button>
+                                <span id="pageInfo" class="text-gray-400">Page 1 of 1</span>
+                                <button id="nextPageBtn" class="pagination-btn bg-gray-700 text-white px-4 py-2 rounded">
+                                    Next<i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Streaming Stats -->
+                            <div class="stats-card p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4">Streaming Statistics</h4>
+                                <div class="chart-container mb-4">
+                                    <canvas id="artistChart"></canvas>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Total Streams</span>
+                                        <span id="totalStreams" class="font-semibold">0</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Avg. per Track</span>
+                                        <span id="avgStreams" class="font-semibold">0</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Most Popular</span>
+                                        <span id="mostPopular" class="font-semibold">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Artist Info -->
+                            <div class="stats-card p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4">About</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <span class="text-gray-400 block">Total Tracks</span>
+                                        <span id="artistTrackCount" class="font-semibold">0</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block">Genres</span>
+                                        <div id="artistGenres" class="flex flex-wrap gap-1 mt-1">
+                                            <!-- Genres will be populated here -->
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400 block">Latest Release</span>
+                                        <span id="latestRelease" class="font-semibold">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -390,7 +589,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2">Artist Name</label>
-                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter artist name">
+                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter artist name (use comma for multiple artists)">
                             </div>
                         </div>
 
@@ -523,7 +722,8 @@
 {
   "likes": {},
   "listens": {},
-  "searches": {}
+  "searches": {},
+  "artistStreams": {}
 }
                                 </pre>
                             </div>
@@ -625,6 +825,7 @@
             constructor() {
                 this.musicData = [];
                 this.filteredMusic = [];
+                this.artists = new Map();
                 this.currentTrack = null;
                 this.currentIndex = 0;
                 this.isPlaying = false;
@@ -633,7 +834,9 @@
                     listens: {},
                     searches: {},
                     savedSongs: [],
-                    recentlyPlayed: []
+                    recentlyPlayed: [],
+                    artistStreams: {},
+                    followedArtists: []
                 };
                 this.shuffle = false;
                 this.repeat = false;
@@ -641,6 +844,10 @@
                 this.selectedTags = [];
                 this.currentEditIndex = -1;
                 this.filteredManageData = [];
+                this.currentArtist = null;
+                this.currentArtistPage = 1;
+                this.tracksPerPage = 10;
+                this.artistChart = null;
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
@@ -658,7 +865,7 @@
                 const saved = localStorage.getItem('spotifyUserData');
                 if (saved) {
                     try {
-                        this.userData = JSON.parse(saved);
+                        this.userData = { ...this.userData, ...JSON.parse(saved) };
                     } catch (e) {
                         console.error('Error loading user data:', e);
                     }
@@ -680,9 +887,12 @@
                     this.musicData = await response.json();
                     this.filteredMusic = [...this.musicData];
                     this.filteredManageData = [...this.musicData];
+                    this.buildArtistsMap();
                     this.renderMusic();
+                    this.renderArtists();
                     this.updateRecommendations();
                     this.updateManagePage();
+                    this.updateTopArtists();
                 } catch (error) {
                     console.error('Error loading music data:', error);
                     this.musicData = [];
@@ -702,11 +912,47 @@
                 }
             }
 
+            buildArtistsMap() {
+                this.artists.clear();
+                
+                this.musicData.forEach(track => {
+                    const artistNames = track.artist.split(',').map(name => name.trim());
+                    
+                    artistNames.forEach(artistName => {
+                        if (!this.artists.has(artistName)) {
+                            this.artists.set(artistName, {
+                                name: artistName,
+                                tracks: [],
+                                totalStreams: 0,
+                                genres: new Set(),
+                                cover: track.cover,
+                                latestRelease: null
+                            });
+                        }
+                        
+                        const artist = this.artists.get(artistName);
+                        artist.tracks.push(track);
+                        artist.totalStreams += this.userData.artistStreams[`${artistName}_${track.title}`] || 0;
+                        track.tags.forEach(tag => artist.genres.add(tag));
+                        
+                        if (!artist.latestRelease) {
+                            artist.latestRelease = track;
+                        }
+                    });
+                });
+
+                // Sort tracks by streams for each artist
+                this.artists.forEach(artist => {
+                    artist.tracks.sort((a, b) => {
+                        const aStreams = this.userData.artistStreams[`${artist.name}_${a.title}`] || 0;
+                        const bStreams = this.userData.artistStreams[`${artist.name}_${b.title}`] || 0;
+                        return bStreams - aStreams;
+                    });
+                });
+            }
+
             async saveMusicDatabase() {
                 try {
-                    // In a real application, this would save to the server
-                    // For now, we'll use the File System Access API or fallback to download
-                    
                     const musicJson = JSON.stringify(this.musicData, null, 2);
                     
                     if ('showSaveFilePicker' in window) {
@@ -722,7 +968,6 @@
                         await writable.close();
                         alert('Music database saved successfully to music.json!');
                     } else {
-                        // Fallback: download as file
                         const blob = new Blob([musicJson], { type: 'application/json' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -751,6 +996,12 @@
                     });
                 });
 
+                // Breadcrumb navigation
+                document.querySelector('.breadcrumb a[data-page="artists"]').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showPage('artists');
+                });
+
                 // Mobile menu
                 document.getElementById('mobileMenuBtn').addEventListener('click', () => {
                     document.getElementById('sidebar').classList.toggle('open');
@@ -767,6 +1018,15 @@
                 // Search
                 document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
                 document.getElementById('manageSearchInput').addEventListener('input', (e) => this.handleManageSearch(e.target.value));
+                document.getElementById('artistSearchInput').addEventListener('input', (e) => this.handleArtistSearch(e.target.value));
+
+                // Artist profile controls
+                document.getElementById('playArtistBtn').addEventListener('click', () => this.playArtistTracks());
+                document.getElementById('followArtistBtn').addEventListener('click', () => this.toggleFollowArtist());
+
+                // Artist pagination
+                document.getElementById('prevPageBtn').addEventListener('click', () => this.changePage(-1));
+                document.getElementById('nextPageBtn').addEventListener('click', () => this.changePage(1));
 
                 // Browse music button
                 document.getElementById('browseMusic').addEventListener('click', () => this.showPage('music'));
@@ -857,7 +1117,6 @@
                     document.getElementById('musicFileName').textContent = file.name;
                     document.getElementById('musicFileInfo').classList.remove('hidden');
                     
-                    // Auto-fill track title from filename
                     const title = file.name.replace('.mp3', '').replace(/[-_]/g, ' ');
                     document.getElementById('trackTitle').value = title;
                 }
@@ -869,7 +1128,6 @@
                     document.getElementById('coverFileName').textContent = file.name;
                     document.getElementById('coverFileInfo').classList.remove('hidden');
                     
-                    // Show preview
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         document.getElementById('coverPreview').src = e.target.result;
@@ -928,7 +1186,6 @@
                     return;
                 }
 
-                // Create the new track in the correct format for service/music.json
                 const timestamp = Date.now();
                 const musicPath = `music/${timestamp}_${musicFile.name}`;
                 const coverPath = `cover/${timestamp}_${coverFile.name}`;
@@ -941,16 +1198,13 @@
                     tags: [...this.selectedTags]
                 };
 
-                // Add to music database
                 this.musicData.push(newTrack);
                 this.filteredMusic = [...this.musicData];
                 this.filteredManageData = [...this.musicData];
+                this.buildArtistsMap();
 
-                // Save user data (for preferences)
                 this.saveUserData();
                 this.updateUI();
-
-                // Reset upload form
                 this.resetUploadForm();
 
                 alert('Track uploaded successfully! Don\'t forget to click "Save Database" to persist changes to music.json');
@@ -976,7 +1230,378 @@
                     this.updateLibraryPage();
                 } else if (pageId === 'manage') {
                     this.updateManagePage();
+                } else if (pageId === 'artists') {
+                    this.renderArtists();
                 }
+            }
+
+            showArtistProfile(artistName) {
+                this.currentArtist = this.artists.get(artistName);
+                this.currentArtistPage = 1;
+                
+                if (!this.currentArtist) return;
+                
+                this.showPage('artistProfile');
+                this.renderArtistProfile();
+                this.renderArtistTracks();
+                this.renderArtistChart();
+            }
+
+            renderArtistProfile() {
+                if (!this.currentArtist) return;
+
+                document.getElementById('artistBreadcrumb').textContent = this.currentArtist.name;
+                document.getElementById('artistName').textContent = this.currentArtist.name;
+                document.getElementById('artistAvatar').src = this.currentArtist.cover;
+                document.getElementById('artistStats').textContent = `${this.currentArtist.totalStreams} total streams`;
+                document.getElementById('artistTrackCount').textContent = this.currentArtist.tracks.length;
+                
+                // Update genres
+                const genresContainer = document.getElementById('artistGenres');
+                genresContainer.innerHTML = Array.from(this.currentArtist.genres).slice(0, 5).map(genre => 
+                    `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${genre}</span>`
+                ).join('');
+
+                // Update latest release
+                document.getElementById('latestRelease').textContent = this.currentArtist.latestRelease ? 
+                    this.currentArtist.latestRelease.title : '-';
+
+                // Update follow button
+                const isFollowing = this.userData.followedArtists.includes(this.currentArtist.name);
+                const followBtn = document.getElementById('followArtistBtn');
+                followBtn.textContent = isFollowing ? 'Following' : 'Follow';
+                followBtn.className = isFollowing ? 
+                    'border border-spotify-green text-spotify-green px-6 py-3 rounded-full font-semibold' :
+                    'border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold';
+
+                // Update statistics
+                const totalStreams = this.currentArtist.tracks.reduce((sum, track) => 
+                    sum + (this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0), 0);
+                const avgStreams = this.currentArtist.tracks.length > 0 ? 
+                    Math.round(totalStreams / this.currentArtist.tracks.length) : 0;
+                const mostPopular = this.currentArtist.tracks.length > 0 ? this.currentArtist.tracks[0].title : '-';
+
+                document.getElementById('totalStreams').textContent = totalStreams;
+                document.getElementById('avgStreams').textContent = avgStreams;
+                document.getElementById('mostPopular').textContent = mostPopular;
+            }
+
+            renderArtistTracks() {
+                if (!this.currentArtist) return;
+
+                const startIndex = (this.currentArtistPage - 1) * this.tracksPerPage;
+                const endIndex = startIndex + this.tracksPerPage;
+                const tracks = this.currentArtist.tracks.slice(startIndex, endIndex);
+                
+                const container = document.getElementById('artistTracks');
+                container.innerHTML = tracks.map((track, index) => {
+                    const globalIndex = this.musicData.findIndex(t => t === track);
+                    const streams = this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0;
+                    const actualIndex = startIndex + index + 1;
+                    
+                    return `
+                        <div class="flex items-center space-x-4 p-3 rounded hover:bg-gray-800 cursor-pointer group" data-track-index="${globalIndex}">
+                            <span class="text-gray-400 text-sm w-6">${actualIndex}</span>
+                            <div class="flex-1 flex items-center space-x-3">
+                                <img src="${track.cover}" alt="${track.title}" class="w-10 h-10 rounded">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-medium truncate">${track.title}</h4>
+                                    <p class="text-sm text-gray-400 truncate">${track.artist}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-400">${streams} streams</span>
+                                <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-green-500' : ''}" data-action="like" data-index="${globalIndex}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="opacity-0 group-hover:opacity-100 text-white hover:text-spotify-green" data-action="play" data-index="${globalIndex}">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add event listeners
+                container.querySelectorAll('[data-action="play"]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.index);
+                        this.filteredMusic = [...this.musicData];
+                        this.playTrack(index);
+                    });
+                });
+
+                container.querySelectorAll('[data-action="like"]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.dataset.index);
+                        const track = this.musicData[index];
+                        this.toggleLikeTrack(track, index);
+                    });
+                });
+
+                // Update pagination
+                this.updateArtistPagination();
+            }
+
+            updateArtistPagination() {
+                if (!this.currentArtist) return;
+
+                const totalPages = Math.ceil(this.currentArtist.tracks.length / this.tracksPerPage);
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                const pageInfo = document.getElementById('pageInfo');
+
+                pageInfo.textContent = `Page ${this.currentArtistPage} of ${totalPages}`;
+                
+                prevBtn.disabled = this.currentArtistPage === 1;
+                nextBtn.disabled = this.currentArtistPage === totalPages;
+
+                if (totalPages <= 1) {
+                    document.getElementById('artistPagination').style.display = 'none';
+                } else {
+                    document.getElementById('artistPagination').style.display = 'flex';
+                }
+            }
+
+            changePage(direction) {
+                if (!this.currentArtist) return;
+
+                const totalPages = Math.ceil(this.currentArtist.tracks.length / this.tracksPerPage);
+                const newPage = this.currentArtistPage + direction;
+
+                if (newPage >= 1 && newPage <= totalPages) {
+                    this.currentArtistPage = newPage;
+                    this.renderArtistTracks();
+                }
+            }
+
+            renderArtistChart() {
+                if (!this.currentArtist) return;
+
+                const ctx = document.getElementById('artistChart').getContext('2d');
+                
+                if (this.artistChart) {
+                    this.artistChart.destroy();
+                }
+
+                const trackNames = this.currentArtist.tracks.slice(0, 5).map(track => 
+                    track.title.length > 15 ? track.title.substring(0, 15) + '...' : track.title
+                );
+                const streamData = this.currentArtist.tracks.slice(0, 5).map(track => 
+                    this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0
+                );
+
+                this.artistChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: trackNames,
+                        datasets: [{
+                            label: 'Streams',
+                            data: streamData,
+                            backgroundColor: '#1DB954',
+                            borderColor: '#1DB954',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#b3b3b3'
+                                },
+                                grid: {
+                                    color: '#333'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#b3b3b3'
+                                },
+                                grid: {
+                                    color: '#333'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            playArtistTracks() {
+                if (!this.currentArtist || this.currentArtist.tracks.length === 0) return;
+                
+                this.filteredMusic = [...this.currentArtist.tracks];
+                this.playTrack(0);
+            }
+
+            toggleFollowArtist() {
+                if (!this.currentArtist) return;
+
+                const isFollowing = this.userData.followedArtists.includes(this.currentArtist.name);
+                
+                if (isFollowing) {
+                    this.userData.followedArtists = this.userData.followedArtists.filter(name => 
+                        name !== this.currentArtist.name
+                    );
+                } else {
+                    this.userData.followedArtists.push(this.currentArtist.name);
+                }
+
+                this.saveUserData();
+                this.renderArtistProfile();
+            }
+
+            renderArtists() {
+                const container = document.getElementById('artistsGrid');
+                const sortedArtists = Array.from(this.artists.values()).sort((a, b) => b.totalStreams - a.totalStreams);
+
+                if (sortedArtists.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-400 py-16 col-span-full">
+                            <i class="fas fa-user-music text-6xl mb-6"></i>
+                            <h3 class="text-xl font-semibold mb-2">No artists found</h3>
+                            <p class="mb-4">Upload some music to see artists</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = sortedArtists.map(artist => `
+                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
+                        <div class="relative mb-4">
+                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto shadow-lg">
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
+                                <i class="fas fa-play text-black"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold truncate mb-1">${artist.name}</h3>
+                        <p class="text-gray-400 text-sm">${artist.tracks.length} ${artist.tracks.length === 1 ? 'track' : 'tracks'}</p>
+                        <p class="text-gray-500 text-xs">${artist.totalStreams} streams</p>
+                    </div>
+                `).join('');
+
+                // Add click listeners
+                container.querySelectorAll('.music-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const artistName = card.dataset.artist;
+                        this.showArtistProfile(artistName);
+                    });
+
+                    const playBtn = card.querySelector('button');
+                    playBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const artistName = card.dataset.artist;
+                        const artist = this.artists.get(artistName);
+                        if (artist && artist.tracks.length > 0) {
+                            this.filteredMusic = [...artist.tracks];
+                            this.playTrack(0);
+                        }
+                    });
+                });
+            }
+
+            updateTopArtists() {
+                const container = document.getElementById('topArtists');
+                const sortedArtists = Array.from(this.artists.values())
+                    .sort((a, b) => b.totalStreams - a.totalStreams)
+                    .slice(0, 5);
+
+                if (sortedArtists.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-400 py-8 col-span-full">
+                            <i class="fas fa-user-music text-4xl mb-4"></i>
+                            <p>No artist data available</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = sortedArtists.map(artist => `
+                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
+                        <div class="relative mb-4">
+                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto">
+                            <button class="absolute bottom-2 right-2 w-10 h-10 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                <i class="fas fa-play text-black text-xs"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold truncate text-sm mb-1">${artist.name}</h3>
+                        <p class="text-gray-400 text-xs">Artist</p>
+                    </div>
+                `).join('');
+
+                // Add click listeners
+                container.querySelectorAll('.music-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const artistName = card.dataset.artist;
+                        this.showArtistProfile(artistName);
+                    });
+                });
+            }
+
+            handleArtistSearch(query) {
+                const container = document.getElementById('artistsGrid');
+                let filteredArtists = Array.from(this.artists.values());
+
+                if (query.trim()) {
+                    const searchTerm = query.toLowerCase();
+                    filteredArtists = filteredArtists.filter(artist => 
+                        artist.name.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                filteredArtists.sort((a, b) => b.totalStreams - a.totalStreams);
+
+                if (filteredArtists.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-400 py-16 col-span-full">
+                            <i class="fas fa-search text-6xl mb-6"></i>
+                            <h3 class="text-xl font-semibold mb-2">No artists found</h3>
+                            <p>Try searching with different keywords</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = filteredArtists.map(artist => `
+                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
+                        <div class="relative mb-4">
+                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto shadow-lg">
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
+                                <i class="fas fa-play text-black"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold truncate mb-1">${artist.name}</h3>
+                        <p class="text-gray-400 text-sm">${artist.tracks.length} ${artist.tracks.length === 1 ? 'track' : 'tracks'}</p>
+                    </div>
+                `).join('');
+
+                // Add click listeners
+                container.querySelectorAll('.music-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const artistName = card.dataset.artist;
+                        this.showArtistProfile(artistName);
+                    });
+
+                    const playBtn = card.querySelector('button');
+                    playBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const artistName = card.dataset.artist;
+                        const artist = this.artists.get(artistName);
+                        if (artist && artist.tracks.length > 0) {
+                            this.filteredMusic = [...artist.tracks];
+                            this.playTrack(0);
+                        }
+                    });
+                });
             }
 
             renderMusic() {
@@ -1015,7 +1640,6 @@
                         </div>
                     `;
 
-                    // Add event listeners
                     const playBtn = card.querySelector('[data-action="play"]');
                     const likeBtn = card.querySelector('[data-action="like"]');
 
@@ -1120,6 +1744,7 @@
 
                 this.filteredMusic = [...this.musicData];
                 this.filteredManageData = [...this.musicData];
+                this.buildArtistsMap();
                 
                 this.updateUI();
                 this.closeEditModal();
@@ -1133,10 +1758,10 @@
                 const track = this.musicData[index];
                 
                 if (confirm(`Are you sure you want to delete "${track.title}" by ${track.artist}?`)) {
-                    // Remove from main music data
                     this.musicData.splice(index, 1);
                     this.filteredMusic = [...this.musicData];
                     this.filteredManageData = [...this.musicData];
+                    this.buildArtistsMap();
 
                     this.updateUI();
                     alert('Track deleted successfully! Don\'t forget to save the database.');
@@ -1154,7 +1779,6 @@
                         track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
                     );
 
-                    // Update search data
                     this.filteredMusic.forEach(track => {
                         track.tags.forEach(tag => {
                             if (!this.userData.searches[tag]) this.userData.searches[tag] = 0;
@@ -1198,6 +1822,28 @@
                 this.updateNowPlaying();
                 this.addToRecentlyPlayed(this.currentTrack);
                 this.updateListenData(this.currentTrack);
+                this.updateArtistStreams(this.currentTrack);
+            }
+
+            updateArtistStreams(track) {
+                const artistNames = track.artist.split(',').map(name => name.trim());
+                
+                artistNames.forEach(artistName => {
+                    const key = `${artistName}_${track.title}`;
+                    if (!this.userData.artistStreams[key]) {
+                        this.userData.artistStreams[key] = 0;
+                    }
+                    this.userData.artistStreams[key]++;
+                });
+
+                this.saveUserData();
+                this.buildArtistsMap();
+                this.updateTopArtists();
+                
+                if (this.currentArtist) {
+                    this.renderArtistProfile();
+                    this.renderArtistChart();
+                }
             }
 
             togglePlay() {
@@ -1264,12 +1910,10 @@
                 const isSaved = this.isTrackSaved(track);
                 
                 if (isSaved) {
-                    // Remove from saved
                     this.userData.savedSongs = this.userData.savedSongs.filter(saved => 
                         saved.title !== track.title || saved.artist !== track.artist
                     );
                     
-                    // Reduce like points
                     track.tags.forEach(tag => {
                         if (this.userData.likes[tag]) {
                             this.userData.likes[tag] -= 0.5;
@@ -1279,13 +1923,11 @@
                         }
                     });
                 } else {
-                    // Add to saved
                     this.userData.savedSongs.push({
                         ...track,
                         savedAt: new Date().toISOString()
                     });
                     
-                    // Add like points
                     track.tags.forEach(tag => {
                         if (!this.userData.likes[tag]) this.userData.likes[tag] = 0;
                         this.userData.likes[tag] += 0.5;
@@ -1297,6 +1939,10 @@
                 this.renderMusic();
                 this.updateLibraryPage();
                 this.updateRecommendations();
+                
+                if (this.currentArtist) {
+                    this.renderArtistTracks();
+                }
             }
 
             isTrackSaved(track) {
@@ -1331,18 +1977,15 @@
             }
 
             addToRecentlyPlayed(track) {
-                // Remove if already exists
                 this.userData.recentlyPlayed = this.userData.recentlyPlayed.filter(recent => 
                     recent.title !== track.title || recent.artist !== track.artist
                 );
                 
-                // Add to beginning
                 this.userData.recentlyPlayed.unshift({
                     ...track,
                     playedAt: new Date().toISOString()
                 });
                 
-                // Keep only last 20
                 if (this.userData.recentlyPlayed.length > 20) {
                     this.userData.recentlyPlayed = this.userData.recentlyPlayed.slice(0, 20);
                 }
@@ -1363,7 +2006,6 @@
                 const container = document.getElementById('recommendations');
                 if (!container) return;
                 
-                // Calculate tag scores
                 const tagScores = {};
                 Object.entries(this.userData.likes).forEach(([tag, score]) => {
                     tagScores[tag] = (tagScores[tag] || 0) + score * 1.0;
@@ -1375,7 +2017,6 @@
                     tagScores[tag] = (tagScores[tag] || 0) + score * 0.2;
                 });
 
-                // Score and sort music
                 const scoredMusic = this.musicData.map(track => {
                     let score = 0;
                     track.tags.forEach(tag => {
@@ -1409,7 +2050,6 @@
                     </div>
                 `).join('');
 
-                // Add click listeners to recommendation cards
                 container.querySelectorAll('.music-card').forEach((card, index) => {
                     card.addEventListener('click', () => {
                         const track = scoredMusic[index];
@@ -1450,7 +2090,6 @@
                     </div>
                 `).join('');
 
-                // Add click listeners
                 container.querySelectorAll('.music-card').forEach((card, index) => {
                     card.addEventListener('click', () => {
                         const track = recent[index];
@@ -1506,7 +2145,6 @@
                     </div>
                 `;
 
-                // Add event listeners
                 container.querySelectorAll('[data-library-play]').forEach((btn, index) => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -1536,7 +2174,8 @@
                     homeListenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
                     searchCount: Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0),
                     databaseCount: this.musicData.length,
-                    totalTracks: this.musicData.length
+                    totalTracks: this.musicData.length,
+                    totalArtists: this.artists.size
                 };
 
                 Object.entries(elements).forEach(([id, value]) => {
@@ -1548,7 +2187,12 @@
             updateUserDataDisplay() {
                 const element = document.getElementById('userDataDisplay');
                 if (element) {
-                    element.textContent = JSON.stringify(this.userData, null, 2);
+                    element.textContent = JSON.stringify({
+                        likes: this.userData.likes,
+                        listens: this.userData.listens,
+                        searches: this.userData.searches,
+                        artistStreams: this.userData.artistStreams
+                    }, null, 2);
                 }
             }
 
@@ -1569,7 +2213,6 @@
                         await writable.close();
                         alert('User data exported successfully!');
                     } else {
-                        // Fallback: download as file
                         const blob = new Blob([userData], { type: 'application/json' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -1601,7 +2244,6 @@
                         await writable.close();
                         alert('Music database exported successfully!');
                     } else {
-                        // Fallback: download as file
                         const blob = new Blob([musicData], { type: 'application/json' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -1623,7 +2265,9 @@
                         listens: {},
                         searches: {},
                         savedSongs: [],
-                        recentlyPlayed: []
+                        recentlyPlayed: [],
+                        artistStreams: {},
+                        followedArtists: []
                     };
                     localStorage.removeItem('spotifyUserData');
                     this.updateUI();
@@ -1635,11 +2279,13 @@
 
             updateUI() {
                 this.renderMusic();
+                this.renderArtists();
                 this.updateRecommendations();
                 this.updateRecentlyPlayed();
                 this.updateLibraryPage();
                 this.updateManagePage();
                 this.updateProfileStats();
+                this.updateTopArtists();
             }
 
             handlePlay() {
@@ -1686,7 +2332,6 @@
             }
         }
 
-        // Initialize the music player when DOM is loaded
         let spotifyPlayer;
         document.addEventListener('DOMContentLoaded', () => {
             spotifyPlayer = new EnhancedSpotifyMusicPlayer();

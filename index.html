@@ -1,587 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Player</title>
-    <style>
-        :root {
-  --bg: #121212;
-  --surface: #181818;
-  --accent: #1DB954;
-  --muted: #666;
-  --text: #fff;
-  --radius: 10px;
-  --transition: 0.3s ease;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-/* Base styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.5;
-}
-
-main, header, .player-bar, .card, .recommendations {
-  transition: background-color var(--transition), box-shadow var(--transition);
-}
-
-/* Header */
-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  background-color: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-header .title {
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-header input[type="search"] {
-  margin-left: auto;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: none;
-  padding: 8px 14px;
-  border-radius: 999px;
-  color: var(--text);
-  width: 250px;
-  transition: width var(--transition);
-}
-header input[type="search"]:focus {
-  width: 320px;
-}
-
-/* Player controls */
-.player-bar {
-  display: flex;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: var(--shadow);
-}
-
-.player-bar .controls {
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  padding: 8px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border-radius: var(--radius);
-  transition: background-color var(--transition), transform var(--transition);
-}
-.btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-}
-.btn.toggle.active {
-  color: var(--accent);
-  background-color: rgba(29, 185, 84, 0.15);
-}
-
-/* Now playing text */
-.now-playing {
-  margin-left: 20px;
-  font-size: 1rem;
-  opacity: 0.8;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Grid layout */
-main {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 20px;
-}
-
-/* Cards */
-.list .card {
-  background-color: var(--surface);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-.list .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
-}
-
-/* Cover */
-.cover {
-  width: 100%;
-  padding-bottom: 100%;
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius);
-}
-.cover img {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius);
-  transition: transform var(--transition);
-}
-.card:hover .cover img {
-  transform: scale(1.05);
-}
-
-/* Meta */
-.meta {
-  margin-top: 10px;
-}
-.meta .title {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-.meta .artist {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-/* Card actions */
-.card-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-}
-.card-actions .icon-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 6px;
-  color: var(--muted);
-  border-radius: var(--radius);
-  transition: color var(--transition), background-color var(--transition);
-}
-.card-actions .icon-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text);
-}
-
-/* Like button state */
-.icon-btn.like.active {
-  color: var(--accent);
-}
-
-/* Status line below cards */
-.status-line {
-  font-size: 0.85rem;
-  color: var(--accent);
-  margin-top: 8px;
-  min-height: 1.2em;
-  opacity: 0;
-  transition: opacity var(--transition);
-}
-.status-line.active {
-  opacity: 1;
-}
-
-/* Recommendations sidebar */
-.recommendations {
-  background-color: var(--surface);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
-.recommendations h3 {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-}
-.rec-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.rec-item {
-  display: flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius);
-  padding: 8px;
-  transition: background-color var(--transition), transform var(--transition);
-}
-.rec-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
-}
-.rec-item img {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  object-fit: cover;
-  margin-right: 10px;
-}
-.rec-meta {
-  flex-grow: 1;
-}
-.rec-meta div:first-child {
-  font-weight: 600;
-}
-.rec-meta .muted {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* Footer/help card */
-aside .card:last-child {
-  margin-top: 20px;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* Animations */
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.pulse {
-  animation: pulse 0.5s ease-out;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Music Player with Recommendation</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 10px;
   }
-  header input[type="search"] {
-    width: 160px;
-  }
-  .player-bar {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .now-playing {
-    flex-basis: 100%;
-    margin: 10px 0 0 0;
+  h1 {
     text-align: center;
-    font-size: 0.95rem;
   }
-}
-
-    </style>
+  #player {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  #controls {
+    display: flex;
+    justify-content: space-between;
+  }
+  button {
+    flex: 1;
+    margin: 0 2px;
+    padding: 8px;
+    font-size: 14px;
+  }
+  #likeBtn.liked {
+    background: #4caf50;
+    color: white;
+  }
+  #searchBar {
+    width: 100%;
+    padding: 6px;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  #musicList {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+  }
+  .music-item {
+    padding: 6px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+  }
+  .music-item:hover {
+    background-color: #efefef;
+  }
+  #recommendations {
+    margin-top: 20px;
+  }
+  #adminPanel {
+    margin-top: 30px;
+    border-top: 2px solid #333;
+    padding-top: 10px;
+  }
+  #adminPanel h2 {
+    margin-top: 0;
+  }
+  pre {
+    background: #f9f9f9;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  @media (max-width: 480px) {
+    button {
+      font-size: 12px;
+      padding: 6px;
+    }
+  }
+</style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">
-            <img src="logo.png" alt="Logo">
-            <h1>MySpotify</h1>
-        </div>
-        <nav class="nav-links">
-            <a href="#" class="active">Home</a>
-            <a href="#">Search</a>
-            <a href="#">Your Library</a>
-        </nav>
-        <div class="playlists">
-            <h2>Playlists</h2>
-            <ul>
-                <li>Liked Songs</li>
-                <li>Top Hits</li>
-                <li>Chill Vibes</li>
-                <li>Workout</li>
-            </ul>
-        </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="main-header">
-            <input type="text" id="search" placeholder="Search for songs, artists...">
-        </header>
+<h1>Music Player</h1>
 
-        <!-- Song Grid -->
-        <section class="song-grid">
-            <!-- Song cards will be dynamically inserted here -->
-        </section>
-    </main>
+<input type="text" id="searchBar" placeholder="Search by title or artist (e.g. Title or Artist or Title - Artist)" />
 
-    <!-- Player Controls -->
-    <footer class="player">
-        <div class="track-info">
-            <img id="track-cover" src="cover/default.jpg" alt="Cover">
-            <div>
-                <h4 id="track-title">No Song Playing</h4>
-                <p id="track-artist"></p>
-            </div>
-        </div>
-        <div class="controls">
-            <button id="prev">&#9664;</button>
-            <button id="play">&#9654;</button>
-            <button id="next">&#9654;&#9654;</button>
-            <div class="progress-container">
-                <span id="current-time">0:00</span>
-                <input type="range" id="progress" value="0" min="0" max="100">
-                <span id="duration">0:00</span>
-            </div>
-        </div>
-        <div class="volume-control">
-            <input type="range" id="volume" min="0" max="1" step="0.01">
-        </div>
-    </footer>
+<div id="player">
+  <audio id="audio" controls></audio>
+  <div id="nowPlaying"></div>
+  <div id="controls">
+    <button id="backBtn">Back</button>
+    <button id="playBtn">Play</button>
+    <button id="stopBtn">Stop</button>
+    <button id="nextBtn">Next</button>
+    <button id="replayBtn">Replay</button>
+    <button id="likeBtn">Like</button>
+  </div>
+</div>
 
-    <script>
-        let songs = [];
-let currentSongIndex = 0;
-let audio = new Audio();
-let isPlaying = false;
-let isShuffle = false;
-let isRepeat = false;
-let likedSongs = JSON.parse(localStorage.getItem('likedSongs')) || [];
-let preferences = JSON.parse(localStorage.getItem('musicPreferences')) || { tags: {} };
+<h3>Music List</h3>
+<div id="musicList"></div>
 
-// DOM elements
-const songGrid = document.querySelector('.song-grid');
-const playBtn = document.getElementById('play');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-const shuffleBtn = document.getElementById('shuffle');
-const repeatBtn = document.getElementById('repeat');
-const progress = document.getElementById('progress');
-const currentTimeEl = document.getElementById('current-time');
-const durationEl = document.getElementById('duration');
-const volumeSlider = document.getElementById('volume');
-const searchInput = document.getElementById('search');
-const trackTitle = document.getElementById('track-title');
-const trackArtist = document.getElementById('track-artist');
-const trackCover = document.getElementById('track-cover');
-const likeBtn = document.getElementById('like-btn');
+<div id="recommendations">
+  <h3>Recommended Music</h3>
+  <div id="recommendList"></div>
+</div>
 
-// Toast for notifications
-function showToast(message) {
-    let toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerText = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
-}
+<div id="adminPanel">
+  <h2>Admin Panel - User Data (Admin)</h2>
+  <button id="saveFileBtn">Save Data to server/info.json</button>
+  <pre id="userDataDisplay"></pre>
+</div>
 
-// Fetch music.json
-fetch('service/music.json')
-    .then(res => res.json())
-    .then(data => {
-        songs = data;
-        renderSongs(songs);
+<script>
+(() => {
+  const audio = document.getElementById('audio');
+  const nowPlaying = document.getElementById('nowPlaying');
+  const playBtn = document.getElementById('playBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const backBtn = document.getElementById('backBtn');
+  const replayBtn = document.getElementById('replayBtn');
+  const likeBtn = document.getElementById('likeBtn');
+  const musicListDiv = document.getElementById('musicList');
+  const recommendListDiv = document.getElementById('recommendList');
+  const searchBar = document.getElementById('searchBar');
+  const userDataDisplay = document.getElementById('userDataDisplay');
+  const saveFileBtn = document.getElementById('saveFileBtn');
+
+  let musicData = [];
+  let filteredMusic = [];
+  let currentIndex = 0;
+
+  // User data stored with tags and points
+  // Structure:
+  // userData = {
+  //   likes: {tag1: points, tag2: points, ...},
+  //   listens: {tag1: points, ...},
+  //   searches: {tag1: points, ...}
+  // }
+  let userData = {
+    likes: {},
+    listens: {},
+    searches: {},
+  };
+
+  // Load userData from localStorage if exists
+  function loadUserData() {
+    const saved = localStorage.getItem('musicUserData');
+    if (saved) {
+      try {
+        userData = JSON.parse(saved);
+      } catch {
+        userData = {likes:{}, listens:{}, searches:{}};
+      }
+    }
+  }
+  loadUserData();
+
+  // Save userData to localStorage
+  function saveUserDataLocal() {
+    localStorage.setItem('musicUserData', JSON.stringify(userData));
+    updateAdminDisplay();
+  }
+
+  // Update admin panel display
+  function updateAdminDisplay() {
+    userDataDisplay.textContent = JSON.stringify(userData, null, 2);
+  }
+
+  // Save to file using File System Access API
+  async function saveUserDataToFile() {
+    try {
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'info.json',
+        types: [{
+          description: 'JSON Files',
+          accept: {'application/json': ['.json']},
+        }],
+      });
+      const writable = await fileHandle.createWritable();
+      await writable.write(JSON.stringify(userData, null, 2));
+      await writable.close();
+      alert('User data saved to info.json');
+    } catch (e) {
+      alert('Saving cancelled or failed: ' + e.message);
+    }
+  }
+
+  saveFileBtn.onclick = saveUserDataToFile;
+
+  // Fetch music data from service/music.json
+  async function fetchMusicData() {
+    try {
+      const resp = await fetch('service/music.json');
+      if (!resp.ok) throw new Error('Failed to load music data');
+      musicData = await resp.json();
+      filteredMusic = musicData;
+      renderMusicList();
+      loadTrack(0);
+      renderRecommendations();
+    } catch (e) {
+      alert('Error loading music data: ' + e.message);
+    }
+  }
+
+  // Render music list filtered
+  function renderMusicList() {
+    musicListDiv.innerHTML = '';
+    filteredMusic.forEach((m, i) => {
+      const div = document.createElement('div');
+      div.className = 'music-item';
+      div.textContent = `${m.title} - ${m.artist}`;
+      div.onclick = () => {
+        loadTrack(i);
+        playAudio();
+      };
+      musicListDiv.appendChild(div);
     });
+  }
 
-// Render songs
-function renderSongs(songList) {
-    songGrid.innerHTML = '';
-    songList.forEach((song, index) => {
-        const card = document.createElement('div');
-        card.classList.add('song-card');
-        card.innerHTML = `
-            <img src="${song.cover}" alt="${song.title}">
-            <h4>${song.title}</h4>
-            <p>${song.artist}</p>
-        `;
-        card.addEventListener('click', () => loadSong(index));
-        songGrid.appendChild(card);
-    });
-}
+  // Load track by index in filteredMusic
+  function loadTrack(index) {
+    if (index < 0 || index >= filteredMusic.length) return;
+    currentIndex = index;
+    const track = filteredMusic[index];
+    audio.src = track.url;
+    nowPlaying.textContent = `Now Playing: ${track.title} - ${track.artist}`;
+    updateLikeButton();
+  }
 
-// Load song
-function loadSong(index) {
-    currentSongIndex = index;
-    const song = songs[index];
-    audio.src = song.file;
-    trackTitle.textContent = song.title;
-    trackArtist.textContent = song.artist;
-    trackCover.src = song.cover;
+  // Play audio
+  function playAudio() {
     audio.play();
-    isPlaying = true;
-    playBtn.innerHTML = '&#10074;&#10074;';
-    highlightCurrentSong();
-    showToast(`Now playing: ${song.title}`);
-}
+  }
 
-// Highlight current song in the grid
-function highlightCurrentSong() {
-    document.querySelectorAll('.song-card').forEach((card, idx) => {
-        card.classList.toggle('active', idx === currentSongIndex);
+  // Stop audio
+  function stopAudio() {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  // Replay current track
+  function replayAudio() {
+    audio.currentTime = 0;
+    playAudio();
+  }
+
+  // Next track
+  function nextTrack() {
+    if (currentIndex < filteredMusic.length - 1) {
+      loadTrack(currentIndex + 1);
+      playAudio();
+    }
+  }
+
+  // Back track
+  function backTrack() {
+    if (currentIndex > 0) {
+      loadTrack(currentIndex - 1);
+      playAudio();
+    }
+  }
+
+  // Update Like button style based on like state
+  function updateLikeButton() {
+    const track = filteredMusic[currentIndex];
+    const liked = getUserLikeForTrack(track);
+    if (liked) {
+      likeBtn.classList.add('liked');
+      likeBtn.textContent = 'Liked';
+    } else {
+      likeBtn.classList.remove('liked');
+      likeBtn.textContent = 'Like';
+    }
+  }
+
+  // Get if user liked this track (simple: check if tags got points >0 in likes)
+  function getUserLikeForTrack(track) {
+    if (!track.tags) return false;
+    return track.tags.some(tag => userData.likes[tag] > 0);
+  }
+
+  // Add points helper
+  function addPoints(tagPoints, tag, points) {
+    if (!tagPoints[tag]) tagPoints[tag] = 0;
+    tagPoints[tag] += points;
+  }
+
+  // When user clicks Like button
+  likeBtn.onclick = () => {
+    const track = filteredMusic[currentIndex];
+    if (!track.tags) return;
+    const liked = getUserLikeForTrack(track);
+    if (!liked) {
+      // Add 0.5 to likes for all tags of this track
+      track.tags.forEach(tag => addPoints(userData.likes, tag, 0.5));
+    } else {
+      // Unlike - remove 0.5 points from likes for those tags (not below zero)
+      track.tags.forEach(tag => {
+        if (userData.likes[tag]) {
+          userData.likes[tag] -= 0.5;
+          if (userData.likes[tag] < 0) userData.likes[tag] = 0;
+        }
+      });
+    }
+    saveUserDataLocal();
+    updateLikeButton();
+    renderRecommendations();
+  };
+
+  // When audio starts playing, add 0.2 to listens tags
+  audio.onplay = () => {
+    const track = filteredMusic[currentIndex];
+    if (!track.tags) return;
+    track.tags.forEach(tag => addPoints(userData.listens, tag, 0.2));
+    saveUserDataLocal();
+    renderRecommendations();
+  };
+
+  // Search function
+  searchBar.addEventListener('input', () => {
+    const query = searchBar.value.trim().toLowerCase();
+    if (!query) {
+      filteredMusic = musicData;
+      renderMusicList();
+      renderRecommendations();
+      return;
+    }
+
+    // Parse search for title and artist (optional)
+    // Format: "title - artist" or just one word (search in title or artist)
+    let titlePart = null;
+    let artistPart = null;
+    if (query.includes('-')) {
+      const parts = query.split('-').map(s => s.trim());
+      titlePart = parts[0];
+      artistPart = parts[1];
+    } else {
+      // If only one word, match title or artist
+      titlePart = query;
+      artistPart = null;
+    }
+
+    // Filter music based on rules:
+    // If search by title only => get all tags from matching titles
+    // If search by artist only => get tags from artist music only
+    // If title and artist => get that music only
+
+    filteredMusic = musicData.filter(m => {
+      const t = m.title.toLowerCase();
+      const a = m.artist.toLowerCase();
+      if (titlePart && artistPart) {
+        // Both required
+        return t.includes(titlePart) && a.includes(artistPart);
+      } else if (artistPart) {
+        // artist only search
+        return a.includes(artistPart);
+      } else if (titlePart) {
+        // title only search
+        return t.includes(titlePart);
+      }
+      return false;
     });
-}
 
-// Play/Pause
-playBtn.addEventListener('click', () => {
-    if (isPlaying) {
-        audio.pause();
-        playBtn.innerHTML = '&#9654;';
-        showToast('Paused');
-    } else {
-        audio.play();
-        playBtn.innerHTML = '&#10074;&#10074;';
-        showToast('Playing');
-    }
-    isPlaying = !isPlaying;
-});
+    // Accumulate tags points for searches:
+    // For title only: all tags of matching titles
+    // For artist only: tags of music by that artist
+    // For both: tags of matching music only
+    const searchTagsPoints = {};
 
-// Next
-nextBtn.addEventListener('click', () => {
-    if (isShuffle) {
-        playRandomSong();
-    } else {
-        currentSongIndex = (currentSongIndex + 1) % songs.length;
-    }
-    loadSong(currentSongIndex);
-});
-
-// Previous
-prevBtn.addEventListener('click', () => {
-    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-    loadSong(currentSongIndex);
-});
-
-// Shuffle toggle
-shuffleBtn.addEventListener('click', () => {
-    isShuffle = !isShuffle;
-    shuffleBtn.classList.toggle('active', isShuffle);
-    showToast(isShuffle ? 'Shuffle On' : 'Shuffle Off');
-});
-
-function playRandomSong() {
-    let randomIndex;
-    do {
-        randomIndex = Math.floor(Math.random() * songs.length);
-    } while (randomIndex === currentSongIndex);
-    currentSongIndex = randomIndex;
-}
-
-// Repeat toggle
-repeatBtn.addEventListener('click', () => {
-    isRepeat = !isRepeat;
-    repeatBtn.classList.toggle('active', isRepeat);
-    showToast(isRepeat ? 'Repeat On' : 'Repeat Off');
-});
-
-// Progress bar
-audio.addEventListener('timeupdate', () => {
-    if (audio.duration) {
-        progress.value = (audio.currentTime / audio.duration) * 100;
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-        durationEl.textContent = formatTime(audio.duration);
-    }
-});
-
-// Seek
-progress.addEventListener('input', () => {
-    audio.currentTime = (progress.value / 100) * audio.duration;
-});
-
-// Volume
-volumeSlider.addEventListener('input', () => {
-    audio.volume = volumeSlider.value;
-});
-
-// Auto-next
-audio.addEventListener('ended', () => {
-    if (isRepeat) {
-        audio.currentTime = 0;
-        audio.play();
-    } else {
-        nextBtn.click();
-    }
-});
-
-// Search
-searchInput.addEventListener('input', () => {
-    const term = searchInput.value.toLowerCase();
-    const filtered = songs.filter(song =>
-        song.title.toLowerCase().includes(term) ||
-        song.artist.toLowerCase().includes(term) ||
-        (song.tags && song.tags.some(tag => tag.toLowerCase().includes(term)))
-    );
-    renderSongs(filtered);
-});
-
-// Like button
-likeBtn.addEventListener('click', () => {
-    const song = songs[currentSongIndex];
-    if (!likedSongs.includes(song.title)) {
-        likedSongs.push(song.title);
-        showToast(`Liked: ${song.title}`);
-        updatePreferences(song.tags);
-    } else {
-        likedSongs = likedSongs.filter(s => s !== song.title);
-        showToast(`Unliked: ${song.title}`);
-    }
-    localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
-});
-
-// Update preferences for AI recommendations
-function updatePreferences(tags) {
-    if (!tags) return;
-    tags.forEach(tag => {
-        preferences.tags[tag] = (preferences.tags[tag] || 0) + 1;
+    filteredMusic.forEach(m => {
+      if (m.tags) {
+        m.tags.forEach(tag => {
+          addPoints(searchTagsPoints, tag, 0.1);
+        });
+      }
     });
-    localStorage.setItem('musicPreferences', JSON.stringify(preferences));
-}
 
-// Recommend similar songs
-function getRecommendations() {
-    const sortedTags = Object.entries(preferences.tags).sort((a, b) => b[1] - a[1]);
-    if (!sortedTags.length) return songs;
-    const topTags = sortedTags.slice(0, 3).map(t => t[0]);
-    return songs.filter(song => song.tags && song.tags.some(tag => topTags.includes(tag)));
-}
-
-// Time format
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60) || 0;
-    const secs = Math.floor(seconds % 60) || 0;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
-// Load last played song on page load
-window.addEventListener('load', () => {
-    if (localStorage.getItem('lastSongIndex')) {
-        currentSongIndex = parseInt(localStorage.getItem('lastSongIndex'));
-        loadSong(currentSongIndex);
-        audio.pause();
-        isPlaying = false;
-        playBtn.innerHTML = '&#9654;';
+    // Add to userData.searches
+    for (const [tag, pts] of Object.entries(searchTagsPoints)) {
+      addPoints(userData.searches, tag, pts);
     }
-});
+    saveUserDataLocal();
 
-// Save last song
-audio.addEventListener('play', () => {
-    localStorage.setItem('lastSongIndex', currentSongIndex);
-});
+    renderMusicList();
+    renderRecommendations();
+  });
 
-    </script>
+  // Recommend music based on userData tags points
+  function renderRecommendations() {
+    // Calculate combined score per tag (likes * 1.0 + listens * 0.4 + searches * 0.2)
+    // Adjust weights so likes are strongest
+    const tagScores = {};
+
+    function addTagScores(src, weight) {
+      for (const tag in src) {
+        if (!tagScores[tag]) tagScores[tag] = 0;
+        tagScores[tag] += src[tag] * weight;
+      }
+    }
+    addTagScores(userData.likes, 1.0);
+    addTagScores(userData.listens, 0.4);
+    addTagScores(userData.searches, 0.2);
+
+    // Score each music based on sum of its tags' scores
+    const scoredMusic = musicData.map(m => {
+      let score = 0;
+      if (m.tags) {
+        m.tags.forEach(tag => {
+          score += tagScores[tag] || 0;
+        });
+      }
+      return {...m, score};
+    });
+
+    // Sort descending by score, filter out zero score
+    const recommended = scoredMusic.filter(m => m.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 10); // top 10
+
+    recommendListDiv.innerHTML = '';
+    if (recommended.length === 0) {
+      recommendListDiv.textContent = 'No recommendations yet. Like or listen to music to get recommendations.';
+      return;
+    }
+
+    recommended.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'music-item';
+      div.textContent = `${m.title} - ${m.artist} (Score: ${m.score.toFixed(2)})`;
+      div.onclick = () => {
+        const idx = musicData.findIndex(x => x.title === m.title && x.artist === m.artist);
+        if (idx !== -1) {
+          filteredMusic = musicData;
+          loadTrack(idx);
+          playAudio();
+          renderMusicList();
+          renderRecommendations();
+        }
+      };
+      recommendListDiv.appendChild(div);
+    });
+  }
+
+  // Init player controls
+  playBtn.onclick = () => {
+    playAudio();
+  };
+  stopBtn.onclick = () => {
+    stopAudio();
+  };
+  nextBtn.onclick = () => {
+    nextTrack();
+  };
+  backBtn.onclick = () => {
+    backTrack();
+  };
+  replayBtn.onclick = () => {
+    replayAudio();
+  };
+
+  // When track ends, auto play next
+  audio.onended = () => {
+    nextTrack();
+  };
+
+  // Initial load music data
+  fetchMusicData();
+
+  // Show initial admin data
+  updateAdminDisplay();
+})();
+</script>
+
 </body>
 </html>

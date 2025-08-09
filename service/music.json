@@ -4,125 +4,118 @@
     "title": "Win Win",
     "artist": "Stresi",
     "cover": "cover/Stresi-Win-Win.jpg",
-    "tags": ["rap", "stresi", "hip hop", "albanian", "fast", "street"]
+    "tags": ["hip hop", "rap", "stresi", "albanian", "street", "2022"]
   },
   {
     "file": "music/Stealth-Non-Stop.mp3",
     "title": "Non Stop",
     "artist": "Stealth",
     "cover": "cover/Stealth-Non-Stop.jpg",
-    "tags": ["rap", "hip hop", "albanian", "energetic", "stealth", "fast"]
+    "tags": ["hip hop", "rap", "stealth", "albanian", "energetic", "club"]
   },
   {
     "file": "music/Naldi-Nekrahetemia.mp3",
     "title": "Ne Krahet e Mia",
     "artist": "Naldi",
     "cover": "cover/Naldi-Nekrahetemia.jpg",
-    "tags": ["pop", "naldi", "love", "romantic", "slow", "albanian"]
+    "tags": ["pop", "naldi", "albanian", "romantic", "melodic", "slow"]
   },
   {
     "file": "music/Mossi-Autor.mp3",
     "title": "Autor",
     "artist": "Mossi",
     "cover": "cover/Mossi-Autor.jpg",
-    "tags": ["rap", "Mossi", "hip hop", "street", "intense", "fast"]
+    "tags": ["hip hop", "rap", "mossi", "street", "intense", "modern"]
   },
   {
     "file": "music/Kastro-KUR-JAM.mp3",
     "title": "KUR JAM",
     "artist": "Kastro",
     "cover": "cover/Kastro-KUR-JAM.jpg",
-    "tags": ["rap", "kastro", "hip hop", "albanian", "fast", "energetic"]
+    "tags": ["hip hop", "rap", "kastro", "albanian", "anthem", "energetic"]
   },
   {
     "file": "music/Kastro-Cunat.mp3",
     "title": "CUNAT",
     "artist": "Kastro",
     "cover": "cover/Kastro-Cunat.jpg",
-    "tags": ["rap", "hip hop", "kastro", "childhood", "albanian", "fast"]
+    "tags": ["hip hop", "rap", "kastro", "albanian", "club", "fast"]
   },
   {
     "file": "music/Finem-Anakonda.mp3",
     "title": "Anakonda",
     "artist": "Finem",
     "cover": "cover/Finem-Anakonda.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "finem", "trap", "dark", "energetic"]
   },
   {
     "file": "music/Fero-ARSENAL.mp3",
     "title": "ARSENAL",
     "artist": "Fero",
-    "cover": "cover/Fero-ARSENAL.mp3",
-    "tags": ["", "", "", "", "", ""]
+    "cover": "cover/Fero-ARSENAL.jpg",
+    "tags": ["hip hop", "rap", "fero", "albanian", "modern", "banger"]
   },
   {
     "file": "music/Ever-b-Pare-Si-Arab.mp3",
     "title": "Pare Si ArB",
     "artist": "Ever B",
-    "cover": "cover/Ever-b-Pare-Si-Arab.mp3",
-    "tags": ["", "", "", "", "", ""]
+    "cover": "cover/Ever-b-Pare-Si-Arab.jpg",
+    "tags": ["trap", "hip hop", "ever b", "albanian", "melodic", "modern"]
   },
   {
     "file": "music/Elai-Nokia.mp3",
     "title": "Nokia",
     "artist": "Elai",
     "cover": "cover/Elai-Nokia.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "elai", "melodic", "pop", "catchy"]
   },
   {
     "file": "music/Elai-LALE.mp3",
     "title": "LALE",
     "artist": "Elai",
     "cover": "cover/Elai-LALE.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "elai", "melodic", "romantic", "chart"]
   },
   {
     "file": "music/Don-Xhoni-TESTOM.mp3",
     "title": "TESTOM",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-TESTOM.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "don xhoni", "trap", "dark", "intense"]
   },
   {
     "file": "music/Don-Xhoni-Katile.mp3",
     "title": "Katile",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-Katile.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "don xhoni", "trap", "energetic", "street"]
   },
   {
     "file": "music/Don-Xhoni-Deri-Kur.mp3",
     "title": "Deri Kur",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-Deri-Kur.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "don xhoni", "emotional", "albanian", "melodic"]
   },
   {
     "file": "music/Don-Xhoni-DILEMA.mp3",
     "title": "DILEMA",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-DILEMA.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "don xhoni", "trap", "moody", "modern"]
   },
   {
     "file": "music/Buta-Nelly-Kelly.mp3",
     "title": "Nelly Kelly",
     "artist": "Buta",
     "cover": "cover/Buta-Nelly-Kelly.jpg",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "buta", "melodic", "pop-rap", "modern"]
   },
   {
-    "file": "BM-Welcome-Te-Gazza.mp3",
+    "file": "music/BM-Welcome-Te-Gazza.mp3",
     "title": "Welcome Te Gazza",
     "artist": "BM",
     "cover": "cover/BM-Welcome-Te-Gazza.jpg",
-    "tags": ["", "", "", "", "", ""]
-  },
-  {
-    "file": "",
-    "title": "",
-    "artist": "",
-    "cover": "",
-    "tags": ["", "", "", "", "", ""]
+    "tags": ["hip hop", "rap", "bm", "gritty", "street", "drill"]
   }
 ]

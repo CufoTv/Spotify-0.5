@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Offline Spotify-Style Player</title>
-<style>
-    :root {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <style>
+        :root {
   --bg: #121212;
   --surface: #181818;
   --accent: #1DB954;
@@ -291,71 +292,296 @@ aside .card:last-child {
   }
 }
 
-</style>
+    </style>
 </head>
 <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+            <h1>MySpotify</h1>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="active">Home</a>
+            <a href="#">Search</a>
+            <a href="#">Your Library</a>
+        </nav>
+        <div class="playlists">
+            <h2>Playlists</h2>
+            <ul>
+                <li>Liked Songs</li>
+                <li>Top Hits</li>
+                <li>Chill Vibes</li>
+                <li>Workout</li>
+            </ul>
+        </div>
+    </aside>
 
-<header>
-    <h1>Offline Music Player</h1>
-    <input type="text" id="searchBar" placeholder="Search or ask AI...">
-</header>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="main-header">
+            <input type="text" id="search" placeholder="Search for songs, artists...">
+        </header>
 
-<main>
-    <div class="music-list" id="musicList"></div>
-</main>
+        <!-- Song Grid -->
+        <section class="song-grid">
+            <!-- Song cards will be dynamically inserted here -->
+        </section>
+    </main>
 
-<script>
-    async function loadMusic() {
-        const res = await fetch('service/music.json');
-        const musicData = await res.json();
-        window.allMusic = musicData;
-        displayMusic(musicData);
-    }
+    <!-- Player Controls -->
+    <footer class="player">
+        <div class="track-info">
+            <img id="track-cover" src="cover/default.jpg" alt="Cover">
+            <div>
+                <h4 id="track-title">No Song Playing</h4>
+                <p id="track-artist"></p>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="prev">&#9664;</button>
+            <button id="play">&#9654;</button>
+            <button id="next">&#9654;&#9654;</button>
+            <div class="progress-container">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress" value="0" min="0" max="100">
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="volume-control">
+            <input type="range" id="volume" min="0" max="1" step="0.01">
+        </div>
+    </footer>
 
-    function displayMusic(list) {
-        const container = document.getElementById('musicList');
-        container.innerHTML = '';
-        list.forEach(track => {
-            const div = document.createElement('div');
-            div.classList.add('music-item');
-            div.innerHTML = `
-                <img src="${track.cover}" alt="${track.title}">
-                <h3>${track.title}</h3>
-                <p>${track.artist}</p>
-                <audio controls src="${track.file}"></audio>
-            `;
-            container.appendChild(div);
-        });
-    }
+    <script>
+        let songs = [];
+let currentSongIndex = 0;
+let audio = new Audio();
+let isPlaying = false;
+let isShuffle = false;
+let isRepeat = false;
+let likedSongs = JSON.parse(localStorage.getItem('likedSongs')) || [];
+let preferences = JSON.parse(localStorage.getItem('musicPreferences')) || { tags: {} };
 
-    function smartSearch(query) {
-        query = query.toLowerCase();
-        // If query looks like an AI request
-        if (query.includes('music with') || query.includes('song with') || query.includes('find')) {
-            const keywords = query.replace(/music with|song with|find|songs|music/gi, '').trim().split(/\s+/);
-            return window.allMusic.filter(track =>
-                track.tags.some(tag => keywords.includes(tag.toLowerCase()))
-            );
-        }
-        // Normal search
-        return window.allMusic.filter(track =>
-            track.title.toLowerCase().includes(query) ||
-            track.artist.toLowerCase().includes(query) ||
-            track.tags.some(tag => tag.toLowerCase().includes(query))
-        );
-    }
+// DOM elements
+const songGrid = document.querySelector('.song-grid');
+const playBtn = document.getElementById('play');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const shuffleBtn = document.getElementById('shuffle');
+const repeatBtn = document.getElementById('repeat');
+const progress = document.getElementById('progress');
+const currentTimeEl = document.getElementById('current-time');
+const durationEl = document.getElementById('duration');
+const volumeSlider = document.getElementById('volume');
+const searchInput = document.getElementById('search');
+const trackTitle = document.getElementById('track-title');
+const trackArtist = document.getElementById('track-artist');
+const trackCover = document.getElementById('track-cover');
+const likeBtn = document.getElementById('like-btn');
 
-    document.getElementById('searchBar').addEventListener('input', e => {
-        const query = e.target.value.trim();
-        if (query === '') {
-            displayMusic(window.allMusic);
-        } else {
-            displayMusic(smartSearch(query));
-        }
+// Toast for notifications
+function showToast(message) {
+    let toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+
+// Fetch music.json
+fetch('service/music.json')
+    .then(res => res.json())
+    .then(data => {
+        songs = data;
+        renderSongs(songs);
     });
 
-    loadMusic();
-</script>
+// Render songs
+function renderSongs(songList) {
+    songGrid.innerHTML = '';
+    songList.forEach((song, index) => {
+        const card = document.createElement('div');
+        card.classList.add('song-card');
+        card.innerHTML = `
+            <img src="${song.cover}" alt="${song.title}">
+            <h4>${song.title}</h4>
+            <p>${song.artist}</p>
+        `;
+        card.addEventListener('click', () => loadSong(index));
+        songGrid.appendChild(card);
+    });
+}
 
+// Load song
+function loadSong(index) {
+    currentSongIndex = index;
+    const song = songs[index];
+    audio.src = song.file;
+    trackTitle.textContent = song.title;
+    trackArtist.textContent = song.artist;
+    trackCover.src = song.cover;
+    audio.play();
+    isPlaying = true;
+    playBtn.innerHTML = '&#10074;&#10074;';
+    highlightCurrentSong();
+    showToast(`Now playing: ${song.title}`);
+}
+
+// Highlight current song in the grid
+function highlightCurrentSong() {
+    document.querySelectorAll('.song-card').forEach((card, idx) => {
+        card.classList.toggle('active', idx === currentSongIndex);
+    });
+}
+
+// Play/Pause
+playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+        audio.pause();
+        playBtn.innerHTML = '&#9654;';
+        showToast('Paused');
+    } else {
+        audio.play();
+        playBtn.innerHTML = '&#10074;&#10074;';
+        showToast('Playing');
+    }
+    isPlaying = !isPlaying;
+});
+
+// Next
+nextBtn.addEventListener('click', () => {
+    if (isShuffle) {
+        playRandomSong();
+    } else {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+    }
+    loadSong(currentSongIndex);
+});
+
+// Previous
+prevBtn.addEventListener('click', () => {
+    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    loadSong(currentSongIndex);
+});
+
+// Shuffle toggle
+shuffleBtn.addEventListener('click', () => {
+    isShuffle = !isShuffle;
+    shuffleBtn.classList.toggle('active', isShuffle);
+    showToast(isShuffle ? 'Shuffle On' : 'Shuffle Off');
+});
+
+function playRandomSong() {
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * songs.length);
+    } while (randomIndex === currentSongIndex);
+    currentSongIndex = randomIndex;
+}
+
+// Repeat toggle
+repeatBtn.addEventListener('click', () => {
+    isRepeat = !isRepeat;
+    repeatBtn.classList.toggle('active', isRepeat);
+    showToast(isRepeat ? 'Repeat On' : 'Repeat Off');
+});
+
+// Progress bar
+audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+        progress.value = (audio.currentTime / audio.duration) * 100;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        durationEl.textContent = formatTime(audio.duration);
+    }
+});
+
+// Seek
+progress.addEventListener('input', () => {
+    audio.currentTime = (progress.value / 100) * audio.duration;
+});
+
+// Volume
+volumeSlider.addEventListener('input', () => {
+    audio.volume = volumeSlider.value;
+});
+
+// Auto-next
+audio.addEventListener('ended', () => {
+    if (isRepeat) {
+        audio.currentTime = 0;
+        audio.play();
+    } else {
+        nextBtn.click();
+    }
+});
+
+// Search
+searchInput.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase();
+    const filtered = songs.filter(song =>
+        song.title.toLowerCase().includes(term) ||
+        song.artist.toLowerCase().includes(term) ||
+        (song.tags && song.tags.some(tag => tag.toLowerCase().includes(term)))
+    );
+    renderSongs(filtered);
+});
+
+// Like button
+likeBtn.addEventListener('click', () => {
+    const song = songs[currentSongIndex];
+    if (!likedSongs.includes(song.title)) {
+        likedSongs.push(song.title);
+        showToast(`Liked: ${song.title}`);
+        updatePreferences(song.tags);
+    } else {
+        likedSongs = likedSongs.filter(s => s !== song.title);
+        showToast(`Unliked: ${song.title}`);
+    }
+    localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
+});
+
+// Update preferences for AI recommendations
+function updatePreferences(tags) {
+    if (!tags) return;
+    tags.forEach(tag => {
+        preferences.tags[tag] = (preferences.tags[tag] || 0) + 1;
+    });
+    localStorage.setItem('musicPreferences', JSON.stringify(preferences));
+}
+
+// Recommend similar songs
+function getRecommendations() {
+    const sortedTags = Object.entries(preferences.tags).sort((a, b) => b[1] - a[1]);
+    if (!sortedTags.length) return songs;
+    const topTags = sortedTags.slice(0, 3).map(t => t[0]);
+    return songs.filter(song => song.tags && song.tags.some(tag => topTags.includes(tag)));
+}
+
+// Time format
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60) || 0;
+    const secs = Math.floor(seconds % 60) || 0;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// Load last played song on page load
+window.addEventListener('load', () => {
+    if (localStorage.getItem('lastSongIndex')) {
+        currentSongIndex = parseInt(localStorage.getItem('lastSongIndex'));
+        loadSong(currentSongIndex);
+        audio.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '&#9654;';
+    }
+});
+
+// Save last song
+audio.addEventListener('play', () => {
+    localStorage.setItem('lastSongIndex', currentSongIndex);
+});
+
+    </script>
 </body>
 </html>

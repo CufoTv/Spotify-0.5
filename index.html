@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Music Player - Admin</title>
+    <title>Spotify Music Player - Enhanced Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
@@ -214,20 +214,20 @@
 
                 <hr class="my-6 border-gray-600">
 
-                <!-- Private Section -->
+                <!-- Admin Section -->
                 <div class="mb-4">
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Private</h3>
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Admin</h3>
                     <ul class="space-y-2">
                         <li>
                             <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="upload">
                                 <i class="fas fa-upload mr-3"></i>
-                                Upload
+                                Upload Music
                             </a>
                         </li>
                         <li>
                             <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="manage">
                                 <i class="fas fa-cog mr-3"></i>
-                                Manage Music
+                                Manage All Music
                             </a>
                         </li>
                     </ul>
@@ -252,7 +252,38 @@
             <main class="flex-1 p-6 overflow-y-auto">
                 <!-- Home Page -->
                 <div id="homePage" class="page">
-                    <h2 class="text-3xl font-bold mb-6">Good evening</h2>
+                    <h2 class="text-3xl font-bold mb-6">Good evening, Admin</h2>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Tracks</p>
+                                    <p id="totalTracks" class="text-2xl font-bold">0</p>
+                                </div>
+                                <i class="fas fa-music text-spotify-green text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Saved Songs</p>
+                                    <p id="homeSavedCount" class="text-2xl font-bold">0</p>
+                                </div>
+                                <i class="fas fa-heart text-red-500 text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Listens</p>
+                                    <p id="homeListenCount" class="text-2xl font-bold">0</p>
+                                </div>
+                                <i class="fas fa-play text-spotify-green text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Recommendations Section -->
                     <div class="mb-8">
@@ -392,20 +423,29 @@
 
                         <button id="uploadTrack" class="w-full bg-spotify-green hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-upload mr-2"></i>
-                            Upload Track
+                            Upload & Save to Database
                         </button>
                     </div>
                 </div>
 
                 <!-- Manage Music Page -->
                 <div id="managePage" class="page hidden">
-                    <h2 class="text-3xl font-bold mb-6">Manage Music</h2>
-                    
                     <div class="mb-6">
-                        <div class="relative">
-                            <input type="text" id="manageSearchInput" placeholder="Search tracks to edit..." 
-                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <h2 class="text-3xl font-bold mb-4">Manage All Music</h2>
+                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                            <div class="relative">
+                                <input type="text" id="manageSearchInput" placeholder="Search tracks to edit..." 
+                                       class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="saveDatabaseBtn" class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                                    <i class="fas fa-save mr-2"></i>Save Database
+                                </button>
+                                <button id="refreshDatabaseBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
+                                    <i class="fas fa-sync mr-2"></i>Refresh
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -453,8 +493,8 @@
                                     <span id="searchCount" class="font-semibold">0</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span>Uploaded Tracks</span>
-                                    <span id="uploadedCount" class="font-semibold">0</span>
+                                    <span>Database Tracks</span>
+                                    <span id="databaseCount" class="font-semibold">0</span>
                                 </div>
                             </div>
                         </div>
@@ -463,17 +503,17 @@
                         <div class="bg-gray-800 p-6 rounded-lg">
                             <h4 class="text-lg font-semibold mb-4">Data Management</h4>
                             <div class="space-y-4">
-                                <button id="exportData" class="w-full bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                                <button id="exportUserData" class="w-full bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-download mr-2"></i>
-                                    Export Data to server/info.json
+                                    Export User Data
                                 </button>
-                                <button id="exportMusic" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
+                                <button id="exportMusicDatabase" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-database mr-2"></i>
                                     Export Music Database
                                 </button>
-                                <button id="clearData" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">
+                                <button id="clearUserData" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-trash mr-2"></i>
-                                    Clear All Data
+                                    Clear User Data
                                 </button>
                             </div>
                             
@@ -574,14 +614,14 @@
                 </div>
                 <div class="flex gap-4 mt-6">
                     <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" class="flex-1 bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Save</button>
+                    <button type="submit" class="flex-1 bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        class SpotifyMusicPlayer {
+        class EnhancedSpotifyMusicPlayer {
             constructor() {
                 this.musicData = [];
                 this.filteredMusic = [];
@@ -593,14 +633,14 @@
                     listens: {},
                     searches: {},
                     savedSongs: [],
-                    recentlyPlayed: [],
-                    uploadedTracks: []
+                    recentlyPlayed: []
                 };
                 this.shuffle = false;
                 this.repeat = false;
                 this.volume = 0.5;
                 this.selectedTags = [];
                 this.currentEditIndex = -1;
+                this.filteredManageData = [];
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
@@ -619,9 +659,6 @@
                 if (saved) {
                     try {
                         this.userData = JSON.parse(saved);
-                        if (!this.userData.uploadedTracks) {
-                            this.userData.uploadedTracks = [];
-                        }
                     } catch (e) {
                         console.error('Error loading user data:', e);
                     }
@@ -641,22 +678,17 @@
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     this.musicData = await response.json();
-                    
-                    // Add uploaded tracks from local storage
-                    if (this.userData.uploadedTracks) {
-                        this.musicData = [...this.musicData, ...this.userData.uploadedTracks];
-                    }
-                    
                     this.filteredMusic = [...this.musicData];
+                    this.filteredManageData = [...this.musicData];
                     this.renderMusic();
                     this.updateRecommendations();
+                    this.updateManagePage();
                 } catch (error) {
                     console.error('Error loading music data:', error);
-                    // Fallback to empty array or default data
                     this.musicData = [];
                     this.filteredMusic = [];
+                    this.filteredManageData = [];
                     
-                    // Show error message to user
                     const musicGrid = document.getElementById('musicGrid');
                     if (musicGrid) {
                         musicGrid.innerHTML = `
@@ -667,6 +699,42 @@
                             </div>
                         `;
                     }
+                }
+            }
+
+            async saveMusicDatabase() {
+                try {
+                    // In a real application, this would save to the server
+                    // For now, we'll use the File System Access API or fallback to download
+                    
+                    const musicJson = JSON.stringify(this.musicData, null, 2);
+                    
+                    if ('showSaveFilePicker' in window) {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: 'music.json',
+                            types: [{
+                                description: 'JSON Files',
+                                accept: {'application/json': ['.json']},
+                            }],
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(musicJson);
+                        await writable.close();
+                        alert('Music database saved successfully to music.json!');
+                    } else {
+                        // Fallback: download as file
+                        const blob = new Blob([musicJson], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'music.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        alert('Music database downloaded as music.json!');
+                    }
+                } catch (e) {
+                    console.error('Save failed:', e);
+                    alert('Failed to save music database. Please try again.');
                 }
             }
 
@@ -704,9 +772,13 @@
                 document.getElementById('browseMusic').addEventListener('click', () => this.showPage('music'));
 
                 // Profile actions
-                document.getElementById('exportData').addEventListener('click', () => this.exportData());
-                document.getElementById('exportMusic').addEventListener('click', () => this.exportMusicData());
-                document.getElementById('clearData').addEventListener('click', () => this.clearData());
+                document.getElementById('exportUserData').addEventListener('click', () => this.exportUserData());
+                document.getElementById('exportMusicDatabase').addEventListener('click', () => this.exportMusicDatabase());
+                document.getElementById('clearUserData').addEventListener('click', () => this.clearUserData());
+
+                // Manage page actions
+                document.getElementById('saveDatabaseBtn').addEventListener('click', () => this.saveMusicDatabase());
+                document.getElementById('refreshDatabaseBtn').addEventListener('click', () => this.loadMusicData());
 
                 // Upload functionality
                 this.setupUploadListeners();
@@ -856,33 +928,32 @@
                     return;
                 }
 
-                // Simulate file upload (in a real app, you'd upload to a server)
-                const trackId = Date.now().toString();
-                const musicPath = `music/${trackId}_${musicFile.name}`;
-                const coverPath = `cover/${trackId}_${coverFile.name}`;
+                // Create the new track in the correct format for service/music.json
+                const timestamp = Date.now();
+                const musicPath = `music/${timestamp}_${musicFile.name}`;
+                const coverPath = `cover/${timestamp}_${coverFile.name}`;
 
                 const newTrack = {
                     file: musicPath,
                     title: title,
                     artist: artist,
                     cover: coverPath,
-                    tags: [...this.selectedTags],
-                    uploadedAt: new Date().toISOString(),
-                    id: trackId
+                    tags: [...this.selectedTags]
                 };
 
-                // Add to uploaded tracks
-                this.userData.uploadedTracks.push(newTrack);
+                // Add to music database
                 this.musicData.push(newTrack);
                 this.filteredMusic = [...this.musicData];
+                this.filteredManageData = [...this.musicData];
 
+                // Save user data (for preferences)
                 this.saveUserData();
                 this.updateUI();
 
                 // Reset upload form
                 this.resetUploadForm();
 
-                alert('Track uploaded successfully! (Note: This is a demo - files are not actually uploaded)');
+                alert('Track uploaded successfully! Don\'t forget to click "Save Database" to persist changes to music.json');
             }
 
             resetUploadForm() {
@@ -913,6 +984,16 @@
                 if (!grid) return;
 
                 grid.innerHTML = '';
+
+                if (this.filteredMusic.length === 0) {
+                    grid.innerHTML = `
+                        <div class="text-center text-gray-400 py-8 col-span-full">
+                            <i class="fas fa-music text-4xl mb-4"></i>
+                            <p>No music found</p>
+                        </div>
+                    `;
+                    return;
+                }
 
                 this.filteredMusic.forEach((track, index) => {
                     const card = document.createElement('div');
@@ -956,13 +1037,11 @@
                 const container = document.getElementById('manageGrid');
                 if (!container) return;
 
-                const tracks = this.musicData.filter(track => track.id || this.userData.uploadedTracks.includes(track));
-
-                if (tracks.length === 0) {
+                if (this.filteredManageData.length === 0) {
                     container.innerHTML = `
                         <div class="text-center text-gray-400 py-16">
                             <i class="fas fa-music text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">No tracks to manage</h3>
+                            <h3 class="text-xl font-semibold mb-2">No tracks found</h3>
                             <p class="mb-4">Upload some music to get started</p>
                             <button onclick="spotifyPlayer.showPage('upload')" class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold">
                                 Upload Music
@@ -972,28 +1051,41 @@
                     return;
                 }
 
-                container.innerHTML = tracks.map((track, index) => `
-                    <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded object-cover">
-                            <div>
-                                <h3 class="font-semibold">${track.title}</h3>
-                                <p class="text-gray-400 text-sm">${track.artist}</p>
-                                <div class="flex flex-wrap gap-1 mt-1">
-                                    ${track.tags.slice(0, 3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}
+                container.innerHTML = this.filteredManageData.map((track, originalIndex) => {
+                    const actualIndex = this.musicData.findIndex(t => t === track);
+                    return `
+                        <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded object-cover">
+                                <div>
+                                    <h3 class="font-semibold">${track.title}</h3>
+                                    <p class="text-gray-400 text-sm">${track.artist}</p>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${track.tags.slice(0, 3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}
+                                    </div>
                                 </div>
                             </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="bg-spotify-green hover:bg-green-600 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.playTrackFromManage(${actualIndex})">
+                                    <i class="fas fa-play mr-1"></i>Play
+                                </button>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.editTrack(${actualIndex})">
+                                    <i class="fas fa-edit mr-1"></i>Edit
+                                </button>
+                                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.deleteTrack(${actualIndex})">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.editTrack(${this.musicData.indexOf(track)})">
-                                <i class="fas fa-edit mr-1"></i>Edit
-                            </button>
-                            <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.deleteTrack(${this.musicData.indexOf(track)})">
-                                <i class="fas fa-trash mr-1"></i>Delete
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+            }
+
+            playTrackFromManage(index) {
+                if (index >= 0 && index < this.musicData.length) {
+                    this.filteredMusic = [...this.musicData];
+                    this.playTrack(index);
+                }
             }
 
             editTrack(index) {
@@ -1026,19 +1118,13 @@
                 track.artist = document.getElementById('editArtist').value.trim();
                 track.tags = document.getElementById('editTags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
 
-                // Update uploaded tracks if this is a user-uploaded track
-                if (track.id) {
-                    const uploadedIndex = this.userData.uploadedTracks.findIndex(t => t.id === track.id);
-                    if (uploadedIndex > -1) {
-                        this.userData.uploadedTracks[uploadedIndex] = track;
-                    }
-                }
-
-                this.saveUserData();
+                this.filteredMusic = [...this.musicData];
+                this.filteredManageData = [...this.musicData];
+                
                 this.updateUI();
                 this.closeEditModal();
 
-                alert('Track updated successfully!');
+                alert('Track updated successfully! Don\'t forget to save the database.');
             }
 
             deleteTrack(index) {
@@ -1050,16 +1136,10 @@
                     // Remove from main music data
                     this.musicData.splice(index, 1);
                     this.filteredMusic = [...this.musicData];
+                    this.filteredManageData = [...this.musicData];
 
-                    // Remove from uploaded tracks if it's a user-uploaded track
-                    if (track.id) {
-                        this.userData.uploadedTracks = this.userData.uploadedTracks.filter(t => t.id !== track.id);
-                    }
-
-                    this.saveUserData();
                     this.updateUI();
-
-                    alert('Track deleted successfully!');
+                    alert('Track deleted successfully! Don\'t forget to save the database.');
                 }
             }
 
@@ -1088,8 +1168,18 @@
             }
 
             handleManageSearch(query) {
-                // Similar to handleSearch but for manage page
-                // Implementation depends on your needs
+                if (!query.trim()) {
+                    this.filteredManageData = [...this.musicData];
+                } else {
+                    const searchTerm = query.toLowerCase();
+                    this.filteredManageData = this.musicData.filter(track => 
+                        track.title.toLowerCase().includes(searchTerm) ||
+                        track.artist.toLowerCase().includes(searchTerm) ||
+                        track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                    );
+                }
+
+                this.updateManagePage();
             }
 
             playTrack(index) {
@@ -1441,9 +1531,12 @@
             updateProfileStats() {
                 const elements = {
                     savedCount: this.userData.savedSongs.length,
+                    homeSavedCount: this.userData.savedSongs.length,
                     listenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
+                    homeListenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
                     searchCount: Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0),
-                    uploadedCount: this.userData.uploadedTracks.length
+                    databaseCount: this.musicData.length,
+                    totalTracks: this.musicData.length
                 };
 
                 Object.entries(elements).forEach(([id, value]) => {
@@ -1459,73 +1552,84 @@
                 }
             }
 
-            async exportData() {
+            async exportUserData() {
                 try {
-                    const fileHandle = await window.showSaveFilePicker({
-                        suggestedName: 'info.json',
-                        types: [{
-                            description: 'JSON Files',
-                            accept: {'application/json': ['.json']},
-                        }],
-                    });
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(JSON.stringify(this.userData, null, 2));
-                    await writable.close();
-                    alert('Data exported successfully!');
+                    const userData = JSON.stringify(this.userData, null, 2);
+                    
+                    if ('showSaveFilePicker' in window) {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: 'user_data.json',
+                            types: [{
+                                description: 'JSON Files',
+                                accept: {'application/json': ['.json']},
+                            }],
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(userData);
+                        await writable.close();
+                        alert('User data exported successfully!');
+                    } else {
+                        // Fallback: download as file
+                        const blob = new Blob([userData], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'user_data.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        alert('User data downloaded successfully!');
+                    }
                 } catch (e) {
                     console.error('Export failed:', e);
-                    // Fallback: download as file
-                    const blob = new Blob([JSON.stringify(this.userData, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'info.json';
-                    a.click();
-                    URL.revokeObjectURL(url);
                 }
             }
 
-            async exportMusicData() {
+            async exportMusicDatabase() {
                 try {
-                    const fileHandle = await window.showSaveFilePicker({
-                        suggestedName: 'music.json',
-                        types: [{
-                            description: 'JSON Files',
-                            accept: {'application/json': ['.json']},
-                        }],
-                    });
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(JSON.stringify(this.musicData, null, 2));
-                    await writable.close();
-                    alert('Music database exported successfully!');
+                    const musicData = JSON.stringify(this.musicData, null, 2);
+                    
+                    if ('showSaveFilePicker' in window) {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: 'music_database.json',
+                            types: [{
+                                description: 'JSON Files',
+                                accept: {'application/json': ['.json']},
+                            }],
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(musicData);
+                        await writable.close();
+                        alert('Music database exported successfully!');
+                    } else {
+                        // Fallback: download as file
+                        const blob = new Blob([musicData], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'music_database.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        alert('Music database downloaded successfully!');
+                    }
                 } catch (e) {
                     console.error('Export failed:', e);
-                    // Fallback: download as file
-                    const blob = new Blob([JSON.stringify(this.musicData, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'music.json';
-                    a.click();
-                    URL.revokeObjectURL(url);
                 }
             }
 
-            clearData() {
-                if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+            clearUserData() {
+                if (confirm('Are you sure you want to clear all user data? This cannot be undone.')) {
                     this.userData = {
                         likes: {},
                         listens: {},
                         searches: {},
                         savedSongs: [],
-                        recentlyPlayed: [],
-                        uploadedTracks: []
+                        recentlyPlayed: []
                     };
                     localStorage.removeItem('spotifyUserData');
                     this.updateUI();
                     this.updateProfileStats();
                     this.updateUserDataDisplay();
-                    alert('All data cleared successfully!');
+                    alert('All user data cleared successfully!');
                 }
             }
 
@@ -1535,6 +1639,7 @@
                 this.updateRecentlyPlayed();
                 this.updateLibraryPage();
                 this.updateManagePage();
+                this.updateProfileStats();
             }
 
             handlePlay() {
@@ -1584,7 +1689,7 @@
         // Initialize the music player when DOM is loaded
         let spotifyPlayer;
         document.addEventListener('DOMContentLoaded', () => {
-            spotifyPlayer = new SpotifyMusicPlayer();
+            spotifyPlayer = new EnhancedSpotifyMusicPlayer();
         });
     </script>
 </body>

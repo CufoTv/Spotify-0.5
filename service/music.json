@@ -4,111 +4,198 @@
     "title": "Win Win",
     "artist": "Stresi",
     "cover": "cover/Stresi-Win-Win.jpg",
-    "tags": ["hip hop", "rap", "stresi", "albanian", "street", "2022"]
+    "tags": ["hip hop","rap","stresi","albanian","street","2022"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 199000
   },
   {
     "file": "music/Stealth-Non-Stop.mp3",
     "title": "Non Stop",
     "artist": "Stealth",
     "cover": "cover/Stealth-Non-Stop.jpg",
-    "tags": ["hip hop", "rap", "stealth", "albanian", "energetic", "club"]
+    "tags": ["hip hop","rap","stealth","albanian","energetic","club"],
+    "variant": "Album",
+    "albumName": "Energy Flow",
+    "monthlyListeners": 290728
   },
   {
     "file": "music/Naldi-Nekrahetemia.mp3",
     "title": "Ne Krahet e Mia",
     "artist": "Naldi",
     "cover": "cover/Naldi-Nekrahetemia.jpg",
-    "tags": ["pop", "naldi", "albanian", "romantic", "melodic", "slow"]
+    "tags": ["pop","naldi","albanian","romantic","melodic","slow"],
+    "variant": "EP",
+    "albumName": "Emotional Waves",
+    "monthlyListeners": 60567
   },
   {
     "file": "music/Mossi-Autor.mp3",
     "title": "Autor",
     "artist": "Mossi",
     "cover": "cover/Mossi-Autor.jpg",
-    "tags": ["hip hop", "rap", "mossi", "street", "intense", "modern"]
+    "tags": ["hip hop","rap","mossi","street","intense","modern"],
+    "variant": "Album",
+    "albumName": "Street Chronicles",
+    "monthlyListeners": 226235
   },
   {
     "file": "music/Kastro-KUR-JAM.mp3",
     "title": "KUR JAM",
     "artist": "Kastro",
     "cover": "cover/Kastro-KUR-JAM.jpg",
-    "tags": ["hip hop", "rap", "kastro", "albanian", "anthem", "energetic"]
+    "tags": ["hip hop","rap","kastro","albanian","anthem","energetic"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 2549
   },
   {
     "file": "music/Finem-Anakonda.mp3",
     "title": "Anakonda",
     "artist": "Finem",
     "cover": "cover/Finem-Anakonda.jpg",
-    "tags": ["hip hop", "rap", "finem", "trap", "dark", "energetic"]
+    "tags": ["hip hop","rap","finem","trap","dark","energetic"],
+    "variant": "EP",
+    "albumName": "Dark Vibes",
+    "monthlyListeners": 515140
   },
   {
     "file": "music/Fero-ARSENAL.mp3",
     "title": "ARSENAL",
     "artist": "Fero",
     "cover": "cover/Fero-ARSENAL.jpg",
-    "tags": ["hip hop", "rap", "fero", "albanian", "modern", "banger"]
+    "tags": ["hip hop","rap","fero","albanian","modern","banger"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 144292
   },
   {
     "file": "music/Ever-b-Pare-Si-Arab.mp3",
     "title": "Pare Si ArB",
     "artist": "Ever B",
     "cover": "cover/Ever-b-Pare-Si-Arab.jpg",
-    "tags": ["trap", "hip hop", "ever b", "albanian", "melodic", "modern"]
+    "tags": ["trap","hip hop","ever b","albanian","melodic","modern"],
+    "variant": "Album",
+    "albumName": "Melodic Trap",
+    "monthlyListeners": 32400
   },
   {
     "file": "music/Elai-Nokia.mp3",
     "title": "Nokia",
     "artist": "Elai",
     "cover": "cover/Elai-Nokia.jpg",
-    "tags": ["hip hop", "rap", "elai", "melodic", "pop", "catchy"]
+    "tags": ["hip hop","rap","elai","melodic","pop","catchy"],
+    "variant": "EP",
+    "albumName": "Digital Dreams",
+    "monthlyListeners": 524332
   },
   {
     "file": "music/Elai-LALE.mp3",
     "title": "LALE",
     "artist": "Elai",
     "cover": "cover/Elai-LALE.jpg",
-    "tags": ["hip hop", "rap", "elai", "melodic", "romantic", "chart"]
+    "tags": ["hip hop","rap","elai","melodic","romantic","chart"],
+    "variant": "EP",
+    "albumName": "Digital Dreams",
+    "monthlyListeners": 524332
   },
   {
     "file": "music/Don-Xhoni-TESTOM.mp3",
     "title": "TESTOM",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-TESTOM.jpg",
-    "tags": ["hip hop", "rap", "don xhoni", "trap", "dark", "intense"]
+    "tags": ["hip hop","rap","don xhoni","trap","dark","intense"],
+    "variant": "Album",
+    "albumName": "Dark Mind",
+    "monthlyListeners": 857660
   },
   {
     "file": "music/Don-Xhoni-Katile.mp3",
     "title": "Katile",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-Katile.jpg",
-    "tags": ["hip hop", "rap", "don xhoni", "trap", "energetic", "street"]
+    "tags": ["hip hop","rap","don xhoni","trap","energetic","street"],
+    "variant": "Album",
+    "albumName": "Dark Mind",
+    "monthlyListeners": 857660
   },
   {
     "file": "music/Don-Xhoni-Deri-Kur.mp3",
     "title": "Deri Kur",
     "artist": "Don Xhoni",
     "cover": "cover/Don-Xhoni-Deri-Kur.jpg",
-    "tags": ["hip hop", "rap", "don xhoni", "emotional", "albanian", "melodic"]
+    "tags": ["hip hop","rap","don xhoni","emotional","albanian","melodic"],
+    "variant": "Album",
+    "albumName": "Dark Mind",
+    "monthlyListeners": 857660
   },
   {
     "file": "music/Don-Xhoni-DILEMA.mp3",
     "title": "DILEMA",
     "artist": "Don Xhoni",
-    "cover": "cover/Don-Xhoni-DILEMA.jpg",
-    "tags": ["hip hop", "rap", "don xhoni", "trap", "moody", "modern"]
+    "copy": "hip hop","rap","don xhoni","trap","moody","modern"],
+    "variant": "Album",
+    "albumName": "Dark Mind",
+    "monthlyListeners": 857660
   },
   {
     "file": "music/Buta-Nelly-Kelly.mp3",
     "title": "Nelly Kelly",
     "artist": "Buta",
     "cover": "cover/Buta-Nelly-Kelly.jpg",
-    "tags": ["hip hop", "rap", "buta", "melodic", "pop-rap", "modern"]
+    "tags": ["hip hop","rap","buta","melodic","pop-rap","modern"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 204278
   },
   {
     "file": "music/BM-Welcome-Te-Gazza.mp3",
     "title": "Welcome Te Gazza",
     "artist": "BM",
     "cover": "cover/BM-Welcome-Te-Gazza.jpg",
-    "tags": ["hip hop", "rap", "bm", "gritty", "street", "drill"]
+    "tags": ["hip hop","rap","bm","gritty","street","drill"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 1394900
+  },
+  {
+    "file": "music/Fero-TheMike-Collab.mp3",
+    "title": "Street Kings",
+    "artist": "Fero, The Mike",
+    "cover": "cover/Fero-TheMike-Collab.jpg",
+    "tags": ["hip hop","rap","collaboration","albanian","street","banger"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 144292
+  },
+  {
+    "file": "music/Stresi-Kastro-Together.mp3",
+    "title": "Bashke",
+    "artist": "Stresi, Kastro",
+    "cover": "cover/Stresi-Kastro-Together.jpg",
+    "tags": ["hip hop","rap","collaboration","albanian","anthem","energetic"],
+    "variant": "EP",
+    "albumName": "Unity EP",
+    "monthlyListeners": 199000
+  },
+  {
+    "file": "music/Elai-Naldi-Love.mp3",
+    "title": "Dashuri e Vertete",
+    "artist": "Elai, Naldi",
+    "cover": "cover/Elai-Naldi-Love.jpg",
+    "tags": ["pop","romantic","collaboration","melodic","albanian","chart"],
+    "variant": "Single",
+    "albumName": "",
+    "monthlyListeners": 524332
+  },
+  {
+    "file": "music/Don-Xhoni-Mossi-Power.mp3",
+    "title": "Power Move",
+    "artist": "Don Xhoni, Mossi",
+    "cover": "cover/Don-Xhoni-Mossi-Power.jpg",
+    "tags": ["hip hop","rap","collaboration","trap","intense","street"],
+    "variant": "Album",
+    "albumName": "Streets United",
+    "monthlyListeners": 857660
   }
 ]

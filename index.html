@@ -29,7 +29,7 @@
         .storage-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
         .storage-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 100%); }
         .real-time-indicator { animation: pulse 2s infinite; }
-        .collab-indicator { 
+        .feat-indicator { 
             background: linear-gradient(45deg, #8B5CF6, #10b981); 
             padding: 2px 6px; 
             border-radius: 8px; 
@@ -37,6 +37,18 @@
             color: white;
             margin-left: 8px;
         }
+        .variant-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            margin-left: 8px;
+        }
+        .variant-single { background: #10b981; }
+        .variant-ep { background: #f59e0b; }
+        .variant-album { background: #ef4444; }
+        .fans-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
@@ -109,7 +121,7 @@
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Artists</p>
                             <p id="totalArtists" class="text-2xl font-bold">0</p>
-                            <p class="text-xs text-blue-400 mt-1">Collabs: <span id="totalCollabs">0</span></p>
+                            <p class="text-xs text-blue-400 mt-1">Features: <span id="totalFeatures">0</span></p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Admin Likes</p>
@@ -120,6 +132,22 @@
                             <p class="text-gray-400 text-sm">Admin Plays</p>
                             <p id="totalListens" class="text-2xl font-bold">0</p>
                             <p class="text-xs text-yellow-400 mt-1">Last: <span id="lastPlayed">Never</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Variant Stats -->
+                    <div class="grid grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Singles</p>
+                            <p id="totalSingles" class="text-2xl font-bold">0</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">EPs</p>
+                            <p id="totalEPs" class="text-2xl font-bold">0</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Albums</p>
+                            <p id="totalAlbums" class="text-2xl font-bold">0</p>
                         </div>
                     </div>
 
@@ -321,7 +349,7 @@
                 <div id="browsePage" class="page hidden">
                     <div class="mb-6">
                         <h2 class="text-3xl font-bold mb-4">Browse Music</h2>
-                        <input id="searchInput" type="text" placeholder="Search songs, artists..." 
+                        <input id="searchInput" type="text" placeholder="Search songs, artists, albums..." 
                                class="bg-gray-800 text-white px-4 py-2 rounded-full w-96">
                     </div>
                     <div id="musicGrid" class="grid grid-cols-4 gap-4"></div>
@@ -340,25 +368,32 @@
                             <img id="artistImage" class="w-48 h-48 rounded-full object-cover">
                             <div>
                                 <h1 id="artistName" class="text-6xl font-bold mb-2"></h1>
-                                <p id="artistStats" class="text-gray-400"></p>
-                                <div id="artistCollabInfo" class="mt-2"></div>
+                                <div class="flex items-center space-x-6">
+                                    <div class="text-center">
+                                        <p id="artistStreams" class="text-3xl font-bold text-green-400">0</p>
+                                        <p class="text-gray-400 text-sm">Total Streams</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p id="artistMonthlyListeners" class="text-3xl font-bold text-blue-400">0</p>
+                                        <p class="text-gray-400 text-sm">Monthly Listeners</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <button id="playArtistBtn" class="sota-bg text-white px-8 py-3 rounded-full">
                             <i class="fas fa-play mr-2"></i>Play
                         </button>
                     </div>
-                    <div class="grid grid-cols-3 gap-6">
-                        <div class="col-span-2">
-                            <h3 class="text-xl font-semibold mb-4">Tracks</h3>
-                            <div id="artistTracks"></div>
-                        </div>
-                        <div>
-                            <div class="bg-gray-800 p-4 rounded-lg mb-6">
-                                <h4 class="font-semibold mb-4">Statistics</h4>
-                                <canvas id="artistChart" style="height: 200px;"></canvas>
-                            </div>
-                        </div>
+                    
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Tracks</h3>
+                        <div id="artistTracks"></div>
+                    </div>
+
+                    <!-- Fans also like section -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Fans also like</h3>
+                        <div id="fansAlsoLike" class="fans-grid"></div>
                     </div>
                 </div>
 
@@ -378,11 +413,26 @@
                                 <input id="trackTitle" type="text" class="w-full bg-gray-700 px-4 py-2 rounded">
                             </div>
                             <div>
-                                <label class="block mb-2">Artist (use commas for collaborations)</label>
+                                <label class="block mb-2">Artist (use commas for features)</label>
                                 <input id="trackArtist" type="text" placeholder="e.g. Fero, The Mike" class="w-full bg-gray-700 px-4 py-2 rounded">
-                                <p class="text-xs text-gray-400 mt-1">Separate multiple artists with commas</p>
+                                <p class="text-xs text-gray-400 mt-1">Separate multiple artists with commas for features</p>
                             </div>
                         </div>
+
+                        <!-- Variant Selection -->
+                        <div class="mb-6">
+                            <label class="block mb-2">Music Variant</label>
+                            <select id="musicVariant" class="w-full bg-gray-700 px-4 py-2 rounded mb-4">
+                                <option value="single">Single</option>
+                                <option value="ep">EP</option>
+                                <option value="album">Album</option>
+                            </select>
+                            <div id="variantNameContainer" class="hidden">
+                                <input id="variantName" type="text" placeholder="Album/EP Name" class="w-full bg-gray-700 px-4 py-2 rounded">
+                                <p class="text-xs text-gray-400 mt-1">Enter the name of the Album or EP</p>
+                            </div>
+                        </div>
+
                         <div class="mb-6">
                             <label class="block mb-2">Tags</label>
                             <div id="tagButtons" class="mb-4 flex flex-wrap gap-2">
@@ -465,7 +515,13 @@
             <h3 class="text-xl font-semibold mb-4">Edit Track</h3>
             <div class="space-y-4">
                 <input id="editTitle" type="text" placeholder="Title" class="w-full bg-gray-700 px-4 py-2 rounded">
-                <input id="editArtist" type="text" placeholder="Artist (use commas for collaborations)" class="w-full bg-gray-700 px-4 py-2 rounded">
+                <input id="editArtist" type="text" placeholder="Artist (use commas for features)" class="w-full bg-gray-700 px-4 py-2 rounded">
+                <select id="editVariant" class="w-full bg-gray-700 px-4 py-2 rounded">
+                    <option value="single">Single</option>
+                    <option value="ep">EP</option>
+                    <option value="album">Album</option>
+                </select>
+                <input id="editVariantName" type="text" placeholder="Album/EP Name (if applicable)" class="w-full bg-gray-700 px-4 py-2 rounded">
                 <input id="editTags" type="text" placeholder="Tags (comma separated)" class="w-full bg-gray-700 px-4 py-2 rounded">
             </div>
             <div class="flex gap-4 mt-6">
@@ -537,14 +593,16 @@
                     console.log('Music data loaded successfully:', this.musicData.length, 'tracks');
                 } catch (error) {
                     console.error('Error loading music:', error);
-                    // Fallback data for testing
+                    // Fallback data for testing with new structure
                     this.musicData = [
                         {
                             "file": "music/sample.mp3",
                             "title": "Sample Track",
                             "artist": "Sample Artist",
                             "cover": "cover/sample.jpg",
-                            "tags": ["sample", "test"]
+                            "tags": ["sample", "test"],
+                            "variant": "single",
+                            "variantName": ""
                         }
                     ];
                     this.filteredMusic = [...this.musicData];
@@ -556,7 +614,7 @@
                 this.artists.clear();
                 
                 this.musicData.forEach(track => {
-                    // Parse artists from the artist field, handling collaborations
+                    // Parse artists from the artist field, handling features
                     const artistNames = this.parseArtists(track.artist);
                     
                     artistNames.forEach(artistName => {
@@ -565,8 +623,10 @@
                                 name: artistName,
                                 tracks: [],
                                 soloTracks: [],
-                                collaborations: [],
-                                covers: []
+                                features: [],
+                                covers: [],
+                                totalStreams: 0,
+                                monthlyListeners: 0
                             });
                         }
                         
@@ -574,13 +634,18 @@
                         artist.tracks.push(track);
                         artist.covers.push(track.cover);
                         
-                        // Categorize as solo or collaboration
+                        // Calculate streams and monthly listeners
+                        const streams = this.adminData.artistStreams[track.title] || 0;
+                        artist.totalStreams += streams;
+                        artist.monthlyListeners = Math.floor(artist.totalStreams * 0.3 + Math.random() * 1000);
+                        
+                        // Categorize as solo or feature
                         if (artistNames.length === 1) {
                             artist.soloTracks.push(track);
                         } else {
-                            artist.collaborations.push({
+                            artist.features.push({
                                 track: track,
-                                collaborators: artistNames.filter(name => name !== artistName)
+                                featuredWith: artistNames.filter(name => name !== artistName)
                             });
                         }
                     });
@@ -752,6 +817,16 @@
                 document.getElementById('addTagBtn').addEventListener('click', () => this.addCustomTag());
                 document.getElementById('uploadBtn').addEventListener('click', () => this.uploadTrack());
 
+                // Variant selection
+                document.getElementById('musicVariant').addEventListener('change', (e) => {
+                    const container = document.getElementById('variantNameContainer');
+                    if (e.target.value === 'single') {
+                        container.classList.add('hidden');
+                    } else {
+                        container.classList.remove('hidden');
+                    }
+                });
+
                 // Manage
                 document.getElementById('saveDbBtn').addEventListener('click', () => this.saveDatabase());
 
@@ -830,11 +905,21 @@
                 }
             }
 
+            getVariantBadge(variant) {
+                const badges = {
+                    'single': '<span class="variant-badge variant-single">SINGLE</span>',
+                    'ep': '<span class="variant-badge variant-ep">EP</span>',
+                    'album': '<span class="variant-badge variant-album">ALBUM</span>'
+                };
+                return badges[variant] || '';
+            }
+
             renderMusic() {
                 const grid = document.getElementById('musicGrid');
                 grid.innerHTML = this.filteredMusic.map((track, index) => {
                     const artists = this.parseArtists(track.artist);
-                    const isCollab = artists.length > 1;
+                    const isFeature = artists.length > 1;
+                    const variant = track.variant || 'single';
                     
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
@@ -843,10 +928,12 @@
                                 <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playTrack(${index})">
                                     <i class="fas fa-play text-white"></i>
                                 </button>
-                                ${isCollab ? '<span class="collab-indicator absolute top-2 right-2">COLLAB</span>' : ''}
+                                ${isFeature ? '<span class="feat-indicator absolute top-2 right-2">FEAT</span>' : ''}
+                                ${this.getVariantBadge(variant)}
                             </div>
                             <h3 class="font-semibold truncate">${track.title}</h3>
                             <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
+                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
                             <div class="flex justify-between items-center mt-2">
                                 <span class="text-xs text-gray-500">${track.tags[0]}</span>
                                 <button onclick="player.toggleTrackLike(${index})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
@@ -863,18 +950,18 @@
                 const artistsArray = Array.from(this.artists.values());
                 
                 grid.innerHTML = artistsArray.map(artist => {
-                    const hasCollabs = artist.collaborations.length > 0;
+                    const hasFeatures = artist.features.length > 0;
                     const mainCover = artist.covers[0] || 'cover/default.jpg';
                     
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer text-center group" onclick="player.showArtistProfile('${artist.name}')">
                             <div class="relative">
                                 <img src="${mainCover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mb-4">
-                                ${hasCollabs ? '<span class="collab-indicator absolute top-2 right-2">COLLAB</span>' : ''}
+                                ${hasFeatures ? '<span class="feat-indicator absolute top-2 right-2">FEAT</span>' : ''}
                             </div>
                             <h3 class="font-semibold">${artist.name}</h3>
                             <p class="text-gray-400 text-sm">${artist.tracks.length} tracks</p>
-                            ${hasCollabs ? `<p class="text-purple-400 text-xs">${artist.collaborations.length} collaborations</p>` : ''}
+                            <p class="text-green-400 text-xs">${artist.monthlyListeners.toLocaleString()} monthly listeners</p>
                         </div>
                     `;
                 }).join('');
@@ -893,24 +980,8 @@
                 
                 document.getElementById('artistImage').src = mainCover;
                 document.getElementById('artistName').textContent = artistName;
-                document.getElementById('artistStats').textContent = 
-                    `${artist.tracks.length} tracks • ${artist.soloTracks.length} solo • ${artist.collaborations.length} collaborations`;
-                
-                // Show collaboration info
-                const collabInfo = document.getElementById('artistCollabInfo');
-                if (artist.collaborations.length > 0) {
-                    const collaborators = [...new Set(artist.collaborations.flatMap(c => c.collaborators))];
-                    collabInfo.innerHTML = `
-                        <div class="text-sm text-gray-400">
-                            <span class="text-purple-400">Collaborated with:</span> 
-                            ${collaborators.map(collab => 
-                                `<span class="artist-link" onclick="player.showArtistProfile('${collab}')">${collab}</span>`
-                            ).join(', ')}
-                        </div>
-                    `;
-                } else {
-                    collabInfo.innerHTML = '';
-                }
+                document.getElementById('artistStreams').textContent = artist.totalStreams.toLocaleString();
+                document.getElementById('artistMonthlyListeners').textContent = artist.monthlyListeners.toLocaleString();
                 
                 document.getElementById('playArtistBtn').onclick = () => {
                     this.filteredMusic = artist.tracks;
@@ -920,18 +991,27 @@
                 const tracksHtml = artist.tracks.map((track, index) => {
                     const globalIndex = this.musicData.findIndex(t => t === track);
                     const trackArtists = this.parseArtists(track.artist);
-                    const isCollab = trackArtists.length > 1;
+                    const isFeature = trackArtists.length > 1;
                     const otherArtists = trackArtists.filter(a => a !== artistName);
+                    const variant = track.variant || 'single';
                     
                     return `
                         <div class="flex items-center p-3 hover:bg-gray-800 rounded cursor-pointer" onclick="player.playTrack(${globalIndex})">
                             <img src="${track.cover}" alt="${track.title}" class="w-12 h-12 rounded mr-4">
                             <div class="flex-1">
-                                <h4 class="font-medium">${track.title}</h4>
+                                <div class="flex items-center">
+                                    <h4 class="font-medium">${track.title}</h4>
+                                    ${this.getVariantBadge(variant)}
+                                </div>
                                 <p class="text-gray-400 text-sm">
                                     ${track.artist}
-                                    ${isCollab ? `<span class="collab-indicator ml-2">feat. ${otherArtists.join(', ')}</span>` : ''}
+                                    ${isFeature ? `<span class="feat-indicator ml-2">feat. ${otherArtists.join(', ')}</span>` : ''}
                                 </p>
+                                ${track.variantName ? `<p class="text-purple-400 text-xs">${track.variantName}</p>` : ''}
+                            </div>
+                            <div class="text-right mr-4">
+                                <p class="text-gray-400 text-sm">${(this.adminData.artistStreams[track.title] || 0).toLocaleString()}</p>
+                                <p class="text-gray-500 text-xs">streams</p>
                             </div>
                             <button onclick="event.stopPropagation(); player.toggleTrackLike(${globalIndex})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
                                 <i class="fas fa-heart"></i>
@@ -941,35 +1021,26 @@
                 }).join('');
                 
                 document.getElementById('artistTracks').innerHTML = tracksHtml;
-                this.renderArtistChart(artist.tracks);
+                this.renderFansAlsoLike(artistName);
             }
 
-            renderArtistChart(tracks) {
-                const ctx = document.getElementById('artistChart').getContext('2d');
-                const data = tracks.slice(0, 5).map(track => ({
-                    label: track.title.substring(0, 15),
-                    value: this.adminData.artistStreams[track.title] || 0
-                }));
+            renderFansAlsoLike(currentArtistName) {
+                const allArtists = Array.from(this.artists.values())
+                    .filter(artist => artist.name !== currentArtistName)
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 10);
 
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.map(d => d.label),
-                        datasets: [{
-                            data: data.map(d => d.value),
-                            backgroundColor: '#8B5CF6'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { color: '#b3b3b3' } },
-                            x: { ticks: { color: '#b3b3b3' } }
-                        }
-                    }
-                });
+                const fansGrid = document.getElementById('fansAlsoLike');
+                fansGrid.innerHTML = allArtists.map(artist => {
+                    const mainCover = artist.covers[0] || 'cover/default.jpg';
+                    return `
+                        <div class="text-center cursor-pointer group" onclick="player.showArtistProfile('${artist.name}')">
+                            <img src="${mainCover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mb-2 group-hover:opacity-80 transition-opacity">
+                            <h4 class="font-medium text-sm truncate">${artist.name}</h4>
+                            <p class="text-gray-400 text-xs">Artist</p>
+                        </div>
+                    `;
+                }).join('');
             }
 
             renderLibrary() {
@@ -979,38 +1050,46 @@
                     return;
                 }
                 
-                grid.innerHTML = this.adminData.likes.map((track, index) => `
-                    <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
-                        <div class="relative mb-4">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playFromLibrary(${index})">
-                                <i class="fas fa-play text-white"></i>
-                            </button>
+                grid.innerHTML = this.adminData.likes.map((track, index) => {
+                    const variant = track.variant || 'single';
+                    return `
+                        <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
+                            <div class="relative mb-4">
+                                <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
+                                <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playFromLibrary(${index})">
+                                    <i class="fas fa-play text-white"></i>
+                                </button>
+                                ${this.getVariantBadge(variant)}
+                            </div>
+                            <h3 class="font-semibold truncate">${track.title}</h3>
+                            <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
+                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
                         </div>
-                        <h3 class="font-semibold truncate">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             renderManage() {
                 const grid = document.getElementById('manageGrid');
                 grid.innerHTML = this.musicData.map((track, index) => {
                     const artists = this.parseArtists(track.artist);
-                    const isCollab = artists.length > 1;
+                    const isFeature = artists.length > 1;
+                    const variant = track.variant || 'single';
                     
                     return `
                         <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="relative">
                                     <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded">
-                                    ${isCollab ? '<span class="collab-indicator absolute -top-1 -right-1">COLLAB</span>' : ''}
+                                    ${isFeature ? '<span class="feat-indicator absolute -top-1 -right-1">FEAT</span>' : ''}
+                                    <div class="absolute -bottom-2 left-0">${this.getVariantBadge(variant)}</div>
                                 </div>
                                 <div>
                                     <h3 class="font-semibold">${track.title}</h3>
                                     <p class="text-gray-400">${track.artist}</p>
+                                    ${track.variantName ? `<p class="text-purple-400 text-sm">${track.variantName}</p>` : ''}
                                     <div class="flex gap-1">${track.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
-                                    ${isCollab ? `<p class="text-xs text-purple-400 mt-1">Artists: ${artists.join(', ')}</p>` : ''}
+                                    ${isFeature ? `<p class="text-xs text-purple-400 mt-1">Artists: ${artists.join(', ')}</p>` : ''}
                                 </div>
                             </div>
                             <div class="flex gap-2">
@@ -1111,7 +1190,8 @@
                     this.filteredMusic = this.musicData.filter(track => 
                         track.title.toLowerCase().includes(term) ||
                         track.artist.toLowerCase().includes(term) ||
-                        track.tags.some(tag => tag.toLowerCase().includes(term))
+                        track.tags.some(tag => tag.toLowerCase().includes(term)) ||
+                        (track.variantName && track.variantName.toLowerCase().includes(term))
                     );
                 }
                 this.renderMusic();
@@ -1151,9 +1231,16 @@
             uploadTrack() {
                 const title = document.getElementById('trackTitle').value.trim();
                 const artist = document.getElementById('trackArtist').value.trim();
+                const variant = document.getElementById('musicVariant').value;
+                const variantName = document.getElementById('variantName').value.trim();
                 
                 if (!title || !artist || this.selectedTags.length === 0) {
                     alert('Please fill all fields and select tags');
+                    return;
+                }
+
+                if ((variant === 'album' || variant === 'ep') && !variantName) {
+                    alert('Please enter the Album/EP name');
                     return;
                 }
                 
@@ -1162,7 +1249,9 @@
                     title,
                     artist,
                     cover: `cover/${title.replace(/\s+/g, '-')}.jpg`,
-                    tags: [...this.selectedTags]
+                    tags: [...this.selectedTags],
+                    variant,
+                    variantName: variant === 'single' ? '' : variantName
                 };
                 
                 this.musicData.push(newTrack);
@@ -1178,6 +1267,9 @@
             resetUploadForm() {
                 document.getElementById('trackTitle').value = '';
                 document.getElementById('trackArtist').value = '';
+                document.getElementById('musicVariant').value = 'single';
+                document.getElementById('variantName').value = '';
+                document.getElementById('variantNameContainer').classList.add('hidden');
                 this.selectedTags = [];
                 this.renderSelectedTags();
             }
@@ -1187,6 +1279,8 @@
                 const track = this.musicData[index];
                 document.getElementById('editTitle').value = track.title;
                 document.getElementById('editArtist').value = track.artist;
+                document.getElementById('editVariant').value = track.variant || 'single';
+                document.getElementById('editVariantName').value = track.variantName || '';
                 document.getElementById('editTags').value = track.tags.join(', ');
                 document.getElementById('editModal').classList.remove('hidden');
                 document.getElementById('editModal').classList.add('flex');
@@ -1203,6 +1297,8 @@
                 const track = this.musicData[this.editIndex];
                 track.title = document.getElementById('editTitle').value.trim();
                 track.artist = document.getElementById('editArtist').value.trim();
+                track.variant = document.getElementById('editVariant').value;
+                track.variantName = document.getElementById('editVariantName').value.trim();
                 track.tags = document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(t => t);
                 
                 this.filteredMusic = [...this.musicData];
@@ -1303,38 +1399,57 @@
                     this.adminData.artistStreams[this.currentTrack.title]++;
                     this.adminData.totalListens++;
                     this.adminData.sessionStats.tracksPlayed++;
+                    this.processArtists(); // Update artist stats
                     this.saveAdminData();
                 }
             }
 
             updateUI() {
-                // Count collaborations
-                const collabTracks = this.musicData.filter(track => this.parseArtists(track.artist).length > 1);
+                // Count features and variants
+                const featureTracks = this.musicData.filter(track => this.parseArtists(track.artist).length > 1);
+                const singles = this.musicData.filter(track => (track.variant || 'single') === 'single');
+                const eps = this.musicData.filter(track => (track.variant || 'single') === 'ep');
+                const albums = this.musicData.filter(track => (track.variant || 'single') === 'album');
                 
                 document.getElementById('totalTracks').textContent = this.musicData.length;
                 document.getElementById('totalArtists').textContent = this.artists.size;
-                document.getElementById('totalCollabs').textContent = collabTracks.length;
+                document.getElementById('totalFeatures').textContent = featureTracks.length;
                 document.getElementById('totalSaved').textContent = this.adminData.likes.length;
                 document.getElementById('totalListens').textContent = this.adminData.totalListens;
+                document.getElementById('totalSingles').textContent = singles.length;
+                document.getElementById('totalEPs').textContent = eps.length;
+                document.getElementById('totalAlbums').textContent = albums.length;
                 
                 // Update additional admin stats
                 document.getElementById('newTracksToday').textContent = '0'; // This would need real tracking
                 document.getElementById('lastPlayed').textContent = this.adminData.recent.length > 0 ? 'Recently' : 'Never';
                 
                 const recentGrid = document.getElementById('recentTracks');
-                recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(track => `
-                    <div class="music-card bg-gray-800 p-4 rounded-lg">
-                        <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
-                        <h4 class="font-medium truncate">${track.title}</h4>
-                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
-                    </div>
-                `).join('');
+                recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(track => {
+                    const variant = track.variant || 'single';
+                    return `
+                        <div class="music-card bg-gray-800 p-4 rounded-lg relative">
+                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
+                            ${this.getVariantBadge(variant)}
+                            <h4 class="font-medium truncate">${track.title}</h4>
+                            <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
             }
 
             createArtistLinks(artistString) {
-                return this.parseArtists(artistString).map(artist => 
-                    `<span class="artist-link" onclick="player.showArtistProfile('${artist}')">${artist}</span>`
-                ).join(', ');
+                const artists = this.parseArtists(artistString);
+                if (artists.length === 1) {
+                    return `<span class="artist-link" onclick="player.showArtistProfile('${artists[0]}')">${artists[0]}</span>`;
+                } else {
+                    const mainArtist = artists[0];
+                    const featuredArtists = artists.slice(1);
+                    return `<span class="artist-link" onclick="player.showArtistProfile('${mainArtist}')">${mainArtist}</span> feat. ${featuredArtists.map(artist => 
+                        `<span class="artist-link" onclick="player.showArtistProfile('${artist}')">${artist}</span>`
+                    ).join(', ')}`;
+                }
             }
 
             isLiked(track) {

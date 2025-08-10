@@ -3,744 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOTA+ Music Player - Enhanced with Artist Profiles</title>
+    <title>SOTA+ Music Player - Compact Edition</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --sota-purple: #8B5CF6;
-            --sota-dark-purple: #7C3AED;
-            --sota-light-purple: #A78BFA;
+            --sota-dark: #121212;
             --spotify-green: #1db954;
-            --spotify-dark: #191414;
-            --spotify-darker: #121212;
-            --spotify-gray: #b3b3b3;
-            --spotify-gold: #ffb700;
         }
-        
-        body {
-            background: var(--spotify-dark);
-            color: white;
-            font-family: 'Circular', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        
-        .sidebar {
-            background: var(--spotify-darker);
-            min-height: 100vh;
-        }
-        
-        .sota-purple {
-            color: var(--sota-purple);
-        }
-        
-        .bg-sota-purple {
-            background-color: var(--sota-purple);
-        }
-        
-        .bg-sota-dark-purple {
-            background-color: var(--sota-dark-purple);
-        }
-        
-        .spotify-green {
-            color: var(--spotify-green);
-        }
-        
-        .bg-spotify-green {
-            background-color: var(--spotify-green);
-        }
-        
-        .bg-spotify-dark {
-            background-color: var(--spotify-dark);
-        }
-        
-        .bg-spotify-darker {
-            background-color: var(--spotify-darker);
-        }
-        
-        .music-card {
-            background: #282828;
-            transition: all 0.3s ease;
-        }
-        
-        .music-card:hover {
-            background: #3e3e3e;
-            transform: translateY(-2px);
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #4f4f4f;
-            border-radius: 2px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--spotify-green);
-            width: 0%;
-            transition: width 0.1s ease;
-        }
-        
-        .player-controls button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .player-controls button:hover {
-            transform: scale(1.1);
-        }
-        
-        .play-button {
-            width: 50px;
-            height: 50px;
-            background: white;
-            color: black;
-        }
-        
-        .nav-item {
-            transition: all 0.2s ease;
-        }
-        
-        .nav-item:hover {
-            background: rgba(139, 92, 246, 0.1);
-        }
-        
-        .nav-item.active {
-            background: rgba(139, 92, 246, 0.2);
-            border-left: 3px solid var(--sota-purple);
-        }
-        
-        .premium-badge {
-            background: linear-gradient(45deg, var(--spotify-gold), #ff9800);
-            color: black;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-        
-        .admin-badge {
-            background: linear-gradient(45deg, #ff4444, #cc0000);
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-        
-        .verified-badge {
-            background: linear-gradient(45deg, #1DA1F2, #0d8bd0);
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-        
-        .tag-input {
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin: 2px;
-        }
-        
-        .tag-item {
-            background: var(--sota-purple);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin: 2px;
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        .upload-area {
-            border: 2px dashed #555;
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--sota-purple);
-            background: rgba(139, 92, 246, 0.1);
-        }
-        
-        .upload-area.dragover {
-            border-color: var(--sota-purple);
-            background: rgba(139, 92, 246, 0.2);
-        }
-        
-        .artist-header {
-            background: linear-gradient(180deg, rgba(139, 92, 246, 0.4) 0%, transparent 100%);
-            padding: 40px 0;
-        }
-        
-        .stats-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .chart-container {
-            height: 300px;
-            position: relative;
-        }
-        
-        .pagination-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .pagination-btn:hover:not(:disabled) {
-            background: var(--sota-purple);
-            transform: translateY(-1px);
-        }
-        
-        .pagination-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .breadcrumb {
-            font-size: 14px;
-            color: var(--spotify-gray);
-        }
-        
-        .breadcrumb a {
-            color: var(--sota-purple);
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .artist-link {
-            color: var(--spotify-gray);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .artist-link:hover {
-            color: var(--sota-purple);
-            text-decoration: underline;
-        }
-        
-        .search-result-item {
-            background: #282828;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .search-result-item:hover {
-            background: #3e3e3e;
-        }
-        
-        .search-result-artist {
-            border-left: 3px solid var(--sota-purple);
-        }
-        
-        .search-result-track {
-            border-left: 3px solid #1DA1F2;
-        }
-        
-        .search-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #282828;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            z-index: 50;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .volume-control {
-            position: absolute;
-            bottom: 100%;
-            right: 0;
-            background: #282828;
-            padding: 16px 12px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transform: translateY(10px);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 60;
-            width: 200px;
-        }
-        
-        .volume-control.show {
-            transform: translateY(0);
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .volume-slider {
-            width: 100%;
-            height: 6px;
-            background: #4f4f4f;
-            border-radius: 3px;
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .volume-slider-fill {
-            height: 100%;
-            background: var(--sota-purple);
-            border-radius: 3px;
-            width: 50%;
-            transition: width 0.1s ease;
-        }
-        
-        .volume-slider-handle {
-            position: absolute;
-            top: 50%;
-            right: 0;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            transform: translate(50%, -50%);
-            cursor: grab;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .volume-slider-handle:active {
-            cursor: grabbing;
-        }
-        
-        .fullscreen-player {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--spotify-darker), var(--spotify-dark));
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(20px);
-        }
-        
-        .fullscreen-player.show {
-            display: flex;
-        }
-        
-        .fullscreen-content {
-            text-align: center;
-            max-width: 600px;
-            width: 90%;
-            padding: 40px;
-        }
-        
-        .fullscreen-cover {
-            width: 350px;
-            height: 350px;
-            border-radius: 20px;
-            margin: 0 auto 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            object-fit: cover;
-        }
-        
-        .fullscreen-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            margin: 30px 0;
-        }
-        
-        .fullscreen-controls button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            font-size: 24px;
-        }
-        
-        .fullscreen-play-btn {
-            width: 80px;
-            height: 80px;
-            background: white;
-            color: black;
-            font-size: 32px;
-        }
-        
-        .fullscreen-controls button:not(.fullscreen-play-btn) {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .fullscreen-controls button:hover {
-            transform: scale(1.1);
-        }
-        
-        .fullscreen-progress {
-            width: 100%;
-            height: 6px;
-            background: #4f4f4f;
-            border-radius: 3px;
-            margin: 20px 0;
-            cursor: pointer;
-        }
-        
-        .fullscreen-progress-fill {
-            height: 100%;
-            background: var(--sota-purple);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s ease;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -250px;
-                z-index: 50;
-                transition: left 0.3s ease;
-            }
-            
-            .sidebar.open {
-                left: 0;
-            }
-            
-            .fullscreen-cover {
-                width: 280px;
-                height: 280px;
-            }
-            
-            .fullscreen-controls button {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            
-            .fullscreen-play-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 28px;
-            }
-        }
+        body { background: var(--sota-dark); font-family: 'Segoe UI', sans-serif; }
+        .sota-bg { background: var(--sota-purple); }
+        .music-card { transition: all 0.3s ease; }
+        .music-card:hover { transform: translateY(-2px); background: #333; }
+        .progress-bar { width: 100%; height: 4px; background: #444; border-radius: 2px; cursor: pointer; }
+        .progress-fill { height: 100%; background: var(--spotify-green); border-radius: 2px; }
+        .sidebar { min-height: 100vh; background: #181818; }
+        .nav-item:hover { background: rgba(139, 92, 246, 0.1); }
+        .nav-item.active { background: rgba(139, 92, 246, 0.2); border-left: 3px solid var(--sota-purple); }
+        .artist-link { cursor: pointer; color: #8B5CF6; }
+        .artist-link:hover { text-decoration: underline; }
+        .modal { backdrop-filter: blur(10px); }
+        .tag-item { background: var(--sota-purple); padding: 4px 8px; border-radius: 12px; font-size: 12px; margin: 2px; }
     </style>
 </head>
-<body class="bg-spotify-dark text-white">
-    <!-- Mobile Menu Button -->
-    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-spotify-darker p-2 rounded">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="flex min-h-screen">
+<body class="text-white">
+    <div class="flex">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar w-64 p-6 flex flex-col">
-            <!-- Logo -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-white flex items-center">
-                    <span class="sota-purple mr-3 text-4xl">SOTA</span><span class="text-white text-2xl">+</span>
-                </h1>
-                <p class="text-sm text-gray-400 ml-1">Music Player</p>
-            </div>
-
-            <!-- Navigation -->
+        <div class="sidebar w-64 p-6 flex flex-col">
+            <h1 class="text-3xl font-bold mb-8">
+                <span style="color: var(--sota-purple)">SOTA</span><span class="text-white">+</span>
+            </h1>
             <nav class="flex-1">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="#" class="nav-item active flex items-center p-3 rounded text-sm font-medium" data-page="home">
-                            <i class="fas fa-home mr-3"></i>
-                            Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="music">
-                            <i class="fas fa-music mr-3"></i>
-                            Browse Music
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="artists">
-                            <i class="fas fa-user-music mr-3"></i>
-                            Artists
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="library">
-                            <i class="fas fa-heart mr-3"></i>
-                            Your Library
-                        </a>
-                    </li>
-                </ul>
-
-                <hr class="my-6 border-gray-600">
-
-                <!-- Admin Section -->
-                <div class="mb-4">
-                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Admin</h3>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="upload">
-                                <i class="fas fa-upload mr-3"></i>
-                                Upload Music
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="manage">
-                                <i class="fas fa-cog mr-3"></i>
-                                Manage All Music
-                            </a>
-                        </li>
-                    </ul>
+                <div class="space-y-2">
+                    <a href="#" class="nav-item active block p-3 rounded" data-page="home">
+                        <i class="fas fa-home mr-3"></i>Home
+                    </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="browse">
+                        <i class="fas fa-music mr-3"></i>Browse Music
+                    </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="artists">
+                        <i class="fas fa-user-music mr-3"></i>Artists
+                    </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="library">
+                        <i class="fas fa-heart mr-3"></i>Library
+                    </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="upload">
+                        <i class="fas fa-upload mr-3"></i>Upload
+                    </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="manage">
+                        <i class="fas fa-cog mr-3"></i>Manage
+                    </a>
                 </div>
-
-                <hr class="my-6 border-gray-600">
-
-                <ul class="space-y-2">
-                    <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded text-sm font-medium" data-page="profile">
-                            <i class="fas fa-user mr-3"></i>
-                            Admin Profile
-                        </a>
-                    </li>
-                </ul>
             </nav>
         </div>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
-            <!-- Content Area -->
             <main class="flex-1 p-6 overflow-y-auto">
                 <!-- Home Page -->
                 <div id="homePage" class="page">
                     <h2 class="text-3xl font-bold mb-6">Good evening, Admin</h2>
-                    
-                    <!-- Quick Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-400 text-sm">Total Tracks</p>
-                                    <p id="totalTracks" class="text-2xl font-bold">0</p>
-                                </div>
-                                <i class="fas fa-music sota-purple text-2xl"></i>
-                            </div>
+                    <div class="grid grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Total Tracks</p>
+                            <p id="totalTracks" class="text-2xl font-bold">0</p>
                         </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-400 text-sm">Total Artists</p>
-                                    <p id="totalArtists" class="text-2xl font-bold">0</p>
-                                </div>
-                                <i class="fas fa-user-music text-blue-500 text-2xl"></i>
-                            </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Artists</p>
+                            <p id="totalArtists" class="text-2xl font-bold">0</p>
                         </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-400 text-sm">Saved Songs</p>
-                                    <p id="homeSavedCount" class="text-2xl font-bold">0</p>
-                                </div>
-                                <i class="fas fa-heart text-red-500 text-2xl"></i>
-                            </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Saved</p>
+                            <p id="totalSaved" class="text-2xl font-bold">0</p>
                         </div>
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-gray-400 text-sm">Total Listens</p>
-                                    <p id="homeListenCount" class="text-2xl font-bold">0</p>
-                                </div>
-                                <i class="fas fa-play sota-purple text-2xl"></i>
-                            </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Listens</p>
+                            <p id="totalListens" class="text-2xl font-bold">0</p>
                         </div>
                     </div>
-                    
-                    <!-- Top Artists -->
                     <div class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold">Top Artists</h3>
-                            <a href="#" class="sota-purple hover:underline text-sm" data-page="artists">Show all</a>
-                        </div>
-                        <div id="topArtists" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                            <!-- Top artists will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <!-- Recommendations Section -->
-                    <div class="mb-8">
-                        <h3 class="text-xl font-semibold mb-4">Made for you</h3>
-                        <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            <div class="text-center text-gray-400 py-8 col-span-full">
-                                <i class="fas fa-music text-4xl mb-4"></i>
-                                <p>Start listening to music to get personalized recommendations!</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recently Played -->
-                    <div>
-                        <h3 class="text-xl font-semibold mb-4">Recently played</h3>
-                        <div id="recentlyPlayed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            <div class="text-center text-gray-400 py-8 col-span-full">
-                                <i class="fas fa-history text-4xl mb-4"></i>
-                                <p>No recent activity</p>
-                            </div>
-                        </div>
+                        <h3 class="text-xl font-semibold mb-4">Recently Played</h3>
+                        <div id="recentTracks" class="grid grid-cols-4 gap-4"></div>
                     </div>
                 </div>
 
-                <!-- Music Page -->
-                <div id="musicPage" class="page hidden">
+                <!-- Browse Page -->
+                <div id="browsePage" class="page hidden">
                     <div class="mb-6">
                         <h2 class="text-3xl font-bold mb-4">Browse Music</h2>
-                        <div class="relative">
-                            <input type="text" id="searchInput" placeholder="Search songs, artists..." 
-                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                            <div id="searchDropdown" class="search-dropdown hidden"></div>
-                        </div>
+                        <input id="searchInput" type="text" placeholder="Search songs, artists..." 
+                               class="bg-gray-800 text-white px-4 py-2 rounded-full w-96">
                     </div>
-                    
-                    <div id="musicGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        <!-- Music items will be populated here -->
-                    </div>
+                    <div id="musicGrid" class="grid grid-cols-4 gap-4"></div>
                 </div>
 
                 <!-- Artists Page -->
                 <div id="artistsPage" class="page hidden">
-                    <div class="mb-6">
-                        <h2 class="text-3xl font-bold mb-4">Artists</h2>
-                        <div class="relative">
-                            <input type="text" id="artistSearchInput" placeholder="Search artists..." 
-                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                            <div id="artistSearchDropdown" class="search-dropdown hidden"></div>
-                        </div>
-                    </div>
-                    
-                    <div id="artistsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                        <!-- Artists will be populated here -->
-                    </div>
+                    <h2 class="text-3xl font-bold mb-6">Artists</h2>
+                    <div id="artistsGrid" class="grid grid-cols-5 gap-4"></div>
                 </div>
 
-                <!-- Artist Profile Page -->
+                <!-- Artist Profile -->
                 <div id="artistProfilePage" class="page hidden">
-                    <!-- Breadcrumb -->
-                    <div class="breadcrumb mb-4">
-                        <a href="#" data-page="artists">Artists</a> / <span id="artistBreadcrumb">Artist</span>
-                    </div>
-                    
-                    <!-- Artist Header -->
-                    <div class="artist-header mb-8">
-                        <div class="flex items-end space-x-6">
-                            <img id="artistAvatar" src="" alt="" class="w-48 h-48 rounded-full object-cover shadow-2xl">
+                    <div class="mb-8">
+                        <div class="flex items-end space-x-6 mb-6">
+                            <img id="artistImage" class="w-48 h-48 rounded-full object-cover">
                             <div>
-                                <p class="text-sm text-gray-300 mb-2">
-                                    <span class="verified-badge mr-2">
-                                        <i class="fas fa-check mr-1"></i>VERIFIED ARTIST
-                                    </span>
-                                </p>
-                                <h1 id="artistName" class="text-6xl font-bold mb-4">Artist Name</h1>
-                                <p id="artistStats" class="text-lg text-gray-300">0 monthly listeners</p>
+                                <h1 id="artistName" class="text-6xl font-bold mb-2"></h1>
+                                <p id="artistStats" class="text-gray-400"></p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Artist Controls -->
-                    <div class="flex items-center space-x-4 mb-8">
-                        <button id="playArtistBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-8 py-3 rounded-full font-semibold flex items-center">
+                        <button id="playArtistBtn" class="sota-bg text-white px-8 py-3 rounded-full">
                             <i class="fas fa-play mr-2"></i>Play
                         </button>
-                        <button id="followArtistBtn" class="border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold">
-                            Follow
-                        </button>
-                        <button class="text-gray-400 hover:text-white">
-                            <i class="fas fa-ellipsis-h text-xl"></i>
-                        </button>
                     </div>
-
-                    <!-- Artist Statistics -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                        <div class="lg:col-span-2">
-                            <h3 class="text-xl font-semibold mb-4">Popular</h3>
-                            <div id="artistTracks" class="space-y-2">
-                                <!-- Artist tracks will be populated here -->
-                            </div>
-                            
-                            <!-- Pagination -->
-                            <div id="artistPagination" class="flex items-center justify-center space-x-4 mt-8">
-                                <button id="prevPageBtn" class="pagination-btn bg-gray-700 text-white px-4 py-2 rounded">
-                                    <i class="fas fa-chevron-left mr-2"></i>Previous
-                                </button>
-                                <span id="pageInfo" class="text-gray-400">Page 1 of 1</span>
-                                <button id="nextPageBtn" class="pagination-btn bg-gray-700 text-white px-4 py-2 rounded">
-                                    Next<i class="fas fa-chevron-right ml-2"></i>
-                                </button>
-                            </div>
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="col-span-2">
+                            <h3 class="text-xl font-semibold mb-4">Popular Tracks</h3>
+                            <div id="artistTracks"></div>
                         </div>
-                        
-                        <div class="space-y-6">
-                            <!-- Streaming Stats -->
-                            <div class="stats-card p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4">Streaming Statistics</h4>
-                                <div class="chart-container mb-4" style="height: 300px;">
-                                    <canvas id="artistChart"></canvas>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-400">Total Streams</span>
-                                        <span id="totalStreams" class="font-semibold">0</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-400">Avg. per Track</span>
-                                        <span id="avgStreams" class="font-semibold">0</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-400">Most Popular</span>
-                                        <span id="mostPopular" class="font-semibold">-</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Artist Info -->
-                            <div class="stats-card p-6 rounded-lg">
-                                <h4 class="text-lg font-semibold mb-4">About</h4>
-                                <div class="space-y-3">
-                                    <div>
-                                        <span class="text-gray-400 block">Total Tracks</span>
-                                        <span id="artistTrackCount" class="font-semibold">0</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-400 block">Genres</span>
-                                        <div id="artistGenres" class="flex flex-wrap gap-1 mt-1">
-                                            <!-- Genres will be populated here -->
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-400 block">Latest Release</span>
-                                        <span id="latestRelease" class="font-semibold">-</span>
-                                    </div>
-                                </div>
+                        <div>
+                            <div class="bg-gray-800 p-4 rounded-lg mb-6">
+                                <h4 class="font-semibold mb-4">Statistics</h4>
+                                <canvas id="artistChart" style="height: 200px;"></canvas>
                             </div>
                         </div>
                     </div>
@@ -749,237 +136,73 @@
                 <!-- Library Page -->
                 <div id="libraryPage" class="page hidden">
                     <h2 class="text-3xl font-bold mb-6">Your Library</h2>
-                    <div id="libraryContent">
-                        <div class="text-center text-gray-400 py-16">
-                            <i class="fas fa-heart text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">Your library is empty</h3>
-                            <p class="mb-4">Save music you love by clicking the heart icon</p>
-                            <button id="browseMusic" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
-                                Browse Music
-                            </button>
-                        </div>
-                    </div>
+                    <div id="libraryGrid" class="grid grid-cols-4 gap-4"></div>
                 </div>
 
                 <!-- Upload Page -->
                 <div id="uploadPage" class="page hidden">
                     <h2 class="text-3xl font-bold mb-6">Upload Music</h2>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Music Upload -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-semibold mb-4">Music File</h3>
-                            <div class="upload-area" id="musicUploadArea">
-                                <i class="fas fa-music text-4xl text-gray-400 mb-4"></i>
-                                <p class="text-lg mb-2">Drop your MP3 file here</p>
-                                <p class="text-sm text-gray-400 mb-4">or click to browse</p>
-                                <input type="file" id="musicFileInput" accept=".mp3" class="hidden">
-                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded" onclick="document.getElementById('musicFileInput').click()">
-                                    Select File
-                                </button>
-                            </div>
-                            <div id="musicFileInfo" class="mt-4 hidden">
-                                <p class="text-sm sota-purple"><i class="fas fa-check mr-2"></i>File selected: <span id="musicFileName"></span></p>
-                            </div>
-                        </div>
-
-                        <!-- Cover Upload -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-semibold mb-4">Cover Image</h3>
-                            <div class="upload-area" id="coverUploadArea">
-                                <i class="fas fa-image text-4xl text-gray-400 mb-4"></i>
-                                <p class="text-lg mb-2">Drop your JPG file here</p>
-                                <p class="text-sm text-gray-400 mb-4">or click to browse</p>
-                                <input type="file" id="coverFileInput" accept=".jpg,.jpeg,.png" class="hidden">
-                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded" onclick="document.getElementById('coverFileInput').click()">
-                                    Select Image
-                                </button>
-                            </div>
-                            <div id="coverFileInfo" class="mt-4 hidden">
-                                <p class="text-sm sota-purple"><i class="fas fa-check mr-2"></i>Image selected: <span id="coverFileName"></span></p>
-                                <img id="coverPreview" src="" alt="Cover Preview" class="mt-2 w-32 h-32 object-cover rounded">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Track Information -->
-                    <div class="bg-gray-800 p-6 rounded-lg mt-8">
-                        <h3 class="text-xl font-semibold mb-4">Track Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <div class="grid grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label class="block text-sm font-medium mb-2">Track Title</label>
-                                <input type="text" id="trackTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter track title">
+                                <label class="block mb-2">Track Title</label>
+                                <input id="trackTitle" type="text" class="w-full bg-gray-700 px-4 py-2 rounded">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2">Artist Name</label>
-                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter artist name (use comma for multiple artists)">
+                                <label class="block mb-2">Artist</label>
+                                <input id="trackArtist" type="text" class="w-full bg-gray-700 px-4 py-2 rounded">
                             </div>
                         </div>
-
-                        <!-- Tags Section -->
-                        <div class="mt-6">
-                            <label class="block text-sm font-medium mb-2">Tags</label>
-                            <div id="selectedTags" class="mb-4 min-h-8">
-                                <!-- Selected tags will appear here -->
+                        <div class="mb-6">
+                            <label class="block mb-2">Tags</label>
+                            <div id="tagButtons" class="mb-4 flex flex-wrap gap-2">
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="hip hop">hip hop</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="rap">rap</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="pop">pop</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="trap">trap</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="albanian">albanian</button>
                             </div>
-                            
-                            <div class="mb-4">
-                                <h4 class="text-sm font-medium mb-2">Popular Tags</h4>
-                                <div id="popularTags" class="flex flex-wrap gap-2">
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="hip hop">hip hop</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="rap">rap</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="pop">pop</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="trap">trap</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="albanian">albanian</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="melodic">melodic</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="energetic">energetic</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="modern">modern</button>
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2">
-                                <input type="text" id="customTagInput" class="flex-1 bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Add custom tag">
-                                <button id="addCustomTag" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded">Add</button>
-                            </div>
+                            <input id="customTag" type="text" placeholder="Custom tag" class="bg-gray-700 px-4 py-2 rounded mr-2">
+                            <button id="addTagBtn" class="sota-bg px-4 py-2 rounded">Add Tag</button>
+                            <div id="selectedTags" class="mt-4 flex flex-wrap gap-2"></div>
                         </div>
-
-                        <button id="uploadTrack" class="w-full bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-3 rounded-lg font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-upload mr-2"></i>
-                            Upload & Save to Database
-                        </button>
+                        <button id="uploadBtn" class="sota-bg text-white px-6 py-3 rounded">Upload Track</button>
                     </div>
                 </div>
 
-                <!-- Manage Music Page -->
+                <!-- Manage Page -->
                 <div id="managePage" class="page hidden">
-                    <div class="mb-6">
-                        <h2 class="text-3xl font-bold mb-4">Manage All Music</h2>
-                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                            <div class="relative">
-                                <input type="text" id="manageSearchInput" placeholder="Search tracks to edit..." 
-                                       class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                            </div>
-                            <div class="flex gap-2">
-                                <button id="saveDatabaseBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded font-semibold">
-                                    <i class="fas fa-save mr-2"></i>Save Database
-                                </button>
-                                <button id="refreshDatabaseBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
-                                    <i class="fas fa-sync mr-2"></i>Refresh
-                                </button>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">Manage Music</h2>
+                        <button id="saveDbBtn" class="sota-bg text-white px-4 py-2 rounded">Save Database</button>
                     </div>
-                    
-                    <div id="manageGrid" class="space-y-4">
-                        <!-- Manage items will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Profile Page -->
-                <div id="profilePage" class="page hidden">
-                    <h2 class="text-3xl font-bold mb-6">Admin Profile</h2>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Profile Info -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <div class="flex items-center mb-6">
-                                <div class="w-20 h-20 bg-sota-purple rounded-full flex items-center justify-center text-2xl font-bold mr-4">
-                                    A
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold flex items-center gap-2">
-                                        Admin
-                                        <span class="premium-badge">PREMIUM</span>
-                                        <span class="admin-badge">ADMIN</span>
-                                    </h3>
-                                    <p class="text-gray-400">Music Administrator</p>
-                                    <p class="text-xs sota-purple mt-1">
-                                        <i class="fas fa-crown mr-1"></i>
-                                        Premium Account with Admin Privileges
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div class="flex justify-between">
-                                    <span>Saved Songs</span>
-                                    <span id="savedCount" class="font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Total Listens</span>
-                                    <span id="listenCount" class="font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Searches Made</span>
-                                    <span id="searchCount" class="font-semibold">0</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Database Tracks</span>
-                                    <span id="databaseCount" class="font-semibold">0</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data Management -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h4 class="text-lg font-semibold mb-4">Data Management</h4>
-                            <div class="space-y-4">
-                                <button id="exportUserData" class="w-full bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded font-semibold">
-                                    <i class="fas fa-download mr-2"></i>
-                                    Export User Data
-                                </button>
-                                <button id="exportMusicDatabase" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
-                                    <i class="fas fa-database mr-2"></i>
-                                    Export Music Database
-                                </button>
-                                <button id="clearUserData" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">
-                                    <i class="fas fa-trash mr-2"></i>
-                                    Clear User Data
-                                </button>
-                            </div>
-                            
-                            <div class="mt-6">
-                                <h5 class="font-semibold mb-2">User Preferences</h5>
-                                <pre id="userDataDisplay" class="bg-gray-900 p-4 rounded text-sm overflow-auto max-h-48">
-{
-  "likes": {},
-  "listens": {},
-  "searches": {},
-  "artistStreams": {}
-}
-                                </pre>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="manageGrid" class="space-y-4"></div>
                 </div>
             </main>
 
             <!-- Player -->
-            <div class="bg-gray-900 border-t border-gray-700 p-4">
-                <div class="flex items-center justify-between max-w-screen-xl mx-auto">
-                    <!-- Current Track Info -->
-                    <div class="flex items-center space-x-4 flex-1 min-w-0">
-                        <img id="currentCover" src="" alt="" class="w-14 h-14 rounded hidden cursor-pointer hover:opacity-80 transition-opacity">
-                        <div class="min-w-0">
-                            <div id="currentTitle" class="font-semibold truncate cursor-pointer hover:underline">Select a song</div>
-                            <div id="currentArtist" class="text-sm text-gray-400 truncate">Start playing music</div>
+            <div class="bg-gray-900 p-4 border-t border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 flex-1">
+                        <img id="currentCover" class="w-14 h-14 rounded hidden">
+                        <div>
+                            <div id="currentTitle" class="font-semibold">Select a song</div>
+                            <div id="currentArtist" class="text-gray-400 text-sm">Start playing</div>
                         </div>
-                        <button id="likeCurrentBtn" class="text-gray-400 hover:text-white hidden">
+                        <button id="likeBtn" class="text-gray-400 hover:text-white hidden">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
 
-                    <!-- Player Controls -->
-                    <div class="flex flex-col items-center space-y-2 flex-1">
-                        <div class="player-controls flex items-center space-x-4">
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="flex items-center space-x-4 mb-2">
                             <button id="shuffleBtn" class="text-gray-400 hover:text-white">
                                 <i class="fas fa-random"></i>
                             </button>
                             <button id="prevBtn" class="text-gray-400 hover:text-white">
                                 <i class="fas fa-step-backward"></i>
                             </button>
-                            <button id="playPauseBtn" class="play-button">
+                            <button id="playBtn" class="bg-white text-black w-12 h-12 rounded-full flex items-center justify-center">
                                 <i class="fas fa-play"></i>
                             </button>
                             <button id="nextBtn" class="text-gray-400 hover:text-white">
@@ -989,484 +212,77 @@
                                 <i class="fas fa-redo"></i>
                             </button>
                         </div>
-                        
                         <div class="flex items-center space-x-2 w-full max-w-md">
                             <span id="currentTime" class="text-xs text-gray-400">0:00</span>
-                            <div id="playerProgressBar" class="progress-bar flex-1">
-                                <div id="progressFill" class="progress-fill"></div>
+                            <div id="progressBar" class="progress-bar flex-1">
+                                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
                             </div>
                             <span id="duration" class="text-xs text-gray-400">0:00</span>
                         </div>
                     </div>
 
-                    <!-- Volume Controls -->
-                    <div class="flex items-center space-x-2 flex-1 justify-end relative">
-                        <button id="muteBtn" class="text-gray-400 hover:text-white">
-                            <i class="fas fa-volume-up"></i>
-                        </button>
-                        <div id="volumeControl" class="volume-control">
-                            <div class="mb-2 text-center text-sm text-gray-400">Volume</div>
-                            <div class="volume-slider" id="volumeSlider">
-                                <div class="volume-slider-fill" id="volumeSliderFill"></div>
-                                <div class="volume-slider-handle" id="volumeSliderHandle"></div>
-                            </div>
-                            <div class="text-center text-xs text-gray-400 mt-2">
-                                <span id="volumePercent">50%</span>
-                            </div>
-                        </div>
+                    <div class="flex items-center space-x-4 flex-1 justify-end">
+                        <input id="volumeSlider" type="range" min="0" max="100" value="50" class="w-20">
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Fullscreen Now Playing Modal -->
-    <div id="fullscreenPlayer" class="fullscreen-player">
-        <div class="fullscreen-content">
-            <!-- Close Button -->
-            <button id="closeFullscreen" class="absolute top-6 right-6 text-gray-400 hover:text-white text-2xl">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <!-- Album Cover -->
-            <img id="fullscreenCover" src="" alt="" class="fullscreen-cover">
-            
-            <!-- Track Info -->
-            <h2 id="fullscreenTitle" class="text-3xl font-bold mb-2">Track Title</h2>
-            <p id="fullscreenArtist" class="text-xl text-gray-400 mb-6">Artist Name</p>
-            
-            <!-- Progress Bar -->
-            <div class="flex items-center space-x-4 mb-4">
-                <span id="fullscreenCurrentTime" class="text-sm text-gray-400">0:00</span>
-                <div id="fullscreenProgressBar" class="fullscreen-progress flex-1">
-                    <div id="fullscreenProgressFill" class="fullscreen-progress-fill"></div>
-                </div>
-                <span id="fullscreenDuration" class="text-sm text-gray-400">0:00</span>
-            </div>
-            
-            <!-- Controls -->
-            <div class="fullscreen-controls">
-                <button id="fullscreenPrevBtn" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-step-backward"></i>
-                </button>
-                <button id="fullscreenPlayBtn" class="fullscreen-play-btn">
-                    <i class="fas fa-play"></i>
-                </button>
-                <button id="fullscreenNextBtn" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-step-forward"></i>
-                </button>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex justify-center space-x-6 mt-8">
-                <button id="fullscreenLikeBtn" class="text-gray-400 hover:text-white text-2xl">
-                    <i class="far fa-heart"></i>
-                </button>
-                <button id="fullscreenSaveBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
-                    <i class="fas fa-plus mr-2"></i>Save to Library
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Audio Element -->
-    <audio id="audioPlayer" preload="metadata"></audio>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
         <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
             <h3 class="text-xl font-semibold mb-4">Edit Track</h3>
-            <form id="editForm">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Title</label>
-                        <input type="text" id="editTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Artist</label>
-                        <input type="text" id="editArtist" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Tags (comma-separated)</label>
-                        <input type="text" id="editTags" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    </div>
-                </div>
-                <div class="flex gap-4 mt-6">
-                    <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" class="flex-1 bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded">Save Changes</button>
-                </div>
-            </form>
+            <div class="space-y-4">
+                <input id="editTitle" type="text" placeholder="Title" class="w-full bg-gray-700 px-4 py-2 rounded">
+                <input id="editArtist" type="text" placeholder="Artist" class="w-full bg-gray-700 px-4 py-2 rounded">
+                <input id="editTags" type="text" placeholder="Tags (comma separated)" class="w-full bg-gray-700 px-4 py-2 rounded">
+            </div>
+            <div class="flex gap-4 mt-6">
+                <button id="cancelEdit" class="bg-gray-600 px-4 py-2 rounded flex-1">Cancel</button>
+                <button id="saveEdit" class="sota-bg px-4 py-2 rounded flex-1">Save</button>
+            </div>
         </div>
     </div>
 
+    <audio id="audioPlayer"></audio>
+
     <script>
-        class EnhancedSpotifyMusicPlayer {
+        class CompactMusicPlayer {
             constructor() {
                 this.musicData = [];
                 this.filteredMusic = [];
-                this.artists = new Map();
                 this.currentTrack = null;
                 this.currentIndex = 0;
                 this.isPlaying = false;
-                this.userData = {
-                    likes: {},
-                    listens: {},
-                    searches: {},
-                    savedSongs: [],
-                    recentlyPlayed: [],
-                    artistStreams: {},
-                    followedArtists: []
-                };
                 this.shuffle = false;
                 this.repeat = false;
-                this.volume = 0.5;
                 this.selectedTags = [];
-                this.currentEditIndex = -1;
-                this.filteredManageData = [];
-                this.currentArtist = null;
-                this.currentArtistPage = 1;
-                this.tracksPerPage = 10;
-                this.artistChart = null;
-                this.searchTimeout = null;
-                this.isVolumeControlVisible = false;
-                this.isDraggingVolume = false;
-                
+                this.editIndex = -1;
+                this.userData = JSON.parse(localStorage.getItem('sotaUserData')) || {
+                    likes: [],
+                    recent: [],
+                    artistStreams: {},
+                    totalListens: 0
+                };
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
             }
 
             async init() {
-                this.loadUserData();
-                await this.loadMusicData();
+                await this.loadMusic();
                 this.setupEventListeners();
                 this.updateUI();
-                this.updateProfileStats();
-                this.setupVolumeControl();
             }
 
-            loadUserData() {
-                const saved = localStorage.getItem('sotaUserData');
-                if (saved) {
-                    try {
-                        this.userData = { ...this.userData, ...JSON.parse(saved) };
-                    } catch (e) {
-                        console.error('Error loading user data:', e);
-                    }
-                }
-            }
-
-            saveUserData() {
-                localStorage.setItem('sotaUserData', JSON.stringify(this.userData));
-                this.updateProfileStats();
-                this.updateUserDataDisplay();
-            }
-
-            async loadMusicData() {
+            async loadMusic() {
                 try {
                     const response = await fetch('service/music.json');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
                     this.musicData = await response.json();
                     this.filteredMusic = [...this.musicData];
-                    this.filteredManageData = [...this.musicData];
-                    this.buildArtistsMap();
-                    this.renderMusic();
-                    this.renderArtists();
-                    this.updateRecommendations();
-                    this.updateManagePage();
-                    this.updateTopArtists();
                 } catch (error) {
-                    console.error('Error loading music data:', error);
+                    console.error('Error loading music:', error);
                     this.musicData = [];
-                    this.filteredMusic = [];
-                    this.filteredManageData = [];
-                    
-                    const musicGrid = document.getElementById('musicGrid');
-                    if (musicGrid) {
-                        musicGrid.innerHTML = `
-                            <div class="text-center text-red-400 py-8 col-span-full">
-                                <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
-                                <p>Error loading music database</p>
-                                <p class="text-sm text-gray-400 mt-2">Please check if service/music.json exists and is accessible</p>
-                            </div>
-                        `;
-                    }
-                }
-            }
-
-            setupVolumeControl() {
-                const volumeControl = document.getElementById('volumeControl');
-                const muteBtn = document.getElementById('muteBtn');
-                const volumeSlider = document.getElementById('volumeSlider');
-                const volumeSliderFill = document.getElementById('volumeSliderFill');
-                const volumeSliderHandle = document.getElementById('volumeSliderHandle');
-                const volumePercent = document.getElementById('volumePercent');
-
-                // Toggle volume control visibility
-                muteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.isVolumeControlVisible = !this.isVolumeControlVisible;
-                    volumeControl.classList.toggle('show', this.isVolumeControlVisible);
-                });
-
-                // Hide volume control when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!volumeControl.contains(e.target) && !muteBtn.contains(e.target)) {
-                        this.isVolumeControlVisible = false;
-                        volumeControl.classList.remove('show');
-                    }
-                });
-
-                // Volume slider functionality
-                const updateVolume = (clientX) => {
-                    const rect = volumeSlider.getBoundingClientRect();
-                    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                    this.volume = percent;
-                    this.audio.volume = percent;
-                    
-                    volumeSliderFill.style.width = `${percent * 100}%`;
-                    volumeSliderHandle.style.right = `${(1 - percent) * 100}%`;
-                    volumePercent.textContent = `${Math.round(percent * 100)}%`;
-
-                    // Update mute button icon
-                    const muteIcon = muteBtn.querySelector('i');
-                    if (percent === 0) {
-                        muteIcon.className = 'fas fa-volume-mute';
-                    } else if (percent < 0.5) {
-                        muteIcon.className = 'fas fa-volume-down';
-                    } else {
-                        muteIcon.className = 'fas fa-volume-up';
-                    }
-                };
-
-                volumeSlider.addEventListener('mousedown', (e) => {
-                    this.isDraggingVolume = true;
-                    updateVolume(e.clientX);
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (this.isDraggingVolume) {
-                        updateVolume(e.clientX);
-                    }
-                });
-
-                document.addEventListener('mouseup', () => {
-                    this.isDraggingVolume = false;
-                });
-
-                // Touch support for mobile
-                volumeSlider.addEventListener('touchstart', (e) => {
-                    this.isDraggingVolume = true;
-                    updateVolume(e.touches[0].clientX);
-                });
-
-                document.addEventListener('touchmove', (e) => {
-                    if (this.isDraggingVolume) {
-                        e.preventDefault();
-                        updateVolume(e.touches[0].clientX);
-                    }
-                });
-
-                document.addEventListener('touchend', () => {
-                    this.isDraggingVolume = false;
-                });
-
-                // Initialize volume
-                this.audio.volume = this.volume;
-                updateVolume(volumeSlider.getBoundingClientRect().left + (volumeSlider.getBoundingClientRect().width * this.volume));
-            }
-
-            buildArtistsMap() {
-                this.artists.clear();
-                
-                this.musicData.forEach(track => {
-                    const artistNames = track.artist.split(',').map(name => name.trim());
-                    
-                    artistNames.forEach(artistName => {
-                        if (!this.artists.has(artistName)) {
-                            this.artists.set(artistName, {
-                                name: artistName,
-                                tracks: [],
-                                totalStreams: 0,
-                                genres: new Set(),
-                                cover: track.cover,
-                                latestRelease: null
-                            });
-                        }
-                        
-                        const artist = this.artists.get(artistName);
-                        artist.tracks.push(track);
-                        artist.totalStreams += this.userData.artistStreams[`${artistName}_${track.title}`] || 0;
-                        track.tags.forEach(tag => artist.genres.add(tag));
-                        
-                        if (!artist.latestRelease) {
-                            artist.latestRelease = track;
-                        }
-                    });
-                });
-
-                // Sort tracks by streams for each artist
-                this.artists.forEach(artist => {
-                    artist.tracks.sort((a, b) => {
-                        const aStreams = this.userData.artistStreams[`${artist.name}_${a.title}`] || 0;
-                        const bStreams = this.userData.artistStreams[`${artist.name}_${b.title}`] || 0;
-                        return bStreams - aStreams;
-                    });
-                });
-            }
-
-            // Enhanced function to create clickable artist names
-            createClickableArtistNames(artistString) {
-                if (!artistString) return '';
-                
-                const artists = artistString.split(',').map(name => name.trim());
-                return artists.map(artist => 
-                    `<span class="artist-link" data-artist="${artist}">${artist}</span>`
-                ).join(', ');
-            }
-
-            // Add event listeners for clickable artist names
-            addArtistClickListeners(container) {
-                container.querySelectorAll('.artist-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const artistName = link.dataset.artist;
-                        this.showArtistProfile(artistName);
-                        
-                        // Update navigation
-                        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                        document.querySelector('.nav-item[data-page="artists"]').classList.add('active');
-                    });
-                });
-            }
-
-            // Enhanced search with artist profile results
-            performEnhancedSearch(query) {
-                if (!query.trim()) {
-                    return {
-                        tracks: [],
-                        artists: []
-                    };
-                }
-
-                const searchTerm = query.toLowerCase();
-                
-                // Search tracks
-                const tracks = this.musicData.filter(track => 
-                    track.title.toLowerCase().includes(searchTerm) ||
-                    track.artist.toLowerCase().includes(searchTerm) ||
-                    track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-                ).slice(0, 5);
-
-                // Search artists
-                const artists = Array.from(this.artists.values()).filter(artist =>
-                    artist.name.toLowerCase().includes(searchTerm)
-                ).slice(0, 5);
-
-                return { tracks, artists };
-            }
-
-            showSearchDropdown(inputId, dropdownId, results) {
-                const dropdown = document.getElementById(dropdownId);
-                
-                if (results.tracks.length === 0 && results.artists.length === 0) {
-                    dropdown.classList.add('hidden');
-                    return;
-                }
-
-                let html = '';
-
-                // Add artist results
-                if (results.artists.length > 0) {
-                    html += results.artists.map(artist => `
-                        <div class="search-result-item search-result-artist" data-type="artist" data-name="${artist.name}">
-                            <div class="flex items-center space-x-3">
-                                <img src="${artist.cover}" alt="${artist.name}" class="w-10 h-10 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-medium">${artist.name}</h4>
-                                    <p class="text-sm text-gray-400">Artist • ${artist.tracks.length} tracks</p>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                // Add track results
-                if (results.tracks.length > 0) {
-                    html += results.tracks.map((track, index) => {
-                        const globalIndex = this.musicData.findIndex(t => t === track);
-                        return `
-                            <div class="search-result-item search-result-track" data-type="track" data-index="${globalIndex}">
-                                <div class="flex items-center space-x-3">
-                                    <img src="${track.cover}" alt="${track.title}" class="w-10 h-10 rounded object-cover">
-                                    <div class="flex-1">
-                                        <h4 class="font-medium">${track.title}</h4>
-                                        <p class="text-sm text-gray-400">${this.createClickableArtistNames(track.artist)}</p>
-                                    </div>
-                                    <i class="fas fa-play text-gray-400"></i>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-
-                dropdown.innerHTML = html;
-                dropdown.classList.remove('hidden');
-
-                // Add click listeners
-                dropdown.querySelectorAll('.search-result-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const type = item.dataset.type;
-                        
-                        if (type === 'artist') {
-                            const artistName = item.dataset.name;
-                            this.showArtistProfile(artistName);
-                            document.getElementById(inputId).value = '';
-                            dropdown.classList.add('hidden');
-                        } else if (type === 'track') {
-                            const index = parseInt(item.dataset.index);
-                            this.filteredMusic = [...this.musicData];
-                            this.playTrack(index);
-                            document.getElementById(inputId).value = '';
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-                });
-
-                // Add artist link listeners for track results
-                this.addArtistClickListeners(dropdown);
-            }
-
-            async saveMusicDatabase() {
-                try {
-                    const musicJson = JSON.stringify(this.musicData, null, 2);
-                    
-                    if ('showSaveFilePicker' in window) {
-                        const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: 'music.json',
-                            types: [{
-                                description: 'JSON Files',
-                                accept: {'application/json': ['.json']},
-                            }],
-                        });
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(musicJson);
-                        await writable.close();
-                        alert('Music database saved successfully to music.json!');
-                    } else {
-                        const blob = new Blob([musicJson], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'music.json';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        alert('Music database downloaded as music.json!');
-                    }
-                } catch (e) {
-                    console.error('Save failed:', e);
-                    alert('Failed to save music database. Please try again.');
                 }
             }
 
@@ -1475,284 +291,302 @@
                 document.querySelectorAll('.nav-item').forEach(item => {
                     item.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const page = item.dataset.page;
-                        this.showPage(page);
-                        
+                        this.showPage(item.dataset.page);
                         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
                         item.classList.add('active');
                     });
                 });
 
-                // Breadcrumb navigation
-                document.querySelector('.breadcrumb a[data-page="artists"]').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.showPage('artists');
-                });
-
-                // Mobile menu
-                document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-                    document.getElementById('sidebar').classList.toggle('open');
-                });
-
                 // Player controls
-                document.getElementById('playPauseBtn').addEventListener('click', () => this.togglePlay());
+                document.getElementById('playBtn').addEventListener('click', () => this.togglePlay());
                 document.getElementById('nextBtn').addEventListener('click', () => this.nextTrack());
                 document.getElementById('prevBtn').addEventListener('click', () => this.prevTrack());
                 document.getElementById('shuffleBtn').addEventListener('click', () => this.toggleShuffle());
                 document.getElementById('repeatBtn').addEventListener('click', () => this.toggleRepeat());
-                document.getElementById('likeCurrentBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
+                document.getElementById('likeBtn').addEventListener('click', () => this.toggleLike());
 
-                // Fullscreen player controls
-                document.getElementById('fullscreenPlayBtn').addEventListener('click', () => this.togglePlay());
-                document.getElementById('fullscreenPrevBtn').addEventListener('click', () => this.prevTrack());
-                document.getElementById('fullscreenNextBtn').addEventListener('click', () => this.nextTrack());
-                document.getElementById('fullscreenLikeBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
-                document.getElementById('fullscreenSaveBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
-                document.getElementById('closeFullscreen').addEventListener('click', () => this.hideFullscreenPlayer());
-
-                // Current cover click to show fullscreen
-                document.getElementById('currentCover').addEventListener('click', () => this.showFullscreenPlayer());
-                document.getElementById('currentTitle').addEventListener('click', () => this.showFullscreenPlayer());
-
-                // Progress bar click for both regular and fullscreen
-                document.getElementById('playerProgressBar').addEventListener('click', (e) => this.seekToPosition(e));
-                document.getElementById('fullscreenProgressBar').addEventListener('click', (e) => this.seekToPosition(e));
-
-                // Enhanced search functionality
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    const query = e.target.value;
-                    clearTimeout(this.searchTimeout);
-                    
-                    if (query.trim()) {
-                        this.searchTimeout = setTimeout(() => {
-                            const results = this.performEnhancedSearch(query);
-                            this.showSearchDropdown('searchInput', 'searchDropdown', results);
-                        }, 300);
-                    } else {
-                        document.getElementById('searchDropdown').classList.add('hidden');
-                        this.filteredMusic = [...this.musicData];
-                        this.renderMusic();
-                    }
+                // Progress and volume
+                document.getElementById('progressBar').addEventListener('click', (e) => this.seek(e));
+                document.getElementById('volumeSlider').addEventListener('input', (e) => {
+                    this.audio.volume = e.target.value / 100;
                 });
 
-                document.getElementById('artistSearchInput').addEventListener('input', (e) => {
-                    const query = e.target.value;
-                    clearTimeout(this.searchTimeout);
-                    
-                    if (query.trim()) {
-                        this.searchTimeout = setTimeout(() => {
-                            const results = this.performEnhancedSearch(query);
-                            this.showSearchDropdown('artistSearchInput', 'artistSearchDropdown', results);
-                        }, 300);
-                    } else {
-                        document.getElementById('artistSearchDropdown').classList.add('hidden');
-                        this.renderArtists();
-                    }
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => this.search(e.target.value));
+
+                // Upload
+                document.querySelectorAll('.tag-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.toggleTag(btn.dataset.tag));
                 });
+                document.getElementById('addTagBtn').addEventListener('click', () => this.addCustomTag());
+                document.getElementById('uploadBtn').addEventListener('click', () => this.uploadTrack());
 
-                // Hide dropdowns when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.relative')) {
-                        document.getElementById('searchDropdown').classList.add('hidden');
-                        document.getElementById('artistSearchDropdown').classList.add('hidden');
-                    }
-                });
-
-                document.getElementById('manageSearchInput').addEventListener('input', (e) => this.handleManageSearch(e.target.value));
-
-                // Artist profile controls
-                document.getElementById('playArtistBtn').addEventListener('click', () => this.playArtistTracks());
-                document.getElementById('followArtistBtn').addEventListener('click', () => this.toggleFollowArtist());
-
-                // Artist pagination
-                document.getElementById('prevPageBtn').addEventListener('click', () => this.changePage(-1));
-                document.getElementById('nextPageBtn').addEventListener('click', () => this.changePage(1));
-
-                // Browse music button
-                document.getElementById('browseMusic').addEventListener('click', () => this.showPage('music'));
-
-                // Profile actions
-                document.getElementById('exportUserData').addEventListener('click', () => this.exportUserData());
-                document.getElementById('exportMusicDatabase').addEventListener('click', () => this.exportMusicDatabase());
-                document.getElementById('clearUserData').addEventListener('click', () => this.clearUserData());
-
-                // Manage page actions
-                document.getElementById('saveDatabaseBtn').addEventListener('click', () => this.saveMusicDatabase());
-                document.getElementById('refreshDatabaseBtn').addEventListener('click', () => this.loadMusicData());
-
-                // Upload functionality
-                this.setupUploadListeners();
+                // Manage
+                document.getElementById('saveDbBtn').addEventListener('click', () => this.saveDatabase());
 
                 // Edit modal
                 document.getElementById('cancelEdit').addEventListener('click', () => this.closeEditModal());
-                document.getElementById('editForm').addEventListener('submit', (e) => this.handleEditSubmit(e));
+                document.getElementById('saveEdit').addEventListener('click', () => this.saveEdit());
 
                 // Audio events
-                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
                 this.audio.addEventListener('timeupdate', () => this.updateProgress());
                 this.audio.addEventListener('ended', () => this.handleTrackEnd());
-                this.audio.addEventListener('play', () => this.handlePlay());
-                this.audio.addEventListener('pause', () => this.handlePause());
+                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+                this.audio.addEventListener('play', () => this.updatePlayButton(true));
+                this.audio.addEventListener('pause', () => this.updatePlayButton(false));
             }
 
-            showFullscreenPlayer() {
-                if (!this.currentTrack) return;
-
-                const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+            showPage(pageId) {
+                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+                document.getElementById(pageId + 'Page').classList.remove('hidden');
                 
-                // Update fullscreen player content
-                document.getElementById('fullscreenCover').src = this.currentTrack.cover;
-                document.getElementById('fullscreenTitle').textContent = this.currentTrack.title;
-                document.getElementById('fullscreenArtist').innerHTML = this.createClickableArtistNames(this.currentTrack.artist);
-                
-                // Add artist click listeners
-                this.addArtistClickListeners(document.getElementById('fullscreenArtist'));
-                
-                // Update like button
-                this.updateFullscreenLikeButton();
-                
-                // Show the fullscreen player
-                fullscreenPlayer.classList.add('show');
-                
-                // Update progress and controls
-                this.updateFullscreenProgress();
-            }
-
-            hideFullscreenPlayer() {
-                document.getElementById('fullscreenPlayer').classList.remove('show');
-            }
-
-            updateFullscreenLikeButton() {
-                if (!this.currentTrack) return;
-                
-                const likeBtn = document.getElementById('fullscreenLikeBtn');
-                const saveBtn = document.getElementById('fullscreenSaveBtn');
-                const isLiked = this.isTrackSaved(this.currentTrack);
-                
-                likeBtn.innerHTML = isLiked ? '<i class="fas fa-heart text-purple-500"></i>' : '<i class="far fa-heart"></i>';
-                saveBtn.innerHTML = isLiked ? '<i class="fas fa-check mr-2"></i>Saved' : '<i class="fas fa-plus mr-2"></i>Save to Library';
-                saveBtn.className = isLiked ? 
-                    'bg-gray-600 text-white px-6 py-2 rounded-full font-semibold cursor-default' : 
-                    'bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold';
-            }
-
-            updateFullscreenProgress() {
-                const current = this.audio.currentTime;
-                const duration = this.audio.duration;
-                
-                if (isFinite(duration) && duration > 0) {
-                    const percent = (current / duration) * 100;
-                    document.getElementById('fullscreenProgressFill').style.width = `${percent}%`;
-                    document.getElementById('fullscreenCurrentTime').textContent = this.formatTime(current);
-                    document.getElementById('fullscreenDuration').textContent = this.formatTime(duration);
+                switch(pageId) {
+                    case 'browse': this.renderMusic(); break;
+                    case 'artists': this.renderArtists(); break;
+                    case 'library': this.renderLibrary(); break;
+                    case 'manage': this.renderManage(); break;
                 }
-                
-                // Update play button
-                const playBtn = document.getElementById('fullscreenPlayBtn');
-                playBtn.innerHTML = this.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
             }
 
-            seekToPosition(e) {
-                if (!this.currentTrack || !isFinite(this.audio.duration)) return;
-                
-                const progressBar = e.currentTarget;
-                const rect = progressBar.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                const seekTime = percent * this.audio.duration;
-                
-                this.audio.currentTime = seekTime;
+            renderMusic() {
+                const grid = document.getElementById('musicGrid');
+                grid.innerHTML = this.filteredMusic.map((track, index) => `
+                    <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
+                        <div class="relative mb-4">
+                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
+                            <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playTrack(${index})">
+                                <i class="fas fa-play text-white"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold truncate">${track.title}</h3>
+                        <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs text-gray-500">${track.tags[0]}</span>
+                            <button onclick="player.toggleTrackLike(${index})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            setupUploadListeners() {
-                // File inputs
-                document.getElementById('musicFileInput').addEventListener('change', (e) => this.handleMusicFileSelect(e));
-                document.getElementById('coverFileInput').addEventListener('change', (e) => this.handleCoverFileSelect(e));
+            renderArtists() {
+                const artists = new Map();
+                this.musicData.forEach(track => {
+                    const artistNames = track.artist.split(',').map(a => a.trim());
+                    artistNames.forEach(artist => {
+                        if (!artists.has(artist)) {
+                            artists.set(artist, { name: artist, tracks: [], cover: track.cover });
+                        }
+                        artists.get(artist).tracks.push(track);
+                    });
+                });
 
-                // Upload areas
-                const musicUploadArea = document.getElementById('musicUploadArea');
-                const coverUploadArea = document.getElementById('coverUploadArea');
+                const grid = document.getElementById('artistsGrid');
+                grid.innerHTML = Array.from(artists.values()).map(artist => `
+                    <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer text-center group" onclick="player.showArtistProfile('${artist.name}')">
+                        <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mb-4">
+                        <h3 class="font-semibold">${artist.name}</h3>
+                        <p class="text-gray-400 text-sm">${artist.tracks.length} tracks</p>
+                    </div>
+                `).join('');
+            }
 
-                this.setupDropZone(musicUploadArea, 'musicFileInput');
-                this.setupDropZone(coverUploadArea, 'coverFileInput');
+            showArtistProfile(artistName) {
+                this.showPage('artistProfile');
+                const artistTracks = this.musicData.filter(track => track.artist.includes(artistName));
+                const firstTrack = artistTracks[0];
+                
+                document.getElementById('artistImage').src = firstTrack.cover;
+                document.getElementById('artistName').textContent = artistName;
+                document.getElementById('artistStats').textContent = `${artistTracks.length} tracks`;
+                
+                document.getElementById('playArtistBtn').onclick = () => {
+                    this.filteredMusic = artistTracks;
+                    this.playTrack(0);
+                };
 
-                // Tag functionality
-                document.getElementById('addCustomTag').addEventListener('click', () => this.addCustomTag());
-                document.getElementById('customTagInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.addCustomTag();
+                const tracksHtml = artistTracks.map((track, index) => {
+                    const globalIndex = this.musicData.findIndex(t => t === track);
+                    return `
+                        <div class="flex items-center p-3 hover:bg-gray-800 rounded cursor-pointer" onclick="player.playTrack(${globalIndex})">
+                            <img src="${track.cover}" alt="${track.title}" class="w-12 h-12 rounded mr-4">
+                            <div class="flex-1">
+                                <h4 class="font-medium">${track.title}</h4>
+                                <p class="text-gray-400 text-sm">${track.artist}</p>
+                            </div>
+                            <button onclick="event.stopPropagation(); player.toggleTrackLike(${globalIndex})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('artistTracks').innerHTML = tracksHtml;
+                this.renderArtistChart(artistTracks);
+            }
+
+            renderArtistChart(tracks) {
+                const ctx = document.getElementById('artistChart').getContext('2d');
+                const data = tracks.slice(0, 5).map(track => ({
+                    label: track.title.substring(0, 15),
+                    value: this.userData.artistStreams[track.title] || 0
+                }));
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(d => d.label),
+                        datasets: [{
+                            data: data.map(d => d.value),
+                            backgroundColor: '#8B5CF6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: '#b3b3b3' } },
+                            x: { ticks: { color: '#b3b3b3' } }
+                        }
                     }
                 });
-
-                document.querySelectorAll('#popularTags .tag-item').forEach(tag => {
-                    tag.addEventListener('click', () => this.toggleTag(tag.dataset.tag));
-                });
-
-                // Upload button
-                document.getElementById('uploadTrack').addEventListener('click', () => this.handleUpload());
             }
 
-            setupDropZone(area, inputId) {
-                area.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    area.classList.add('dragover');
-                });
-
-                area.addEventListener('dragleave', () => {
-                    area.classList.remove('dragover');
-                });
-
-                area.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    area.classList.remove('dragover');
-                    
-                    const files = Array.from(e.dataTransfer.files);
-                    const input = document.getElementById(inputId);
-                    
-                    if (files.length > 0) {
-                        input.files = e.dataTransfer.files;
-                        input.dispatchEvent(new Event('change'));
-                    }
-                });
-
-                area.addEventListener('click', () => {
-                    document.getElementById(inputId).click();
-                });
-            }
-
-            handleMusicFileSelect(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    document.getElementById('musicFileName').textContent = file.name;
-                    document.getElementById('musicFileInfo').classList.remove('hidden');
-                    
-                    const title = file.name.replace('.mp3', '').replace(/[-_]/g, ' ');
-                    document.getElementById('trackTitle').value = title;
+            renderLibrary() {
+                const grid = document.getElementById('libraryGrid');
+                if (this.userData.likes.length === 0) {
+                    grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-16">No saved tracks</div>';
+                    return;
                 }
-            }
-
-            handleCoverFileSelect(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    document.getElementById('coverFileName').textContent = file.name;
-                    document.getElementById('coverFileInfo').classList.remove('hidden');
-                    
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        document.getElementById('coverPreview').src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-
-            addCustomTag() {
-                const input = document.getElementById('customTagInput');
-                const tag = input.value.trim().toLowerCase();
                 
-                if (tag && !this.selectedTags.includes(tag)) {
-                    this.selectedTags.push(tag);
-                    this.renderSelectedTags();
-                    input.value = '';
+                grid.innerHTML = this.userData.likes.map((track, index) => `
+                    <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
+                        <div class="relative mb-4">
+                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
+                            <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playFromLibrary(${index})">
+                                <i class="fas fa-play text-white"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold truncate">${track.title}</h3>
+                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
+                    </div>
+                `).join('');
+            }
+
+            renderManage() {
+                const grid = document.getElementById('manageGrid');
+                grid.innerHTML = this.musicData.map((track, index) => `
+                    <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded">
+                            <div>
+                                <h3 class="font-semibold">${track.title}</h3>
+                                <p class="text-gray-400">${track.artist}</p>
+                                <div class="flex gap-1">${track.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="player.editTrack(${index})" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">Edit</button>
+                            <button onclick="player.deleteTrack(${index})" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            playTrack(index) {
+                if (index < 0 || index >= this.filteredMusic.length) return;
+                
+                this.currentTrack = this.filteredMusic[index];
+                this.currentIndex = index;
+                this.audio.src = this.currentTrack.file;
+                this.audio.play();
+                
+                this.updateNowPlaying();
+                this.addToRecent(this.currentTrack);
+                this.updateStats();
+            }
+
+            playFromLibrary(index) {
+                const track = this.userData.likes[index];
+                const globalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
+                if (globalIndex !== -1) {
+                    this.filteredMusic = [...this.musicData];
+                    this.playTrack(globalIndex);
                 }
+            }
+
+            togglePlay() {
+                if (!this.currentTrack) {
+                    if (this.filteredMusic.length > 0) this.playTrack(0);
+                    return;
+                }
+                
+                if (this.isPlaying) {
+                    this.audio.pause();
+                } else {
+                    this.audio.play();
+                }
+            }
+
+            nextTrack() {
+                if (!this.currentTrack) return;
+                let nextIndex = this.shuffle ? Math.floor(Math.random() * this.filteredMusic.length) : (this.currentIndex + 1) % this.filteredMusic.length;
+                this.playTrack(nextIndex);
+            }
+
+            prevTrack() {
+                if (!this.currentTrack) return;
+                let prevIndex = this.shuffle ? Math.floor(Math.random() * this.filteredMusic.length) : (this.currentIndex - 1 + this.filteredMusic.length) % this.filteredMusic.length;
+                this.playTrack(prevIndex);
+            }
+
+            toggleShuffle() {
+                this.shuffle = !this.shuffle;
+                document.getElementById('shuffleBtn').style.color = this.shuffle ? '#8B5CF6' : '';
+            }
+
+            toggleRepeat() {
+                this.repeat = !this.repeat;
+                document.getElementById('repeatBtn').style.color = this.repeat ? '#8B5CF6' : '';
+            }
+
+            toggleLike() {
+                if (!this.currentTrack) return;
+                this.toggleTrackLike(this.currentIndex);
+            }
+
+            toggleTrackLike(index) {
+                const track = this.filteredMusic[index] || this.musicData[index];
+                if (!track) return;
+                
+                const likedIndex = this.userData.likes.findIndex(t => t.title === track.title && t.artist === track.artist);
+                
+                if (likedIndex > -1) {
+                    this.userData.likes.splice(likedIndex, 1);
+                } else {
+                    this.userData.likes.push(track);
+                }
+                
+                this.saveUserData();
+                this.updateLikeButton();
+                this.renderMusic();
+                this.renderLibrary();
+            }
+
+            search(query) {
+                if (!query.trim()) {
+                    this.filteredMusic = [...this.musicData];
+                } else {
+                    const term = query.toLowerCase();
+                    this.filteredMusic = this.musicData.filter(track => 
+                        track.title.toLowerCase().includes(term) ||
+                        track.artist.toLowerCase().includes(term) ||
+                        track.tags.some(tag => tag.toLowerCase().includes(term))
+                    );
+                }
+                this.renderMusic();
             }
 
             toggleTag(tag) {
@@ -1765,527 +599,64 @@
                 this.renderSelectedTags();
             }
 
+            addCustomTag() {
+                const input = document.getElementById('customTag');
+                const tag = input.value.trim().toLowerCase();
+                if (tag && !this.selectedTags.includes(tag)) {
+                    this.selectedTags.push(tag);
+                    this.renderSelectedTags();
+                    input.value = '';
+                }
+            }
+
             renderSelectedTags() {
-                const container = document.getElementById('selectedTags');
-                container.innerHTML = this.selectedTags.map(tag => `
-                    <span class="tag-item">
-                        ${tag}
-                        <button class="ml-2 hover:text-red-300" onclick="sotaPlayer.removeTag('${tag}')">×</button>
-                    </span>
-                `).join('');
+                document.getElementById('selectedTags').innerHTML = this.selectedTags.map(tag => 
+                    `<span class="tag-item">${tag} <button onclick="player.removeTag('${tag}')">×</button></span>`
+                ).join('');
             }
 
             removeTag(tag) {
-                const index = this.selectedTags.indexOf(tag);
-                if (index > -1) {
-                    this.selectedTags.splice(index, 1);
-                    this.renderSelectedTags();
-                }
+                this.selectedTags = this.selectedTags.filter(t => t !== tag);
+                this.renderSelectedTags();
             }
 
-            handleUpload() {
-                const musicFile = document.getElementById('musicFileInput').files[0];
-                const coverFile = document.getElementById('coverFileInput').files[0];
+            uploadTrack() {
                 const title = document.getElementById('trackTitle').value.trim();
-                const artist = document.getElementById('artistName').value.trim();
-
-                if (!musicFile || !coverFile || !title || !artist || this.selectedTags.length === 0) {
-                    alert('Please fill in all fields and select at least one tag');
+                const artist = document.getElementById('trackArtist').value.trim();
+                
+                if (!title || !artist || this.selectedTags.length === 0) {
+                    alert('Please fill all fields and select tags');
                     return;
                 }
-
-                const timestamp = Date.now();
-                const musicPath = `music/${timestamp}_${musicFile.name}`;
-                const coverPath = `cover/${timestamp}_${coverFile.name}`;
-
+                
                 const newTrack = {
-                    file: musicPath,
-                    title: title,
-                    artist: artist,
-                    cover: coverPath,
+                    file: `music/${title.replace(/\s+/g, '-')}.mp3`,
+                    title,
+                    artist,
+                    cover: `cover/${title.replace(/\s+/g, '-')}.jpg`,
                     tags: [...this.selectedTags]
                 };
-
+                
                 this.musicData.push(newTrack);
                 this.filteredMusic = [...this.musicData];
-                this.filteredManageData = [...this.musicData];
-                this.buildArtistsMap();
-
-                this.saveUserData();
-                this.updateUI();
                 this.resetUploadForm();
-
-                alert('Track uploaded successfully! Don\'t forget to click "Save Database" to persist changes to music.json');
+                this.updateUI();
+                alert('Track uploaded! Remember to save database.');
             }
 
             resetUploadForm() {
-                document.getElementById('musicFileInput').value = '';
-                document.getElementById('coverFileInput').value = '';
                 document.getElementById('trackTitle').value = '';
-                document.getElementById('artistName').value = '';
-                document.getElementById('customTagInput').value = '';
-                document.getElementById('musicFileInfo').classList.add('hidden');
-                document.getElementById('coverFileInfo').classList.add('hidden');
+                document.getElementById('trackArtist').value = '';
                 this.selectedTags = [];
                 this.renderSelectedTags();
             }
 
-            showPage(pageId) {
-                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-                document.getElementById(pageId + 'Page').classList.remove('hidden');
-                
-                // Hide search dropdowns when changing pages
-                document.getElementById('searchDropdown').classList.add('hidden');
-                document.getElementById('artistSearchDropdown').classList.add('hidden');
-                
-                if (pageId === 'library') {
-                    this.updateLibraryPage();
-                } else if (pageId === 'manage') {
-                    this.updateManagePage();
-                } else if (pageId === 'artists') {
-                    this.renderArtists();
-                }
-            }
-
-            showArtistProfile(artistName) {
-                this.currentArtist = this.artists.get(artistName);
-                this.currentArtistPage = 1;
-                
-                if (!this.currentArtist) return;
-                
-                this.showPage('artistProfile');
-                this.renderArtistProfile();
-                this.renderArtistTracks();
-                this.renderArtistChart();
-            }
-
-            renderArtistProfile() {
-                if (!this.currentArtist) return;
-
-                document.getElementById('artistBreadcrumb').textContent = this.currentArtist.name;
-                document.getElementById('artistName').textContent = this.currentArtist.name;
-                document.getElementById('artistAvatar').src = this.currentArtist.cover;
-                document.getElementById('artistStats').textContent = `${this.currentArtist.totalStreams} total streams`;
-                document.getElementById('artistTrackCount').textContent = this.currentArtist.tracks.length;
-                
-                // Update genres
-                const genresContainer = document.getElementById('artistGenres');
-                genresContainer.innerHTML = Array.from(this.currentArtist.genres).slice(0, 5).map(genre => 
-                    `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${genre}</span>`
-                ).join('');
-
-                // Update latest release
-                document.getElementById('latestRelease').textContent = this.currentArtist.latestRelease ? 
-                    this.currentArtist.latestRelease.title : '-';
-
-                // Update follow button
-                const isFollowing = this.userData.followedArtists.includes(this.currentArtist.name);
-                const followBtn = document.getElementById('followArtistBtn');
-                followBtn.textContent = isFollowing ? 'Following' : 'Follow';
-                followBtn.className = isFollowing ? 
-                    'border border-sota-purple text-sota-purple px-6 py-3 rounded-full font-semibold' :
-                    'border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold';
-
-                // Update statistics
-                const totalStreams = this.currentArtist.tracks.reduce((sum, track) => 
-                    sum + (this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0), 0);
-                const avgStreams = this.currentArtist.tracks.length > 0 ? 
-                    Math.round(totalStreams / this.currentArtist.tracks.length) : 0;
-                const mostPopular = this.currentArtist.tracks.length > 0 ? this.currentArtist.tracks[0].title : '-';
-
-                document.getElementById('totalStreams').textContent = totalStreams;
-                document.getElementById('avgStreams').textContent = avgStreams;
-                document.getElementById('mostPopular').textContent = mostPopular;
-            }
-
-            renderArtistTracks() {
-                if (!this.currentArtist) return;
-
-                const startIndex = (this.currentArtistPage - 1) * this.tracksPerPage;
-                const endIndex = startIndex + this.tracksPerPage;
-                const tracks = this.currentArtist.tracks.slice(startIndex, endIndex);
-                
-                const container = document.getElementById('artistTracks');
-                container.innerHTML = tracks.map((track, index) => {
-                    const globalIndex = this.musicData.findIndex(t => t === track);
-                    const streams = this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0;
-                    const actualIndex = startIndex + index + 1;
-                    
-                    return `
-                        <div class="flex items-center space-x-4 p-3 rounded hover:bg-gray-800 cursor-pointer group" data-track-index="${globalIndex}">
-                            <span class="text-gray-400 text-sm w-6">${actualIndex}</span>
-                            <div class="flex-1 flex items-center space-x-3">
-                                <img src="${track.cover}" alt="${track.title}" class="w-10 h-10 rounded">
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-medium truncate">${track.title}</h4>
-                                    <p class="text-sm text-gray-400 truncate">${this.createClickableArtistNames(track.artist)}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-400">${streams} streams</span>
-                                <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-purple-500' : ''}" data-action="like" data-index="${globalIndex}">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                                <button class="opacity-0 group-hover:opacity-100 text-white hover:text-purple-500" data-action="play" data-index="${globalIndex}">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Add event listeners
-                container.querySelectorAll('[data-action="play"]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const index = parseInt(btn.dataset.index);
-                        this.filteredMusic = [...this.musicData];
-                        this.playTrack(index);
-                    });
-                });
-
-                container.querySelectorAll('[data-action="like"]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const index = parseInt(btn.dataset.index);
-                        const track = this.musicData[index];
-                        this.toggleLikeTrack(track, index);
-                    });
-                });
-
-                // Add artist click listeners
-                this.addArtistClickListeners(container);
-
-                // Update pagination
-                this.updateArtistPagination();
-            }
-
-            updateArtistPagination() {
-                if (!this.currentArtist) return;
-
-                const totalPages = Math.ceil(this.currentArtist.tracks.length / this.tracksPerPage);
-                const prevBtn = document.getElementById('prevPageBtn');
-                const nextBtn = document.getElementById('nextPageBtn');
-                const pageInfo = document.getElementById('pageInfo');
-
-                pageInfo.textContent = `Page ${this.currentArtistPage} of ${totalPages}`;
-                
-                prevBtn.disabled = this.currentArtistPage === 1;
-                nextBtn.disabled = this.currentArtistPage === totalPages;
-
-                if (totalPages <= 1) {
-                    document.getElementById('artistPagination').style.display = 'none';
-                } else {
-                    document.getElementById('artistPagination').style.display = 'flex';
-                }
-            }
-
-            changePage(direction) {
-                if (!this.currentArtist) return;
-
-                const totalPages = Math.ceil(this.currentArtist.tracks.length / this.tracksPerPage);
-                const newPage = this.currentArtistPage + direction;
-
-                if (newPage >= 1 && newPage <= totalPages) {
-                    this.currentArtistPage = newPage;
-                    this.renderArtistTracks();
-                }
-            }
-
-            renderArtistChart() {
-                if (!this.currentArtist) return;
-
-                const ctx = document.getElementById('artistChart').getContext('2d');
-                
-                if (this.artistChart) {
-                    this.artistChart.destroy();
-                }
-
-                const trackNames = this.currentArtist.tracks.slice(0, 5).map(track => 
-                    track.title.length > 15 ? track.title.substring(0, 15) + '...' : track.title
-                );
-                const streamData = this.currentArtist.tracks.slice(0, 5).map(track => 
-                    this.userData.artistStreams[`${this.currentArtist.name}_${track.title}`] || 0
-                );
-
-                this.artistChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: trackNames,
-                        datasets: [{
-                            label: 'Streams',
-                            data: streamData,
-                            backgroundColor: '#8B5CF6',
-                            borderColor: '#8B5CF6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    color: '#b3b3b3'
-                                },
-                                grid: {
-                                    color: '#333'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: '#b3b3b3'
-                                },
-                                grid: {
-                                    color: '#333'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            playArtistTracks() {
-                if (!this.currentArtist || this.currentArtist.tracks.length === 0) return;
-                
-                this.filteredMusic = [...this.currentArtist.tracks];
-                this.playTrack(0);
-            }
-
-            toggleFollowArtist() {
-                if (!this.currentArtist) return;
-
-                const isFollowing = this.userData.followedArtists.includes(this.currentArtist.name);
-                
-                if (isFollowing) {
-                    this.userData.followedArtists = this.userData.followedArtists.filter(name => 
-                        name !== this.currentArtist.name
-                    );
-                } else {
-                    this.userData.followedArtists.push(this.currentArtist.name);
-                }
-
-                this.saveUserData();
-                this.renderArtistProfile();
-            }
-
-            renderArtists() {
-                const container = document.getElementById('artistsGrid');
-                const sortedArtists = Array.from(this.artists.values()).sort((a, b) => b.totalStreams - a.totalStreams);
-
-                if (sortedArtists.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-16 col-span-full">
-                            <i class="fas fa-user-music text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">No artists found</h3>
-                            <p class="mb-4">Upload some music to see artists</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = sortedArtists.map(artist => `
-                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
-                        <div class="relative mb-4">
-                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto shadow-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-white"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate mb-1">${artist.name}</h3>
-                        <p class="text-gray-400 text-sm">${artist.tracks.length} ${artist.tracks.length === 1 ? 'track' : 'tracks'}</p>
-                        <p class="text-gray-500 text-xs">${artist.totalStreams} streams</p>
-                    </div>
-                `).join('');
-
-                // Add click listeners
-                container.querySelectorAll('.music-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const artistName = card.dataset.artist;
-                        this.showArtistProfile(artistName);
-                    });
-
-                    const playBtn = card.querySelector('button');
-                    playBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const artistName = card.dataset.artist;
-                        const artist = this.artists.get(artistName);
-                        if (artist && artist.tracks.length > 0) {
-                            this.filteredMusic = [...artist.tracks];
-                            this.playTrack(0);
-                        }
-                    });
-                });
-            }
-
-            updateTopArtists() {
-                const container = document.getElementById('topArtists');
-                const sortedArtists = Array.from(this.artists.values())
-                    .sort((a, b) => b.totalStreams - a.totalStreams)
-                    .slice(0, 5);
-
-                if (sortedArtists.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-8 col-span-full">
-                            <i class="fas fa-user-music text-4xl mb-4"></i>
-                            <p>No artist data available</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = sortedArtists.map(artist => `
-                    <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
-                        <div class="relative mb-4">
-                            <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto">
-                            <button class="absolute bottom-2 right-2 w-10 h-10 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                <i class="fas fa-play text-white text-xs"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate text-sm mb-1">${artist.name}</h3>
-                        <p class="text-gray-400 text-xs">Artist</p>
-                    </div>
-                `).join('');
-
-                // Add click listeners
-                container.querySelectorAll('.music-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const artistName = card.dataset.artist;
-                        this.showArtistProfile(artistName);
-                    });
-                });
-            }
-
-            renderMusic() {
-                const grid = document.getElementById('musicGrid');
-                if (!grid) return;
-
-                grid.innerHTML = '';
-
-                if (this.filteredMusic.length === 0) {
-                    grid.innerHTML = `
-                        <div class="text-center text-gray-400 py-8 col-span-full">
-                            <i class="fas fa-music text-4xl mb-4"></i>
-                            <p>No music found</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                this.filteredMusic.forEach((track, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'music-card p-4 rounded-lg cursor-pointer relative group';
-                    card.innerHTML = `
-                        <div class="relative mb-4">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-action="play" data-index="${index}">
-                                <i class="fas fa-play text-white"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
-                        <div class="flex items-center justify-between mt-2">
-                            <span class="text-xs text-gray-500">${track.tags[0]}</span>
-                            <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-purple-500' : ''}" data-action="like" data-index="${index}">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
-                    `;
-
-                    const playBtn = card.querySelector('[data-action="play"]');
-                    const likeBtn = card.querySelector('[data-action="like"]');
-
-                    playBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.playTrack(index);
-                    });
-
-                    likeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.toggleLikeTrack(track, index);
-                    });
-
-                    // Add artist click listeners
-                    this.addArtistClickListeners(card);
-
-                    grid.appendChild(card);
-                });
-            }
-
-            updateManagePage() {
-                const container = document.getElementById('manageGrid');
-                if (!container) return;
-
-                if (this.filteredManageData.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-16">
-                            <i class="fas fa-music text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">No tracks found</h3>
-                            <p class="mb-4">Upload some music to get started</p>
-                            <button onclick="sotaPlayer.showPage('upload')" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
-                                Upload Music
-                            </button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = this.filteredManageData.map((track, originalIndex) => {
-                    const actualIndex = this.musicData.findIndex(t => t === track);
-                    return `
-                        <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded object-cover">
-                                <div>
-                                    <h3 class="font-semibold">${track.title}</h3>
-                                    <p class="text-gray-400 text-sm">${this.createClickableArtistNames(track.artist)}</p>
-                                    <div class="flex flex-wrap gap-1 mt-1">
-                                        ${track.tags.slice(0, 3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.playTrackFromManage(${actualIndex})">
-                                    <i class="fas fa-play mr-1"></i>Play
-                                </button>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.editTrack(${actualIndex})">
-                                    <i class="fas fa-edit mr-1"></i>Edit
-                                </button>
-                                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.deleteTrack(${actualIndex})">
-                                    <i class="fas fa-trash mr-1"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Add artist click listeners to manage page
-                this.addArtistClickListeners(container);
-            }
-
-            playTrackFromManage(index) {
-                if (index >= 0 && index < this.musicData.length) {
-                    this.filteredMusic = [...this.musicData];
-                    this.playTrack(index);
-                }
-            }
-
             editTrack(index) {
-                if (index < 0 || index >= this.musicData.length) return;
-                
+                this.editIndex = index;
                 const track = this.musicData[index];
-                this.currentEditIndex = index;
-
                 document.getElementById('editTitle').value = track.title;
                 document.getElementById('editArtist').value = track.artist;
                 document.getElementById('editTags').value = track.tags.join(', ');
-
                 document.getElementById('editModal').classList.remove('hidden');
                 document.getElementById('editModal').classList.add('flex');
             }
@@ -2293,440 +664,152 @@
             closeEditModal() {
                 document.getElementById('editModal').classList.add('hidden');
                 document.getElementById('editModal').classList.remove('flex');
-                this.currentEditIndex = -1;
             }
 
-            handleEditSubmit(e) {
-                e.preventDefault();
+            saveEdit() {
+                if (this.editIndex === -1) return;
                 
-                if (this.currentEditIndex === -1) return;
-
-                const track = this.musicData[this.currentEditIndex];
+                const track = this.musicData[this.editIndex];
                 track.title = document.getElementById('editTitle').value.trim();
                 track.artist = document.getElementById('editArtist').value.trim();
-                track.tags = document.getElementById('editTags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
-
-                this.filteredMusic = [...this.musicData];
-                this.filteredManageData = [...this.musicData];
-                this.buildArtistsMap();
+                track.tags = document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(t => t);
                 
-                this.updateUI();
+                this.filteredMusic = [...this.musicData];
                 this.closeEditModal();
-
-                alert('Track updated successfully! Don\'t forget to save the database.');
+                this.updateUI();
+                alert('Track updated!');
             }
 
             deleteTrack(index) {
-                if (index < 0 || index >= this.musicData.length) return;
-                
-                const track = this.musicData[index];
-                
-                if (confirm(`Are you sure you want to delete "${track.title}" by ${track.artist}?`)) {
+                if (confirm('Delete this track?')) {
                     this.musicData.splice(index, 1);
                     this.filteredMusic = [...this.musicData];
-                    this.filteredManageData = [...this.musicData];
-                    this.buildArtistsMap();
-
                     this.updateUI();
-                    alert('Track deleted successfully! Don\'t forget to save the database.');
                 }
             }
 
-            handleManageSearch(query) {
-                if (!query.trim()) {
-                    this.filteredManageData = [...this.musicData];
-                } else {
-                    const searchTerm = query.toLowerCase();
-                    this.filteredManageData = this.musicData.filter(track => 
-                        track.title.toLowerCase().includes(searchTerm) ||
-                        track.artist.toLowerCase().includes(searchTerm) ||
-                        track.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-                    );
-                }
-
-                this.updateManagePage();
-            }
-
-            playTrack(index) {
-                if (index < 0 || index >= this.filteredMusic.length) return;
-                
-                this.currentTrack = this.filteredMusic[index];
-                this.currentIndex = index;
-                
-                this.audio.src = this.currentTrack.file;
-                this.audio.load();
-                this.audio.play().catch(error => {
-                    console.error('Error playing audio:', error);
-                    alert('Error playing this track. The file may not exist or be corrupted.');
-                });
-
-                this.updateNowPlaying();
-                this.addToRecentlyPlayed(this.currentTrack);
-                this.updateListenData(this.currentTrack);
-                this.updateArtistStreams(this.currentTrack);
-                this.updateFullscreenLikeButton();
-            }
-
-            updateArtistStreams(track) {
-                const artistNames = track.artist.split(',').map(name => name.trim());
-                
-                artistNames.forEach(artistName => {
-                    const key = `${artistName}_${track.title}`;
-                    if (!this.userData.artistStreams[key]) {
-                        this.userData.artistStreams[key] = 0;
-                    }
-                    this.userData.artistStreams[key]++;
-                });
-
-                this.saveUserData();
-                this.buildArtistsMap();
-                this.updateTopArtists();
-                
-                if (this.currentArtist) {
-                    this.renderArtistProfile();
-                    this.renderArtistChart();
-                }
-            }
-
-            togglePlay() {
-                if (!this.currentTrack) {
-                    if (this.filteredMusic.length > 0) {
-                        this.playTrack(0);
-                    }
-                    return;
-                }
-
-                if (this.isPlaying) {
-                    this.audio.pause();
-                } else {
-                    this.audio.play().catch(error => {
-                        console.error('Error playing audio:', error);
-                    });
-                }
-            }
-
-            nextTrack() {
-                if (!this.currentTrack) return;
-
-                let nextIndex;
-                if (this.shuffle) {
-                    nextIndex = Math.floor(Math.random() * this.filteredMusic.length);
-                } else {
-                    nextIndex = (this.currentIndex + 1) % this.filteredMusic.length;
-                }
-                
-                this.playTrack(nextIndex);
-            }
-
-            prevTrack() {
-                if (!this.currentTrack) return;
-
-                let prevIndex;
-                if (this.shuffle) {
-                    prevIndex = Math.floor(Math.random() * this.filteredMusic.length);
-                } else {
-                    prevIndex = this.currentIndex === 0 ? this.filteredMusic.length - 1 : this.currentIndex - 1;
-                }
-                
-                this.playTrack(prevIndex);
-            }
-
-            toggleShuffle() {
-                this.shuffle = !this.shuffle;
-                const btn = document.getElementById('shuffleBtn');
-                btn.classList.toggle('sota-purple', this.shuffle);
-            }
-
-            toggleRepeat() {
-                this.repeat = !this.repeat;
-                const btn = document.getElementById('repeatBtn');
-                btn.classList.toggle('sota-purple', this.repeat);
-            }
-
-            toggleLikeCurrentTrack() {
-                if (!this.currentTrack) return;
-                this.toggleLikeTrack(this.currentTrack, this.currentIndex);
-            }
-
-            toggleLikeTrack(track, index) {
-                const isSaved = this.isTrackSaved(track);
-                
-                if (isSaved) {
-                    this.userData.savedSongs = this.userData.savedSongs.filter(saved => 
-                        saved.title !== track.title || saved.artist !== track.artist
-                    );
-                    
-                    track.tags.forEach(tag => {
-                        if (this.userData.likes[tag]) {
-                            this.userData.likes[tag] -= 0.5;
-                            if (this.userData.likes[tag] <= 0) {
-                                delete this.userData.likes[tag];
-                            }
-                        }
-                    });
-                } else {
-                    this.userData.savedSongs.push({
-                        ...track,
-                        savedAt: new Date().toISOString()
-                    });
-                    
-                    track.tags.forEach(tag => {
-                        if (!this.userData.likes[tag]) this.userData.likes[tag] = 0;
-                        this.userData.likes[tag] += 0.5;
-                    });
-                }
-
-                this.saveUserData();
-                this.updateLikeButton();
-                this.updateFullscreenLikeButton();
-                this.renderMusic();
-                this.updateLibraryPage();
-                this.updateRecommendations();
-                
-                if (this.currentArtist) {
-                    this.renderArtistTracks();
-                }
-            }
-
-            isTrackSaved(track) {
-                return this.userData.savedSongs.some(saved => 
-                    saved.title === track.title && saved.artist === track.artist
-                );
+            saveDatabase() {
+                const blob = new Blob([JSON.stringify(this.musicData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'music.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                alert('Database saved as music.json');
             }
 
             updateNowPlaying() {
                 if (!this.currentTrack) return;
-
+                
                 document.getElementById('currentTitle').textContent = this.currentTrack.title;
-                
-                // Create clickable artist names for current playing track
-                const currentArtistElement = document.getElementById('currentArtist');
-                currentArtistElement.innerHTML = this.createClickableArtistNames(this.currentTrack.artist);
-                this.addArtistClickListeners(currentArtistElement.parentElement);
-                
-                const coverImg = document.getElementById('currentCover');
-                coverImg.src = this.currentTrack.cover;
-                coverImg.classList.remove('hidden');
-                
-                const likeBtn = document.getElementById('likeCurrentBtn');
-                likeBtn.classList.remove('hidden');
-                
+                document.getElementById('currentArtist').innerHTML = this.createArtistLinks(this.currentTrack.artist);
+                document.getElementById('currentCover').src = this.currentTrack.cover;
+                document.getElementById('currentCover').classList.remove('hidden');
+                document.getElementById('likeBtn').classList.remove('hidden');
                 this.updateLikeButton();
             }
 
             updateLikeButton() {
                 if (!this.currentTrack) return;
-                
-                const likeBtn = document.getElementById('likeCurrentBtn');
-                const isLiked = this.isTrackSaved(this.currentTrack);
-                
-                likeBtn.innerHTML = isLiked ? '<i class="fas fa-heart text-purple-500"></i>' : '<i class="far fa-heart"></i>';
+                const btn = document.getElementById('likeBtn');
+                const isLiked = this.isLiked(this.currentTrack);
+                btn.innerHTML = isLiked ? '<i class="fas fa-heart" style="color: #8B5CF6;"></i>' : '<i class="far fa-heart"></i>';
             }
 
-            addToRecentlyPlayed(track) {
-                this.userData.recentlyPlayed = this.userData.recentlyPlayed.filter(recent => 
-                    recent.title !== track.title || recent.artist !== track.artist
-                );
-                
-                this.userData.recentlyPlayed.unshift({
-                    ...track,
-                    playedAt: new Date().toISOString()
-                });
-                
-                if (this.userData.recentlyPlayed.length > 20) {
-                    this.userData.recentlyPlayed = this.userData.recentlyPlayed.slice(0, 20);
+            updatePlayButton(playing) {
+                this.isPlaying = playing;
+                const icon = document.querySelector('#playBtn i');
+                icon.className = playing ? 'fas fa-pause' : 'fas fa-play';
+            }
+
+            updateProgress() {
+                const current = this.audio.currentTime;
+                const duration = this.audio.duration;
+                if (duration) {
+                    const percent = (current / duration) * 100;
+                    document.getElementById('progressFill').style.width = `${percent}%`;
+                    document.getElementById('currentTime').textContent = this.formatTime(current);
                 }
-
-                this.saveUserData();
-                this.updateRecentlyPlayed();
             }
 
-            updateListenData(track) {
-                track.tags.forEach(tag => {
-                    if (!this.userData.listens[tag]) this.userData.listens[tag] = 0;
-                    this.userData.listens[tag] += 0.2;
-                });
-                this.saveUserData();
+            updateDuration() {
+                document.getElementById('duration').textContent = this.formatTime(this.audio.duration);
             }
 
-            updateRecommendations() {
-                const container = document.getElementById('recommendations');
-                if (!container) return;
-                
-                const tagScores = {};
-                Object.entries(this.userData.likes).forEach(([tag, score]) => {
-                    tagScores[tag] = (tagScores[tag] || 0) + score * 1.0;
-                });
-                Object.entries(this.userData.listens).forEach(([tag, score]) => {
-                    tagScores[tag] = (tagScores[tag] || 0) + score * 0.4;
-                });
-                Object.entries(this.userData.searches).forEach(([tag, score]) => {
-                    tagScores[tag] = (tagScores[tag] || 0) + score * 0.2;
-                });
+            seek(e) {
+                if (!this.audio.duration) return;
+                const rect = e.target.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                this.audio.currentTime = percent * this.audio.duration;
+            }
 
-                const scoredMusic = this.musicData.map(track => {
-                    let score = 0;
-                    track.tags.forEach(tag => {
-                        score += tagScores[tag] || 0;
-                    });
-                    return { ...track, score };
-                }).filter(track => track.score > 0)
-                  .sort((a, b) => b.score - a.score)
-                  .slice(0, 8);
-
-                if (scoredMusic.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-8 col-span-full">
-                            <i class="fas fa-music text-4xl mb-4"></i>
-                            <p>Start listening to music to get personalized recommendations!</p>
-                        </div>
-                    `;
-                    return;
+            handleTrackEnd() {
+                if (this.repeat) {
+                    this.audio.currentTime = 0;
+                    this.audio.play();
+                } else {
+                    this.nextTrack();
                 }
+            }
 
-                container.innerHTML = scoredMusic.map((track, index) => `
-                    <div class="music-card p-4 rounded-lg cursor-pointer relative group" data-track-index="${index}">
-                        <div class="relative mb-4">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-white"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
+            addToRecent(track) {
+                this.userData.recent = this.userData.recent.filter(t => t.title !== track.title || t.artist !== track.artist);
+                this.userData.recent.unshift(track);
+                if (this.userData.recent.length > 10) this.userData.recent.pop();
+                this.saveUserData();
+            }
+
+            updateStats() {
+                if (this.currentTrack) {
+                    if (!this.userData.artistStreams[this.currentTrack.title]) {
+                        this.userData.artistStreams[this.currentTrack.title] = 0;
+                    }
+                    this.userData.artistStreams[this.currentTrack.title]++;
+                    this.userData.totalListens++;
+                    this.saveUserData();
+                }
+            }
+
+            updateUI() {
+                document.getElementById('totalTracks').textContent = this.musicData.length;
+                document.getElementById('totalArtists').textContent = new Set(this.musicData.map(t => t.artist.split(',').map(a => a.trim())).flat()).size;
+                document.getElementById('totalSaved').textContent = this.userData.likes.length;
+                document.getElementById('totalListens').textContent = this.userData.totalListens;
+                
+                const recentGrid = document.getElementById('recentTracks');
+                recentGrid.innerHTML = this.userData.recent.slice(0, 4).map(track => `
+                    <div class="music-card bg-gray-800 p-4 rounded-lg">
+                        <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
+                        <h4 class="font-medium truncate">${track.title}</h4>
+                        <p class="text-gray-400 text-sm truncate">${track.artist}</p>
                     </div>
                 `).join('');
-
-                container.querySelectorAll('.music-card').forEach((card, index) => {
-                    card.addEventListener('click', () => {
-                        const track = scoredMusic[index];
-                        const originalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
-                        if (originalIndex !== -1) {
-                            this.filteredMusic = [...this.musicData];
-                            this.playTrack(originalIndex);
-                        }
-                    });
-                });
-
-                // Add artist click listeners
-                this.addArtistClickListeners(container);
             }
 
-            updateRecentlyPlayed() {
-                const container = document.getElementById('recentlyPlayed');
-                if (!container) return;
-                
-                if (this.userData.recentlyPlayed.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-8 col-span-full">
-                            <i class="fas fa-history text-4xl mb-4"></i>
-                            <p>No recent activity</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const recent = this.userData.recentlyPlayed.slice(0, 8);
-                container.innerHTML = recent.map((track, index) => `
-                    <div class="music-card p-4 rounded-lg cursor-pointer relative group" data-recent-index="${index}">
-                        <div class="relative mb-4">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-white"></i>
-                            </button>
-                        </div>
-                        <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                        <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
-                    </div>
-                `).join('');
-
-                container.querySelectorAll('.music-card').forEach((card, index) => {
-                    card.addEventListener('click', () => {
-                        const track = recent[index];
-                        const originalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
-                        if (originalIndex !== -1) {
-                            this.filteredMusic = [...this.musicData];
-                            this.playTrack(originalIndex);
-                        }
-                    });
-                });
-
-                // Add artist click listeners
-                this.addArtistClickListeners(container);
+            createArtistLinks(artistString) {
+                return artistString.split(',').map(artist => 
+                    `<span class="artist-link" onclick="player.showArtistProfile('${artist.trim()}')">${artist.trim()}</span>`
+                ).join(', ');
             }
 
-            updateLibraryPage() {
-                const container = document.getElementById('libraryContent');
-                if (!container) return;
-                
-                if (this.userData.savedSongs.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-gray-400 py-16">
-                            <i class="fas fa-heart text-6xl mb-6"></i>
-                            <h3 class="text-xl font-semibold mb-2">Your library is empty</h3>
-                            <p class="mb-4">Save music you love by clicking the heart icon</p>
-                            <button id="browseMusic" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
-                                Browse Music
-                            </button>
-                        </div>
-                    `;
-                    
-                    document.getElementById('browseMusic').addEventListener('click', () => this.showPage('music'));
-                    return;
-                }
-
-                container.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        ${this.userData.savedSongs.map((track, index) => `
-                            <div class="music-card p-4 rounded-lg cursor-pointer relative group">
-                                <div class="relative mb-4">
-                                    <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                                    <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-library-play="${index}">
-                                        <i class="fas fa-play text-white"></i>
-                                    </button>
-                                </div>
-                                <h3 class="font-semibold truncate mb-1">${track.title}</h3>
-                                <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-xs text-gray-500">${track.tags[0]}</span>
-                                    <button class="text-purple-500 hover:text-white" data-library-unlike="${index}">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-
-                container.querySelectorAll('[data-library-play]').forEach((btn, index) => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const track = this.userData.savedSongs[index];
-                        const originalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
-                        if (originalIndex !== -1) {
-                            this.filteredMusic = [...this.musicData];
-                            this.playTrack(originalIndex);
-                        }
-                    });
-                });
-
-                container.querySelectorAll('[data-library-unlike]').forEach((btn, index) => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const track = this.userData.savedSongs[index];
-                        this.toggleLikeTrack(track, index);
-                    });
-                });
-
-                // Add artist click listeners
-                this.addArtistClickListeners(container);
+            isLiked(track) {
+                return this.userData.likes.some(t => t.title === track.title && t.artist === track.artist);
             }
 
-            updateProfileStats() {
-                const elements = {
-                    savedCount: this.userData.savedSongs.length,
-                    homeSavedCount: this.userData.savedSongs.length,
-                    listenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
-                    homeListenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
-                    searchCount: Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0),
-pa
+            formatTime(seconds) {
+                if (isNaN(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            saveUserData() {
+                localStorage.setItem('sotaUserData', JSON.stringify(this.userData));
+            }
+        }
+
+        const player = new CompactMusicPlayer();
+    </script>
+</body>
+</html>

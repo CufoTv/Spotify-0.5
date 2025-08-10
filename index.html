@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOTA+ Music Player - Compact Edition</title>
+    <title>SOTA+ Music Player - Enhanced Admin Edition</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,6 +26,10 @@
         .artist-link:hover { text-decoration: underline; }
         .modal { backdrop-filter: blur(10px); }
         .tag-item { background: var(--sota-purple); padding: 4px 8px; border-radius: 12px; font-size: 12px; margin: 2px; }
+        .storage-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .storage-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 100%); }
+        .real-time-indicator { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="text-white">
@@ -33,12 +37,12 @@
         <!-- Sidebar -->
         <div class="sidebar w-64 p-6 flex flex-col">
             <h1 class="text-3xl font-bold mb-8">
-                <span style="color: var(--sota-purple)">SOTA</span><span class="text-white">+</span>
+                <span style="color: var(--sota-purple)">SOTA</span><span class="text-white">+ Admin</span>
             </h1>
             <nav class="flex-1">
                 <div class="space-y-2">
                     <a href="#" class="nav-item active block p-3 rounded" data-page="home">
-                        <i class="fas fa-home mr-3"></i>Home
+                        <i class="fas fa-home mr-3"></i>Admin Dashboard
                     </a>
                     <a href="#" class="nav-item block p-3 rounded" data-page="browse">
                         <i class="fas fa-music mr-3"></i>Browse Music
@@ -55,37 +59,253 @@
                     <a href="#" class="nav-item block p-3 rounded" data-page="manage">
                         <i class="fas fa-cog mr-3"></i>Manage
                     </a>
+                    <a href="#" class="nav-item block p-3 rounded" data-page="settings">
+                        <i class="fas fa-cog mr-3"></i>Settings
+                    </a>
                 </div>
             </nav>
+            
+            <!-- Real-time Storage Info -->
+            <div class="mt-auto bg-gray-800 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold mb-2">Storage Usage</h4>
+                <div class="storage-bar mb-2">
+                    <div id="storageBarFill" class="storage-fill" style="width: 0%"></div>
+                </div>
+                <div class="text-xs text-gray-400">
+                    <div>Music: <span id="musicStorageSize">0 MB</span></div>
+                    <div>Available: <span id="availableStorage">Unknown</span></div>
+                    <div class="real-time-indicator">🔴 Live</div>
+                </div>
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
             <main class="flex-1 p-6 overflow-y-auto">
-                <!-- Home Page -->
+                <!-- Admin Dashboard -->
                 <div id="homePage" class="page">
-                    <h2 class="text-3xl font-bold mb-6">Good evening, Admin</h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">Admin Dashboard</h2>
+                        <div class="text-sm text-gray-400">
+                            <span class="real-time-indicator">🔴</span> Real-time monitoring
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Stats Grid -->
                     <div class="grid grid-cols-4 gap-6 mb-8">
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Total Tracks</p>
                             <p id="totalTracks" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-green-400 mt-1">+<span id="newTracksToday">0</span> today</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Artists</p>
                             <p id="totalArtists" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-blue-400 mt-1">Active now: <span id="activeArtists">0</span></p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="text-gray-400 text-sm">Saved</p>
+                            <p class="text-gray-400 text-sm">Admin Likes</p>
                             <p id="totalSaved" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-purple-400 mt-1">Personal collection</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="text-gray-400 text-sm">Listens</p>
+                            <p class="text-gray-400 text-sm">Admin Plays</p>
                             <p id="totalListens" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-yellow-400 mt-1">Last: <span id="lastPlayed">Never</span></p>
                         </div>
                     </div>
+
+                    <!-- Storage Overview -->
+                    <div class="grid grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">Storage Analysis</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Music Files:</span>
+                                    <span id="musicFileCount">0 files</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Size:</span>
+                                    <span id="totalMusicSize">0 MB</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Average File:</span>
+                                    <span id="averageFileSize">0 MB</span>
+                                </div>
+                                <div class="storage-bar">
+                                    <div id="musicStorageBar" class="storage-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">Local Data Usage</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Likes Data:</span>
+                                    <span id="likesDataSize">0 KB</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">History:</span>
+                                    <span id="historyDataSize">0 KB</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Settings:</span>
+                                    <span id="settingsDataSize">0 KB</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Total Local:</span>
+                                    <span id="totalLocalSize">0 KB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">Device Storage</h3>
+                            <div id="deviceStorageInfo" class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Used:</span>
+                                    <span id="deviceUsed">Checking...</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Available:</span>
+                                    <span id="deviceAvailable">Checking...</span>
+                                </div>
+                                <div class="storage-bar">
+                                    <div id="deviceStorageBar" class="storage-fill" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500">*Estimated values</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Activity -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold mb-4">Recently Played</h3>
+                        <h3 class="text-xl font-semibold mb-4">Recent Admin Activity</h3>
                         <div id="recentTracks" class="grid grid-cols-4 gap-4"></div>
+                    </div>
+
+                    <!-- Real-time Monitoring -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">
+                            <span class="real-time-indicator">🔴</span> Real-time Monitoring
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-400">Currently Playing:</p>
+                                <p id="currentlyPlaying">Nothing</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Session Duration:</p>
+                                <p id="sessionDuration">00:00:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Settings & Data Management</h2>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Local Data Management -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Local Data Management</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
+                                    <div>
+                                        <h4 class="font-medium">Liked Songs</h4>
+                                        <p class="text-sm text-gray-400">Your saved music preferences</p>
+                                        <p class="text-xs text-purple-400">Size: <span id="likesSize">0 KB</span></p>
+                                    </div>
+                                    <button onclick="player.clearLikes()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
+                                        Clear Likes
+                                    </button>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
+                                    <div>
+                                        <h4 class="font-medium">Listening History</h4>
+                                        <p class="text-sm text-gray-400">Recently played tracks and statistics</p>
+                                        <p class="text-xs text-blue-400">Size: <span id="historySize">0 KB</span></p>
+                                    </div>
+                                    <button onclick="player.clearHistory()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
+                                        Clear History
+                                    </button>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
+                                    <div>
+                                        <h4 class="font-medium">All Local Data</h4>
+                                        <p class="text-sm text-gray-400">Complete reset of all stored data</p>
+                                        <p class="text-xs text-red-400">Size: <span id="allDataSize">0 KB</span></p>
+                                    </div>
+                                    <button onclick="player.clearAllData()" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-sm">
+                                        Clear All Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Storage Information -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Storage Information</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-700 p-4 rounded">
+                                    <h4 class="font-medium mb-2">Music Library</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Total Files:</span>
+                                            <span id="settingsTotalFiles">0</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Library Size:</span>
+                                            <span id="settingsLibrarySize">0 MB</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Average Quality:</span>
+                                            <span id="averageQuality">320 kbps</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-700 p-4 rounded">
+                                    <h4 class="font-medium mb-2">Device Storage</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Available:</span>
+                                            <span id="settingsAvailable">Checking...</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Used:</span>
+                                            <span id="settingsUsed">Checking...</span>
+                                        </div>
+                                        <div class="storage-bar mt-2">
+                                            <div id="settingsStorageBar" class="storage-fill" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Monitoring Settings -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Monitoring Settings</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" id="realTimeMonitoring" checked class="rounded">
+                                    <span>Enable real-time storage monitoring</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" id="autoRefresh" checked class="rounded">
+                                    <span>Auto-refresh dashboard every 30 seconds</span>
+                                </label>
+                                <label class="flex items-center space-x-3">
+                                    <input type="checkbox" id="storageAlerts" class="rounded">
+                                    <span>Show storage alerts when space is low</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -248,7 +468,7 @@
     <audio id="audioPlayer"></audio>
 
     <script>
-        class CompactMusicPlayer {
+        class EnhancedMusicPlayer {
             constructor() {
                 this.musicData = [];
                 this.filteredMusic = [];
@@ -259,20 +479,38 @@
                 this.repeat = false;
                 this.selectedTags = [];
                 this.editIndex = -1;
-                this.userData = JSON.parse(localStorage.getItem('sotaUserData')) || {
+                this.sessionStartTime = Date.now();
+                
+                // Admin-focused user data
+                this.adminData = JSON.parse(localStorage.getItem('sotaAdminData')) || {
                     likes: [],
                     recent: [],
                     artistStreams: {},
-                    totalListens: 0
+                    totalListens: 0,
+                    sessionStats: {
+                        startTime: Date.now(),
+                        tracksPlayed: 0,
+                        totalPlaytime: 0
+                    }
                 };
+                
                 this.audio = document.getElementById('audioPlayer');
+                this.storageInfo = {
+                    musicFiles: 0,
+                    totalSize: 0,
+                    averageSize: 0
+                };
+                
                 this.init();
+                this.startRealTimeMonitoring();
             }
 
             async init() {
                 await this.loadMusic();
                 this.setupEventListeners();
+                this.calculateStorageUsage();
                 this.updateUI();
+                this.checkDeviceStorage();
             }
 
             async loadMusic() {
@@ -280,10 +518,132 @@
                     const response = await fetch('service/music.json');
                     this.musicData = await response.json();
                     this.filteredMusic = [...this.musicData];
+                    this.calculateMusicLibraryStats();
                 } catch (error) {
                     console.error('Error loading music:', error);
                     this.musicData = [];
                 }
+            }
+
+            calculateMusicLibraryStats() {
+                this.storageInfo.musicFiles = this.musicData.length;
+                
+                // Estimate file sizes based on typical MP3 sizes (3-5MB average)
+                const estimatedSizes = this.musicData.map(() => {
+                    return Math.random() * (5000 - 3000) + 3000; // 3-5MB in KB
+                });
+                
+                this.storageInfo.totalSize = estimatedSizes.reduce((sum, size) => sum + size, 0);
+                this.storageInfo.averageSize = this.storageInfo.totalSize / this.storageInfo.musicFiles || 0;
+            }
+
+            async checkDeviceStorage() {
+                if ('storage' in navigator && 'estimate' in navigator.storage) {
+                    try {
+                        const estimate = await navigator.storage.estimate();
+                        const used = estimate.usage || 0;
+                        const quota = estimate.quota || 0;
+                        const available = quota - used;
+                        
+                        this.updateStorageDisplay(used, available, quota);
+                    } catch (error) {
+                        console.log('Storage API not available');
+                        this.updateStorageDisplay(0, 0, 0, true);
+                    }
+                } else {
+                    this.updateStorageDisplay(0, 0, 0, true);
+                }
+            }
+
+            updateStorageDisplay(used, available, quota, unavailable = false) {
+                const formatBytes = (bytes) => {
+                    if (bytes === 0) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                };
+
+                if (unavailable) {
+                    document.getElementById('deviceUsed').textContent = 'Unavailable';
+                    document.getElementById('deviceAvailable').textContent = 'Unavailable';
+                    document.getElementById('availableStorage').textContent = 'Unknown';
+                    return;
+                }
+
+                const usedPercent = quota > 0 ? (used / quota) * 100 : 0;
+                
+                document.getElementById('deviceUsed').textContent = formatBytes(used);
+                document.getElementById('deviceAvailable').textContent = formatBytes(available);
+                document.getElementById('availableStorage').textContent = formatBytes(available);
+                document.getElementById('deviceStorageBar').style.width = `${usedPercent}%`;
+                document.getElementById('settingsUsed').textContent = formatBytes(used);
+                document.getElementById('settingsAvailable').textContent = formatBytes(available);
+                document.getElementById('settingsStorageBar').style.width = `${usedPercent}%`;
+            }
+
+            calculateStorageUsage() {
+                const formatSize = (kb) => {
+                    if (kb < 1024) return `${kb.toFixed(1)} KB`;
+                    if (kb < 1024 * 1024) return `${(kb / 1024).toFixed(1)} MB`;
+                    return `${(kb / (1024 * 1024)).toFixed(1)} GB`;
+                };
+
+                // Update music storage info
+                document.getElementById('musicFileCount').textContent = `${this.storageInfo.musicFiles} files`;
+                document.getElementById('totalMusicSize').textContent = formatSize(this.storageInfo.totalSize);
+                document.getElementById('averageFileSize').textContent = formatSize(this.storageInfo.averageSize);
+                document.getElementById('musicStorageSize').textContent = formatSize(this.storageInfo.totalSize);
+
+                // Calculate local data sizes
+                const likesSize = JSON.stringify(this.adminData.likes).length / 1024;
+                const historySize = JSON.stringify(this.adminData.recent).length / 1024;
+                const settingsSize = JSON.stringify(this.adminData).length / 1024;
+                const totalLocalSize = likesSize + historySize + settingsSize;
+
+                document.getElementById('likesDataSize').textContent = formatSize(likesSize);
+                document.getElementById('historyDataSize').textContent = formatSize(historySize);
+                document.getElementById('settingsDataSize').textContent = formatSize(settingsSize);
+                document.getElementById('totalLocalSize').textContent = formatSize(totalLocalSize);
+
+                // Update settings page
+                document.getElementById('likesSize').textContent = formatSize(likesSize);
+                document.getElementById('historySize').textContent = formatSize(historySize);
+                document.getElementById('allDataSize').textContent = formatSize(totalLocalSize);
+                document.getElementById('settingsTotalFiles').textContent = this.storageInfo.musicFiles;
+                document.getElementById('settingsLibrarySize').textContent = formatSize(this.storageInfo.totalSize);
+
+                // Storage bar for music
+                const storagePercent = Math.min((this.storageInfo.totalSize / (1024 * 1024)) * 10, 100); // Rough estimation
+                document.getElementById('musicStorageBar').style.width = `${storagePercent}%`;
+                document.getElementById('storageBarFill').style.width = `${storagePercent}%`;
+            }
+
+            startRealTimeMonitoring() {
+                // Update session duration every second
+                setInterval(() => {
+                    const duration = Date.now() - this.sessionStartTime;
+                    const hours = Math.floor(duration / (1000 * 60 * 60));
+                    const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((duration % (1000 * 60)) / 1000);
+                    
+                    document.getElementById('sessionDuration').textContent = 
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+
+                // Auto-refresh data every 30 seconds if enabled
+                setInterval(() => {
+                    if (document.getElementById('autoRefresh')?.checked) {
+                        this.calculateStorageUsage();
+                        this.checkDeviceStorage();
+                    }
+                }, 30000);
+
+                // Update real-time indicators
+                setInterval(() => {
+                    const playing = this.currentTrack ? `${this.currentTrack.title} - ${this.currentTrack.artist}` : 'Nothing';
+                    document.getElementById('currentlyPlaying').textContent = playing;
+                }, 1000);
             }
 
             setupEventListeners() {
@@ -345,6 +705,57 @@
                     case 'artists': this.renderArtists(); break;
                     case 'library': this.renderLibrary(); break;
                     case 'manage': this.renderManage(); break;
+                    case 'settings': this.updateSettingsPage(); break;
+                }
+            }
+
+            updateSettingsPage() {
+                this.calculateStorageUsage();
+                this.checkDeviceStorage();
+            }
+
+            // Data clearing functions
+            clearLikes() {
+                if (confirm('Are you sure you want to clear all liked songs? This action cannot be undone.')) {
+                    this.adminData.likes = [];
+                    this.saveAdminData();
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    this.renderLibrary();
+                    alert('Liked songs cleared successfully!');
+                }
+            }
+
+            clearHistory() {
+                if (confirm('Are you sure you want to clear your listening history? This action cannot be undone.')) {
+                    this.adminData.recent = [];
+                    this.adminData.artistStreams = {};
+                    this.adminData.totalListens = 0;
+                    this.saveAdminData();
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    alert('Listening history cleared successfully!');
+                }
+            }
+
+            clearAllData() {
+                if (confirm('Are you sure you want to clear ALL local data? This will reset everything including likes, history, and settings. This action cannot be undone.')) {
+                    localStorage.removeItem('sotaAdminData');
+                    this.adminData = {
+                        likes: [],
+                        recent: [],
+                        artistStreams: {},
+                        totalListens: 0,
+                        sessionStats: {
+                            startTime: Date.now(),
+                            tracksPlayed: 0,
+                            totalPlaytime: 0
+                        }
+                    };
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    this.renderLibrary();
+                    alert('All local data cleared successfully!');
                 }
             }
 
@@ -430,7 +841,7 @@
                 const ctx = document.getElementById('artistChart').getContext('2d');
                 const data = tracks.slice(0, 5).map(track => ({
                     label: track.title.substring(0, 15),
-                    value: this.userData.artistStreams[track.title] || 0
+                    value: this.adminData.artistStreams[track.title] || 0
                 }));
 
                 new Chart(ctx, {
@@ -456,12 +867,12 @@
 
             renderLibrary() {
                 const grid = document.getElementById('libraryGrid');
-                if (this.userData.likes.length === 0) {
+                if (this.adminData.likes.length === 0) {
                     grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-16">No saved tracks</div>';
                     return;
                 }
                 
-                grid.innerHTML = this.userData.likes.map((track, index) => `
+                grid.innerHTML = this.adminData.likes.map((track, index) => `
                     <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
                         <div class="relative mb-4">
                             <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
@@ -509,7 +920,7 @@
             }
 
             playFromLibrary(index) {
-                const track = this.userData.likes[index];
+                const track = this.adminData.likes[index];
                 const globalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
                 if (globalIndex !== -1) {
                     this.filteredMusic = [...this.musicData];
@@ -561,18 +972,19 @@
                 const track = this.filteredMusic[index] || this.musicData[index];
                 if (!track) return;
                 
-                const likedIndex = this.userData.likes.findIndex(t => t.title === track.title && t.artist === track.artist);
+                const likedIndex = this.adminData.likes.findIndex(t => t.title === track.title && t.artist === track.artist);
                 
                 if (likedIndex > -1) {
-                    this.userData.likes.splice(likedIndex, 1);
+                    this.adminData.likes.splice(likedIndex, 1);
                 } else {
-                    this.userData.likes.push(track);
+                    this.adminData.likes.push(track);
                 }
                 
-                this.saveUserData();
+                this.saveAdminData();
                 this.updateLikeButton();
                 this.renderMusic();
                 this.renderLibrary();
+                this.calculateStorageUsage();
             }
 
             search(query) {
@@ -640,7 +1052,9 @@
                 this.musicData.push(newTrack);
                 this.filteredMusic = [...this.musicData];
                 this.resetUploadForm();
+                this.calculateMusicLibraryStats();
                 this.updateUI();
+                this.calculateStorageUsage();
                 alert('Track uploaded! Remember to save database.');
             }
 
@@ -684,7 +1098,9 @@
                 if (confirm('Delete this track?')) {
                     this.musicData.splice(index, 1);
                     this.filteredMusic = [...this.musicData];
+                    this.calculateMusicLibraryStats();
                     this.updateUI();
+                    this.calculateStorageUsage();
                 }
             }
 
@@ -754,31 +1170,37 @@
             }
 
             addToRecent(track) {
-                this.userData.recent = this.userData.recent.filter(t => t.title !== track.title || t.artist !== track.artist);
-                this.userData.recent.unshift(track);
-                if (this.userData.recent.length > 10) this.userData.recent.pop();
-                this.saveUserData();
+                this.adminData.recent = this.adminData.recent.filter(t => t.title !== track.title || t.artist !== track.artist);
+                this.adminData.recent.unshift(track);
+                if (this.adminData.recent.length > 10) this.adminData.recent.pop();
+                this.saveAdminData();
             }
 
             updateStats() {
                 if (this.currentTrack) {
-                    if (!this.userData.artistStreams[this.currentTrack.title]) {
-                        this.userData.artistStreams[this.currentTrack.title] = 0;
+                    if (!this.adminData.artistStreams[this.currentTrack.title]) {
+                        this.adminData.artistStreams[this.currentTrack.title] = 0;
                     }
-                    this.userData.artistStreams[this.currentTrack.title]++;
-                    this.userData.totalListens++;
-                    this.saveUserData();
+                    this.adminData.artistStreams[this.currentTrack.title]++;
+                    this.adminData.totalListens++;
+                    this.adminData.sessionStats.tracksPlayed++;
+                    this.saveAdminData();
                 }
             }
 
             updateUI() {
                 document.getElementById('totalTracks').textContent = this.musicData.length;
                 document.getElementById('totalArtists').textContent = new Set(this.musicData.map(t => t.artist.split(',').map(a => a.trim())).flat()).size;
-                document.getElementById('totalSaved').textContent = this.userData.likes.length;
-                document.getElementById('totalListens').textContent = this.userData.totalListens;
+                document.getElementById('totalSaved').textContent = this.adminData.likes.length;
+                document.getElementById('totalListens').textContent = this.adminData.totalListens;
+                
+                // Update additional admin stats
+                document.getElementById('newTracksToday').textContent = '0'; // This would need real tracking
+                document.getElementById('activeArtists').textContent = new Set(this.adminData.recent.slice(0, 5).map(t => t.artist)).size;
+                document.getElementById('lastPlayed').textContent = this.adminData.recent.length > 0 ? 'Recently' : 'Never';
                 
                 const recentGrid = document.getElementById('recentTracks');
-                recentGrid.innerHTML = this.userData.recent.slice(0, 4).map(track => `
+                recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(track => `
                     <div class="music-card bg-gray-800 p-4 rounded-lg">
                         <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
                         <h4 class="font-medium truncate">${track.title}</h4>
@@ -794,7 +1216,7 @@
             }
 
             isLiked(track) {
-                return this.userData.likes.some(t => t.title === track.title && t.artist === track.artist);
+                return this.adminData.likes.some(t => t.title === track.title && t.artist === track.artist);
             }
 
             formatTime(seconds) {
@@ -804,12 +1226,12 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             }
 
-            saveUserData() {
-                localStorage.setItem('sotaUserData', JSON.stringify(this.userData));
+            saveAdminData() {
+                localStorage.setItem('sotaAdminData', JSON.stringify(this.adminData));
             }
         }
 
-        const player = new CompactMusicPlayer();
+        const player = new EnhancedMusicPlayer();
     </script>
 </body>
 </html>

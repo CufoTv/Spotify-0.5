@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOTA+ Music Player - Enhanced Admin Edition</title>
+    <title>SOTA+ Music Player - Enhanced Admin Edition with Reference System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -44,11 +44,18 @@
             font-weight: bold;
             color: white;
             margin-left: 8px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
         }
         .variant-single { background: #10b981; }
         .variant-ep { background: #f59e0b; }
         .variant-album { background: #ef4444; }
         .fans-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+        .album-track-list { background: #1f1f1f; border-radius: 8px; padding: 16px; margin-top: 8px; }
+        .album-track { padding: 8px 0; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
+        .album-track:hover { background: rgba(139, 92, 246, 0.1); border-radius: 4px; }
+        .album-track:last-child { border-bottom: none; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
@@ -114,24 +121,24 @@
                     <!-- Enhanced Stats Grid -->
                     <div class="grid grid-cols-4 gap-6 mb-8">
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="text-gray-400 text-sm">Total Tracks</p>
-                            <p id="totalTracks" class="text-2xl font-bold">0</p>
-                            <p class="text-xs text-green-400 mt-1">+<span id="newTracksToday">0</span> today</p>
+                            <p class="text-gray-400 text-sm">Total Items</p>
+                            <p id="totalItems" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-green-400 mt-1">Singles + Albums/EPs</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="text-gray-400 text-sm">Playable Tracks</p>
+                            <p id="totalPlayableTracks" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-blue-400 mt-1">Direct playable songs</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Artists</p>
                             <p id="totalArtists" class="text-2xl font-bold">0</p>
-                            <p class="text-xs text-blue-400 mt-1">Features: <span id="totalFeatures">0</span></p>
+                            <p class="text-xs text-purple-400 mt-1">Features: <span id="totalFeatures">0</span></p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Admin Likes</p>
                             <p id="totalSaved" class="text-2xl font-bold">0</p>
-                            <p class="text-xs text-purple-400 mt-1">Personal collection</p>
-                        </div>
-                        <div class="bg-gray-800 p-4 rounded-lg">
-                            <p class="text-gray-400 text-sm">Admin Plays</p>
-                            <p id="totalListens" class="text-2xl font-bold">0</p>
-                            <p class="text-xs text-yellow-400 mt-1">Last: <span id="lastPlayed">Never</span></p>
+                            <p class="text-xs text-yellow-400 mt-1">Personal collection</p>
                         </div>
                     </div>
 
@@ -140,21 +147,24 @@
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Singles</p>
                             <p id="totalSingles" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-green-400 mt-1">Direct playable</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">EPs</p>
                             <p id="totalEPs" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-orange-400 mt-1">Track collections</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg">
                             <p class="text-gray-400 text-sm">Albums</p>
                             <p id="totalAlbums" class="text-2xl font-bold">0</p>
+                            <p class="text-xs text-red-400 mt-1">Full releases</p>
                         </div>
                     </div>
 
                     <!-- Storage Overview -->
                     <div class="grid grid-cols-3 gap-6 mb-8">
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold mb-4">Storage Analysis</h3>
+                            <h3 class="text-lg font-semibold mb-4">Music Library Analysis</h3>
                             <div class="space-y-3">
                                 <div class="flex justify-between">
                                     <span class="text-gray-400">Music Files:</span>
@@ -175,24 +185,21 @@
                         </div>
                         
                         <div class="bg-gray-800 p-4 rounded-lg">
-                            <h3 class="text-lg font-semibold mb-4">Local Data Usage</h3>
+                            <h3 class="text-lg font-semibold mb-4">Reference System</h3>
                             <div class="space-y-3">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Likes Data:</span>
-                                    <span id="likesDataSize">0 KB</span>
+                                    <span class="text-gray-400">Referenced Tracks:</span>
+                                    <span id="referencedTracks">0</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">History:</span>
-                                    <span id="historyDataSize">0 KB</span>
+                                    <span class="text-gray-400">Orphaned Singles:</span>
+                                    <span id="orphanedSingles">0</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-gray-400">Settings:</span>
-                                    <span id="settingsDataSize">0 KB</span>
+                                    <span class="text-gray-400">Collections:</span>
+                                    <span id="totalCollections">0</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-400">Total Local:</span>
-                                    <span id="totalLocalSize">0 KB</span>
-                                </div>
+                                <div class="text-xs text-gray-500 mt-2">Albums/EPs reference Singles</div>
                             </div>
                         </div>
 
@@ -239,118 +246,20 @@
                     </div>
                 </div>
 
-                <!-- Settings Page -->
-                <div id="settingsPage" class="page hidden">
-                    <h2 class="text-3xl font-bold mb-6">Settings & Data Management</h2>
-                    
-                    <div class="grid grid-cols-1 gap-6">
-                        <!-- Local Data Management -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-semibold mb-4">Local Data Management</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
-                                    <div>
-                                        <h4 class="font-medium">Liked Songs</h4>
-                                        <p class="text-sm text-gray-400">Your saved music preferences</p>
-                                        <p class="text-xs text-purple-400">Size: <span id="likesSize">0 KB</span></p>
-                                    </div>
-                                    <button onclick="player.clearLikes()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
-                                        Clear Likes
-                                    </button>
-                                </div>
-                                
-                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
-                                    <div>
-                                        <h4 class="font-medium">Listening History</h4>
-                                        <p class="text-sm text-gray-400">Recently played tracks and statistics</p>
-                                        <p class="text-xs text-blue-400">Size: <span id="historySize">0 KB</span></p>
-                                    </div>
-                                    <button onclick="player.clearHistory()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
-                                        Clear History
-                                    </button>
-                                </div>
-                                
-                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
-                                    <div>
-                                        <h4 class="font-medium">All Local Data</h4>
-                                        <p class="text-sm text-gray-400">Complete reset of all stored data</p>
-                                        <p class="text-xs text-red-400">Size: <span id="allDataSize">0 KB</span></p>
-                                    </div>
-                                    <button onclick="player.clearAllData()" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-sm">
-                                        Clear All Data
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Storage Information -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-semibold mb-4">Storage Information</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-gray-700 p-4 rounded">
-                                    <h4 class="font-medium mb-2">Music Library</h4>
-                                    <div class="space-y-2 text-sm">
-                                        <div class="flex justify-between">
-                                            <span>Total Files:</span>
-                                            <span id="settingsTotalFiles">0</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Library Size:</span>
-                                            <span id="settingsLibrarySize">0 MB</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Average Quality:</span>
-                                            <span id="averageQuality">320 kbps</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-700 p-4 rounded">
-                                    <h4 class="font-medium mb-2">Device Storage</h4>
-                                    <div class="space-y-2 text-sm">
-                                        <div class="flex justify-between">
-                                            <span>Available:</span>
-                                            <span id="settingsAvailable">Checking...</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Used:</span>
-                                            <span id="settingsUsed">Checking...</span>
-                                        </div>
-                                        <div class="storage-bar mt-2">
-                                            <div id="settingsStorageBar" class="storage-fill" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Real-time Monitoring Settings -->
-                        <div class="bg-gray-800 p-6 rounded-lg">
-                            <h3 class="text-xl font-semibold mb-4">Monitoring Settings</h3>
-                            <div class="space-y-4">
-                                <label class="flex items-center space-x-3">
-                                    <input type="checkbox" id="realTimeMonitoring" checked class="rounded">
-                                    <span>Enable real-time storage monitoring</span>
-                                </label>
-                                <label class="flex items-center space-x-3">
-                                    <input type="checkbox" id="autoRefresh" checked class="rounded">
-                                    <span>Auto-refresh dashboard every 30 seconds</span>
-                                </label>
-                                <label class="flex items-center space-x-3">
-                                    <input type="checkbox" id="storageAlerts" class="rounded">
-                                    <span>Show storage alerts when space is low</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Browse Page -->
                 <div id="browsePage" class="page hidden">
                     <div class="mb-6">
                         <h2 class="text-3xl font-bold mb-4">Browse Music</h2>
-                        <input id="searchInput" type="text" placeholder="Search songs, artists, albums..." 
-                               class="bg-gray-800 text-white px-4 py-2 rounded-full w-96">
+                        <div class="flex gap-4 mb-4">
+                            <input id="searchInput" type="text" placeholder="Search songs, artists, albums..." 
+                                   class="bg-gray-800 text-white px-4 py-2 rounded-full flex-1">
+                            <select id="variantFilter" class="bg-gray-800 text-white px-4 py-2 rounded">
+                                <option value="">All Variants</option>
+                                <option value="single">Singles Only</option>
+                                <option value="ep">EPs Only</option>
+                                <option value="album">Albums Only</option>
+                            </select>
+                        </div>
                     </div>
                     <div id="musicGrid" class="grid grid-cols-4 gap-4"></div>
                 </div>
@@ -374,8 +283,8 @@
                                         <p class="text-gray-400 text-sm">Total Streams</p>
                                     </div>
                                     <div class="text-center">
-                                        <p id="artistMonthlyListeners" class="text-3xl font-bold text-blue-400">0</p>
-                                        <p class="text-gray-400 text-sm">Monthly Listeners</p>
+                                        <p id="artistReleases" class="text-3xl font-bold text-blue-400">0</p>
+                                        <p class="text-gray-400 text-sm">Releases</p>
                                     </div>
                                 </div>
                             </div>
@@ -386,8 +295,8 @@
                     </div>
                     
                     <div class="mb-8">
-                        <h3 class="text-xl font-semibold mb-4">Tracks</h3>
-                        <div id="artistTracks"></div>
+                        <h3 class="text-xl font-semibold mb-4">Releases</h3>
+                        <div id="artistReleases" class="space-y-4"></div>
                     </div>
 
                     <!-- Fans also like section -->
@@ -414,7 +323,7 @@
                             </div>
                             <div>
                                 <label class="block mb-2">Artist (use commas for features)</label>
-                                <input id="trackArtist" type="text" placeholder="e.g. Fero, The Mike" class="w-full bg-gray-700 px-4 py-2 rounded">
+                                <input id="trackArtist" type="text" placeholder="e.g. Artist Name, Featured Artist" class="w-full bg-gray-700 px-4 py-2 rounded">
                                 <p class="text-xs text-gray-400 mt-1">Separate multiple artists with commas for features</p>
                             </div>
                         </div>
@@ -427,9 +336,12 @@
                                 <option value="ep">EP</option>
                                 <option value="album">Album</option>
                             </select>
-                            <div id="variantNameContainer" class="hidden">
-                                <input id="variantName" type="text" placeholder="Album/EP Name" class="w-full bg-gray-700 px-4 py-2 rounded">
-                                <p class="text-xs text-gray-400 mt-1">Enter the name of the Album or EP</p>
+                            <div id="collectionContainer" class="hidden">
+                                <input id="collectionTitle" type="text" placeholder="Album/EP Title" class="w-full bg-gray-700 px-4 py-2 rounded mb-4">
+                                <div id="trackSelection" class="space-y-2">
+                                    <label class="block mb-2">Select Singles to Include:</label>
+                                    <div id="availableSingles" class="max-h-40 overflow-y-auto space-y-2"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -440,13 +352,15 @@
                                 <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="rap">rap</button>
                                 <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="pop">pop</button>
                                 <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="trap">trap</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="synthwave">synthwave</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="electronic">electronic</button>
                                 <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="albanian">albanian</button>
                             </div>
                             <input id="customTag" type="text" placeholder="Custom tag" class="bg-gray-700 px-4 py-2 rounded mr-2">
                             <button id="addTagBtn" class="sota-bg px-4 py-2 rounded">Add Tag</button>
                             <div id="selectedTags" class="mt-4 flex flex-wrap gap-2"></div>
                         </div>
-                        <button id="uploadBtn" class="sota-bg text-white px-6 py-3 rounded">Upload Track</button>
+                        <button id="uploadBtn" class="sota-bg text-white px-6 py-3 rounded">Create Entry</button>
                     </div>
                 </div>
 
@@ -457,6 +371,79 @@
                         <button id="saveDbBtn" class="sota-bg text-white px-4 py-2 rounded">Save Database</button>
                     </div>
                     <div id="manageGrid" class="space-y-4"></div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Settings & Data Management</h2>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Local Data Management -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Local Data Management</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
+                                    <div>
+                                        <h4 class="font-medium">Liked Songs</h4>
+                                        <p class="text-sm text-gray-400">Your saved music preferences</p>
+                                        <p class="text-xs text-purple-400">Size: <span id="likesSize">0 KB</span></p>
+                                    </div>
+                                    <button onclick="player.clearLikes()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">
+                                        Clear Likes
+                                    </button>
+                                </div>
+                                
+                                <div class="flex justify-between items-center p-4 bg-gray-700 rounded">
+                                    <div>
+                                        <h4 class="font-medium">All Local Data</h4>
+                                        <p class="text-sm text-gray-400">Complete reset of all stored data</p>
+                                        <p class="text-xs text-red-400">Size: <span id="allDataSize">0 KB</span></p>
+                                    </div>
+                                    <button onclick="player.clearAllData()" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-sm">
+                                        Clear All Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Storage Information -->
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4">Music Library Information</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-700 p-4 rounded">
+                                    <h4 class="font-medium mb-2">Library Stats</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Total Items:</span>
+                                            <span id="settingsTotalItems">0</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Singles:</span>
+                                            <span id="settingsSingles">0</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Albums/EPs:</span>
+                                            <span id="settingsCollections">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-700 p-4 rounded">
+                                    <h4 class="font-medium mb-2">Reference System</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Referenced:</span>
+                                            <span id="settingsReferenced">0</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Orphaned:</span>
+                                            <span id="settingsOrphaned">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
 
@@ -512,16 +499,15 @@
     <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
         <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 class="text-xl font-semibold mb-4">Edit Track</h3>
+            <h3 class="text-xl font-semibold mb-4">Edit Entry</h3>
             <div class="space-y-4">
                 <input id="editTitle" type="text" placeholder="Title" class="w-full bg-gray-700 px-4 py-2 rounded">
-                <input id="editArtist" type="text" placeholder="Artist (use commas for features)" class="w-full bg-gray-700 px-4 py-2 rounded">
+                <input id="editArtist" type="text" placeholder="Artist" class="w-full bg-gray-700 px-4 py-2 rounded">
                 <select id="editVariant" class="w-full bg-gray-700 px-4 py-2 rounded">
                     <option value="single">Single</option>
                     <option value="ep">EP</option>
                     <option value="album">Album</option>
                 </select>
-                <input id="editVariantName" type="text" placeholder="Album/EP Name (if applicable)" class="w-full bg-gray-700 px-4 py-2 rounded">
                 <input id="editTags" type="text" placeholder="Tags (comma separated)" class="w-full bg-gray-700 px-4 py-2 rounded">
             </div>
             <div class="flex gap-4 mt-6">
@@ -534,7 +520,7 @@
     <audio id="audioPlayer"></audio>
 
     <script>
-        class EnhancedMusicPlayer {
+        class EnhancedReferenceMusicPlayer {
             constructor() {
                 this.musicData = [];
                 this.filteredMusic = [];
@@ -544,6 +530,7 @@
                 this.shuffle = false;
                 this.repeat = false;
                 this.selectedTags = [];
+                this.selectedSingles = [];
                 this.editIndex = -1;
                 this.sessionStartTime = Date.now();
                 this.artists = new Map();
@@ -551,21 +538,14 @@
                 // Admin-focused user data
                 this.adminData = JSON.parse(localStorage.getItem('sotaAdminData')) || {
                     likes: [],
-                    recent: [],
-                    artistStreams: {},
-                    totalListens: 0,
-                    sessionStats: {
-                        startTime: Date.now(),
-                        tracksPlayed: 0,
-                        totalPlaytime: 0
-                    }
+                    recent: []
                 };
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.storageInfo = {
-                    musicFiles: 0,
-                    totalSize: 0,
-                    averageSize: 0
+                    totalItems: 0,
+                    playableItems: 0,
+                    totalSize: 0
                 };
                 
                 this.init();
@@ -590,19 +570,30 @@
                     this.musicData = await response.json();
                     this.filteredMusic = [...this.musicData];
                     this.calculateMusicLibraryStats();
-                    console.log('Music data loaded successfully:', this.musicData.length, 'tracks');
+                    console.log('Music data loaded successfully:', this.musicData.length, 'items');
                 } catch (error) {
                     console.error('Error loading music:', error);
-                    // Fallback data for testing with new structure
+                    // Fallback sample data with new structure
                     this.musicData = [
                         {
-                            "file": "music/sample.mp3",
-                            "title": "Sample Track",
+                            "id": 1,
+                            "title": "Sample Single",
                             "artist": "Sample Artist",
+                            "file": "music/sample.mp3",
                             "cover": "cover/sample.jpg",
                             "tags": ["sample", "test"],
-                            "variant": "single",
-                            "variantName": ""
+                            "variant": "single"
+                        },
+                        {
+                            "id": 2,
+                            "title": "Sample Album",
+                            "artist": "Sample Artist",
+                            "cover": "cover/sample-album.jpg",
+                            "tags": ["sample", "album"],
+                            "variant": "album",
+                            "references": [
+                                { "referenceId": 1 }
+                            ]
                         }
                     ];
                     this.filteredMusic = [...this.musicData];
@@ -613,41 +604,23 @@
             processArtists() {
                 this.artists.clear();
                 
-                this.musicData.forEach(track => {
-                    // Parse artists from the artist field, handling features
-                    const artistNames = this.parseArtists(track.artist);
+                this.musicData.forEach(item => {
+                    const artistNames = this.parseArtists(item.artist);
                     
                     artistNames.forEach(artistName => {
                         if (!this.artists.has(artistName)) {
                             this.artists.set(artistName, {
                                 name: artistName,
-                                tracks: [],
-                                soloTracks: [],
-                                features: [],
+                                releases: [],
                                 covers: [],
-                                totalStreams: 0,
-                                monthlyListeners: 0
+                                totalStreams: 0
                             });
                         }
                         
                         const artist = this.artists.get(artistName);
-                        artist.tracks.push(track);
-                        artist.covers.push(track.cover);
-                        
-                        // Calculate streams and monthly listeners
-                        const streams = this.adminData.artistStreams[track.title] || 0;
-                        artist.totalStreams += streams;
-                        artist.monthlyListeners = Math.floor(artist.totalStreams * 0.3 + Math.random() * 1000);
-                        
-                        // Categorize as solo or feature
-                        if (artistNames.length === 1) {
-                            artist.soloTracks.push(track);
-                        } else {
-                            artist.features.push({
-                                track: track,
-                                featuredWith: artistNames.filter(name => name !== artistName)
-                            });
-                        }
+                        artist.releases.push(item);
+                        artist.covers.push(item.cover);
+                        artist.totalStreams += Math.floor(Math.random() * 10000);
                     });
                 });
                 
@@ -655,22 +628,33 @@
             }
 
             parseArtists(artistString) {
-                // Split by comma and clean up whitespace
                 return artistString.split(',')
                     .map(artist => artist.trim())
                     .filter(artist => artist.length > 0);
             }
 
             calculateMusicLibraryStats() {
-                this.storageInfo.musicFiles = this.musicData.length;
+                this.storageInfo.totalItems = this.musicData.length;
+                this.storageInfo.playableItems = this.musicData.filter(item => item.file).length;
                 
-                // Estimate file sizes based on typical MP3 sizes (3-5MB average)
-                const estimatedSizes = this.musicData.map(() => {
+                // Estimate file sizes for playable items
+                const playableItems = this.musicData.filter(item => item.file);
+                const estimatedSizes = playableItems.map(() => {
                     return Math.random() * (5000 - 3000) + 3000; // 3-5MB in KB
                 });
                 
                 this.storageInfo.totalSize = estimatedSizes.reduce((sum, size) => sum + size, 0);
-                this.storageInfo.averageSize = this.storageInfo.totalSize / this.storageInfo.musicFiles || 0;
+            }
+
+            getSingleById(id) {
+                return this.musicData.find(item => item.id === id && item.file);
+            }
+
+            getReferencedTracks(item) {
+                if (!item.references) return [];
+                return item.references
+                    .map(ref => this.getSingleById(ref.referenceId))
+                    .filter(track => track);
             }
 
             async checkDeviceStorage() {
@@ -713,9 +697,6 @@
                 document.getElementById('deviceAvailable').textContent = formatBytes(available);
                 document.getElementById('availableStorage').textContent = formatBytes(available);
                 document.getElementById('deviceStorageBar').style.width = `${usedPercent}%`;
-                document.getElementById('settingsUsed').textContent = formatBytes(used);
-                document.getElementById('settingsAvailable').textContent = formatBytes(available);
-                document.getElementById('settingsStorageBar').style.width = `${usedPercent}%`;
             }
 
             calculateStorageUsage() {
@@ -726,31 +707,43 @@
                 };
 
                 // Update music storage info
-                document.getElementById('musicFileCount').textContent = `${this.storageInfo.musicFiles} files`;
+                document.getElementById('musicFileCount').textContent = `${this.storageInfo.playableItems} files`;
                 document.getElementById('totalMusicSize').textContent = formatSize(this.storageInfo.totalSize);
-                document.getElementById('averageFileSize').textContent = formatSize(this.storageInfo.averageSize);
+                const avgSize = this.storageInfo.playableItems > 0 ? this.storageInfo.totalSize / this.storageInfo.playableItems : 0;
+                document.getElementById('averageFileSize').textContent = formatSize(avgSize);
                 document.getElementById('musicStorageSize').textContent = formatSize(this.storageInfo.totalSize);
+
+                // Reference system stats
+                const referencedTracks = new Set();
+                const collections = this.musicData.filter(item => item.references);
+                collections.forEach(collection => {
+                    collection.references.forEach(ref => referencedTracks.add(ref.referenceId));
+                });
+                
+                const orphanedSingles = this.musicData.filter(item => 
+                    item.file && !referencedTracks.has(item.id)
+                ).length;
+
+                document.getElementById('referencedTracks').textContent = referencedTracks.size;
+                document.getElementById('orphanedSingles').textContent = orphanedSingles;
+                document.getElementById('totalCollections').textContent = collections.length;
 
                 // Calculate local data sizes
                 const likesSize = JSON.stringify(this.adminData.likes).length / 1024;
-                const historySize = JSON.stringify(this.adminData.recent).length / 1024;
-                const settingsSize = JSON.stringify(this.adminData).length / 1024;
-                const totalLocalSize = likesSize + historySize + settingsSize;
+                const totalLocalSize = likesSize;
 
-                document.getElementById('likesDataSize').textContent = formatSize(likesSize);
-                document.getElementById('historyDataSize').textContent = formatSize(historySize);
-                document.getElementById('settingsDataSize').textContent = formatSize(settingsSize);
-                document.getElementById('totalLocalSize').textContent = formatSize(totalLocalSize);
-
-                // Update settings page
                 document.getElementById('likesSize').textContent = formatSize(likesSize);
-                document.getElementById('historySize').textContent = formatSize(historySize);
                 document.getElementById('allDataSize').textContent = formatSize(totalLocalSize);
-                document.getElementById('settingsTotalFiles').textContent = this.storageInfo.musicFiles;
-                document.getElementById('settingsLibrarySize').textContent = formatSize(this.storageInfo.totalSize);
 
-                // Storage bar for music
-                const storagePercent = Math.min((this.storageInfo.totalSize / (1024 * 1024)) * 10, 100); // Rough estimation
+                // Settings page updates
+                document.getElementById('settingsTotalItems').textContent = this.storageInfo.totalItems;
+                document.getElementById('settingsSingles').textContent = this.storageInfo.playableItems;
+                document.getElementById('settingsCollections').textContent = collections.length;
+                document.getElementById('settingsReferenced').textContent = referencedTracks.size;
+                document.getElementById('settingsOrphaned').textContent = orphanedSingles;
+
+                // Storage bar
+                const storagePercent = Math.min((this.storageInfo.totalSize / (1024 * 1024)) * 10, 100);
                 document.getElementById('musicStorageBar').style.width = `${storagePercent}%`;
                 document.getElementById('storageBarFill').style.width = `${storagePercent}%`;
             }
@@ -766,14 +759,6 @@
                     document.getElementById('sessionDuration').textContent = 
                         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 }, 1000);
-
-                // Auto-refresh data every 30 seconds if enabled
-                setInterval(() => {
-                    if (document.getElementById('autoRefresh')?.checked) {
-                        this.calculateStorageUsage();
-                        this.checkDeviceStorage();
-                    }
-                }, 30000);
 
                 // Update real-time indicators
                 setInterval(() => {
@@ -807,24 +792,20 @@
                     this.audio.volume = e.target.value / 100;
                 });
 
-                // Search
+                // Search and filter
                 document.getElementById('searchInput').addEventListener('input', (e) => this.search(e.target.value));
+                document.getElementById('variantFilter').addEventListener('change', (e) => this.filterByVariant(e.target.value));
 
                 // Upload
                 document.querySelectorAll('.tag-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.toggleTag(btn.dataset.tag));
                 });
                 document.getElementById('addTagBtn').addEventListener('click', () => this.addCustomTag());
-                document.getElementById('uploadBtn').addEventListener('click', () => this.uploadTrack());
+                document.getElementById('uploadBtn').addEventListener('click', () => this.createEntry());
 
-                // Variant selection
+                // Variant selection in upload
                 document.getElementById('musicVariant').addEventListener('change', (e) => {
-                    const container = document.getElementById('variantNameContainer');
-                    if (e.target.value === 'single') {
-                        container.classList.add('hidden');
-                    } else {
-                        container.classList.remove('hidden');
-                    }
+                    this.handleVariantChange(e.target.value);
                 });
 
                 // Manage
@@ -851,58 +832,34 @@
                     case 'artists': this.renderArtists(); break;
                     case 'library': this.renderLibrary(); break;
                     case 'manage': this.renderManage(); break;
-                    case 'settings': this.updateSettingsPage(); break;
+                    case 'upload': this.updateAvailableSingles(); break;
+                    case 'settings': this.calculateStorageUsage(); break;
                 }
             }
 
-            updateSettingsPage() {
-                this.calculateStorageUsage();
-                this.checkDeviceStorage();
-            }
-
-            // Data clearing functions
-            clearLikes() {
-                if (confirm('Are you sure you want to clear all liked songs? This action cannot be undone.')) {
-                    this.adminData.likes = [];
-                    this.saveAdminData();
-                    this.calculateStorageUsage();
-                    this.updateUI();
-                    this.renderLibrary();
-                    alert('Liked songs cleared successfully!');
+            handleVariantChange(variant) {
+                const container = document.getElementById('collectionContainer');
+                if (variant === 'single') {
+                    container.classList.add('hidden');
+                } else {
+                    container.classList.remove('hidden');
+                    this.updateAvailableSingles();
                 }
             }
 
-            clearHistory() {
-                if (confirm('Are you sure you want to clear your listening history? This action cannot be undone.')) {
-                    this.adminData.recent = [];
-                    this.adminData.artistStreams = {};
-                    this.adminData.totalListens = 0;
-                    this.saveAdminData();
-                    this.calculateStorageUsage();
-                    this.updateUI();
-                    alert('Listening history cleared successfully!');
-                }
-            }
-
-            clearAllData() {
-                if (confirm('Are you sure you want to clear ALL local data? This will reset everything including likes, history, and settings. This action cannot be undone.')) {
-                    localStorage.removeItem('sotaAdminData');
-                    this.adminData = {
-                        likes: [],
-                        recent: [],
-                        artistStreams: {},
-                        totalListens: 0,
-                        sessionStats: {
-                            startTime: Date.now(),
-                            tracksPlayed: 0,
-                            totalPlaytime: 0
-                        }
-                    };
-                    this.calculateStorageUsage();
-                    this.updateUI();
-                    this.renderLibrary();
-                    alert('All local data cleared successfully!');
-                }
+            updateAvailableSingles() {
+                const singlesContainer = document.getElementById('availableSingles');
+                const singles = this.musicData.filter(item => item.file && item.variant !== 'album' && item.variant !== 'ep');
+                
+                singlesContainer.innerHTML = singles.map(single => {
+                    return `
+                        <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded">
+                            <input type="checkbox" value="${single.id}" class="single-checkbox">
+                            <img src="${single.cover}" class="w-8 h-8 rounded">
+                            <span class="text-sm">${single.title} - ${single.artist}</span>
+                        </label>
+                    `;
+                }).join('');
             }
 
             getVariantBadge(variant) {
@@ -911,38 +868,122 @@
                     'ep': '<span class="variant-badge variant-ep">EP</span>',
                     'album': '<span class="variant-badge variant-album">ALBUM</span>'
                 };
-                return badges[variant] || '';
+                return badges[variant] || badges['single'];
             }
 
             renderMusic() {
                 const grid = document.getElementById('musicGrid');
-                grid.innerHTML = this.filteredMusic.map((track, index) => {
-                    const artists = this.parseArtists(track.artist);
+                grid.innerHTML = this.filteredMusic.map((item, index) => {
+                    const artists = this.parseArtists(item.artist);
                     const isFeature = artists.length > 1;
-                    const variant = track.variant || 'single';
+                    const variant = item.variant || 'single';
+                    const isPlayable = !!item.file;
                     
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
                             <div class="relative mb-4">
-                                <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                                <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playTrack(${index})">
-                                    <i class="fas fa-play text-white"></i>
-                                </button>
-                                ${isFeature ? '<span class="feat-indicator absolute top-2 right-2">FEAT</span>' : ''}
+                                <img src="${item.cover}" alt="${item.title}" class="w-full aspect-square object-cover rounded-lg">
+                                ${isPlayable ? `
+                                    <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playItem(${index})">
+                                        <i class="fas fa-play text-white"></i>
+                                    </button>
+                                ` : `
+                                    <button class="absolute bottom-2 right-2 w-12 h-12 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.showItemDetails(${index})">
+                                        <i class="fas fa-list text-white"></i>
+                                    </button>
+                                `}
+                                ${isFeature ? '<span class="feat-indicator absolute top-2 left-2">FEAT</span>' : ''}
                                 ${this.getVariantBadge(variant)}
                             </div>
-                            <h3 class="font-semibold truncate">${track.title}</h3>
-                            <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
-                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
+                            <h3 class="font-semibold truncate">${item.title}</h3>
+                            <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(item.artist)}</p>
                             <div class="flex justify-between items-center mt-2">
-                                <span class="text-xs text-gray-500">${track.tags[0]}</span>
-                                <button onclick="player.toggleTrackLike(${index})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
-                                    <i class="fas fa-heart"></i>
-                                </button>
+                                <span class="text-xs text-gray-500">${item.tags[0]}</span>
+                                <div class="flex gap-2">
+                                    ${!isPlayable ? `<span class="text-xs text-blue-400">${this.getReferencedTracks(item).length} tracks</span>` : ''}
+                                    <button onclick="player.toggleItemLike(${index})" class="text-gray-400 hover:text-white ${this.isLiked(item) ? 'text-purple-500' : ''}">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </div>
                             </div>
+                            ${!isPlayable && item.references ? `
+                                <div class="album-track-list mt-4">
+                                    <h4 class="text-sm font-medium mb-2">Track List:</h4>
+                                    ${this.getReferencedTracks(item).map((track, trackIndex) => `
+                                        <div class="album-track flex items-center justify-between" onclick="player.playTrackFromCollection(${track.id})">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-xs text-gray-400">${trackIndex + 1}.</span>
+                                                <span class="text-sm">${track.title}</span>
+                                            </div>
+                                            <i class="fas fa-play text-xs text-gray-400"></i>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 }).join('');
+            }
+
+            search(query) {
+                if (!query.trim()) {
+                    this.filteredMusic = [...this.musicData];
+                } else {
+                    const term = query.toLowerCase();
+                    this.filteredMusic = this.musicData.filter(item => 
+                        item.title.toLowerCase().includes(term) ||
+                        item.artist.toLowerCase().includes(term) ||
+                        item.tags.some(tag => tag.toLowerCase().includes(term))
+                    );
+                }
+                this.renderMusic();
+            }
+
+            filterByVariant(variant) {
+                if (!variant) {
+                    this.filteredMusic = [...this.musicData];
+                } else {
+                    this.filteredMusic = this.musicData.filter(item => item.variant === variant);
+                }
+                this.renderMusic();
+            }
+
+            playItem(index) {
+                const item = this.filteredMusic[index];
+                if (item.file) {
+                    this.playTrackById(item.id);
+                } else if (item.references) {
+                    // Play first track from collection
+                    const firstTrack = this.getReferencedTracks(item)[0];
+                    if (firstTrack) {
+                        this.playTrackById(firstTrack.id);
+                    }
+                }
+            }
+
+            playTrackById(id) {
+                const track = this.getSingleById(id);
+                if (!track) return;
+                
+                this.currentTrack = track;
+                this.currentIndex = this.musicData.findIndex(item => item.id === id);
+                this.audio.src = track.file;
+                this.audio.play();
+                
+                this.updateNowPlaying();
+                this.addToRecent(track);
+            }
+
+            playTrackFromCollection(trackId) {
+                this.playTrackById(trackId);
+            }
+
+            showItemDetails(index) {
+                const item = this.filteredMusic[index];
+                if (item.references) {
+                    // For collections, show track list in a modal or expand view
+                    console.log('Show collection details for:', item.title);
+                }
             }
 
             renderArtists() {
@@ -950,18 +991,14 @@
                 const artistsArray = Array.from(this.artists.values());
                 
                 grid.innerHTML = artistsArray.map(artist => {
-                    const hasFeatures = artist.features.length > 0;
                     const mainCover = artist.covers[0] || 'cover/default.jpg';
                     
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer text-center group" onclick="player.showArtistProfile('${artist.name}')">
-                            <div class="relative">
-                                <img src="${mainCover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mb-4">
-                                ${hasFeatures ? '<span class="feat-indicator absolute top-2 right-2">FEAT</span>' : ''}
-                            </div>
+                            <img src="${mainCover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mb-4">
                             <h3 class="font-semibold">${artist.name}</h3>
-                            <p class="text-gray-400 text-sm">${artist.tracks.length} tracks</p>
-                            <p class="text-green-400 text-xs">${artist.monthlyListeners.toLocaleString()} monthly listeners</p>
+                            <p class="text-gray-400 text-sm">${artist.releases.length} releases</p>
+                            <p class="text-green-400 text-xs">${artist.totalStreams.toLocaleString()} streams</p>
                         </div>
                     `;
                 }).join('');
@@ -981,46 +1018,47 @@
                 document.getElementById('artistImage').src = mainCover;
                 document.getElementById('artistName').textContent = artistName;
                 document.getElementById('artistStreams').textContent = artist.totalStreams.toLocaleString();
-                document.getElementById('artistMonthlyListeners').textContent = artist.monthlyListeners.toLocaleString();
+                document.getElementById('artistReleases').textContent = artist.releases.length;
                 
-                document.getElementById('playArtistBtn').onclick = () => {
-                    this.filteredMusic = artist.tracks;
-                    this.playTrack(0);
-                };
-
-                const tracksHtml = artist.tracks.map((track, index) => {
-                    const globalIndex = this.musicData.findIndex(t => t === track);
-                    const trackArtists = this.parseArtists(track.artist);
-                    const isFeature = trackArtists.length > 1;
-                    const otherArtists = trackArtists.filter(a => a !== artistName);
-                    const variant = track.variant || 'single';
+                // Render artist releases
+                const releasesHtml = artist.releases.map((item) => {
+                    const variant = item.variant || 'single';
+                    const isPlayable = !!item.file;
                     
                     return `
-                        <div class="flex items-center p-3 hover:bg-gray-800 rounded cursor-pointer" onclick="player.playTrack(${globalIndex})">
-                            <img src="${track.cover}" alt="${track.title}" class="w-12 h-12 rounded mr-4">
+                        <div class="flex items-center p-4 bg-gray-800 rounded-lg">
+                            <div class="relative mr-4">
+                                <img src="${item.cover}" alt="${item.title}" class="w-16 h-16 rounded">
+                                ${this.getVariantBadge(variant)}
+                            </div>
                             <div class="flex-1">
-                                <div class="flex items-center">
-                                    <h4 class="font-medium">${track.title}</h4>
-                                    ${this.getVariantBadge(variant)}
+                                <h4 class="font-medium">${item.title}</h4>
+                                <p class="text-gray-400 text-sm">${item.artist}</p>
+                                <div class="flex gap-1 mt-1">
+                                    ${item.tags.slice(0,3).map(tag => 
+                                        `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`
+                                    ).join('')}
                                 </div>
-                                <p class="text-gray-400 text-sm">
-                                    ${track.artist}
-                                    ${isFeature ? `<span class="feat-indicator ml-2">feat. ${otherArtists.join(', ')}</span>` : ''}
-                                </p>
-                                ${track.variantName ? `<p class="text-purple-400 text-xs">${track.variantName}</p>` : ''}
+                                ${!isPlayable && item.references ? `
+                                    <p class="text-blue-400 text-xs mt-1">${this.getReferencedTracks(item).length} tracks</p>
+                                ` : ''}
                             </div>
-                            <div class="text-right mr-4">
-                                <p class="text-gray-400 text-sm">${(this.adminData.artistStreams[track.title] || 0).toLocaleString()}</p>
-                                <p class="text-gray-500 text-xs">streams</p>
+                            <div class="flex gap-2">
+                                ${isPlayable ? `
+                                    <button onclick="player.playTrackById(${item.id})" class="sota-bg px-3 py-2 rounded text-sm">
+                                        <i class="fas fa-play mr-1"></i>Play
+                                    </button>
+                                ` : `
+                                    <button onclick="player.playItem(${this.musicData.findIndex(i => i.id === item.id)})" class="bg-blue-600 px-3 py-2 rounded text-sm">
+                                        <i class="fas fa-list mr-1"></i>View
+                                    </button>
+                                `}
                             </div>
-                            <button onclick="event.stopPropagation(); player.toggleTrackLike(${globalIndex})" class="text-gray-400 hover:text-white ${this.isLiked(track) ? 'text-purple-500' : ''}">
-                                <i class="fas fa-heart"></i>
-                            </button>
                         </div>
                     `;
                 }).join('');
                 
-                document.getElementById('artistTracks').innerHTML = tracksHtml;
+                document.getElementById('artistReleases').innerHTML = releasesHtml;
                 this.renderFansAlsoLike(artistName);
             }
 
@@ -1046,24 +1084,27 @@
             renderLibrary() {
                 const grid = document.getElementById('libraryGrid');
                 if (this.adminData.likes.length === 0) {
-                    grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-16">No saved tracks</div>';
+                    grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-16">No saved items</div>';
                     return;
                 }
                 
-                grid.innerHTML = this.adminData.likes.map((track, index) => {
-                    const variant = track.variant || 'single';
+                grid.innerHTML = this.adminData.likes.map((item) => {
+                    const variant = item.variant || 'single';
+                    const isPlayable = !!item.file;
+                    
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg cursor-pointer group">
                             <div class="relative mb-4">
-                                <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                                <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playFromLibrary(${index})">
-                                    <i class="fas fa-play text-white"></i>
-                                </button>
+                                <img src="${item.cover}" alt="${item.title}" class="w-full aspect-square object-cover rounded-lg">
+                                ${isPlayable ? `
+                                    <button class="absolute bottom-2 right-2 w-12 h-12 sota-bg rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" onclick="player.playTrackById(${item.id})">
+                                        <i class="fas fa-play text-white"></i>
+                                    </button>
+                                ` : ''}
                                 ${this.getVariantBadge(variant)}
                             </div>
-                            <h3 class="font-semibold truncate">${track.title}</h3>
-                            <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(track.artist)}</p>
-                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
+                            <h3 class="font-semibold truncate">${item.title}</h3>
+                            <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(item.artist)}</p>
                         </div>
                     `;
                 }).join('');
@@ -1071,61 +1112,44 @@
 
             renderManage() {
                 const grid = document.getElementById('manageGrid');
-                grid.innerHTML = this.musicData.map((track, index) => {
-                    const artists = this.parseArtists(track.artist);
+                grid.innerHTML = this.musicData.map((item, index) => {
+                    const artists = this.parseArtists(item.artist);
                     const isFeature = artists.length > 1;
-                    const variant = track.variant || 'single';
+                    const variant = item.variant || 'single';
+                    const isPlayable = !!item.file;
                     
                     return `
                         <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="relative">
-                                    <img src="${track.cover}" alt="${track.title}" class="w-16 h-16 rounded">
+                                    <img src="${item.cover}" alt="${item.title}" class="w-16 h-16 rounded">
                                     ${isFeature ? '<span class="feat-indicator absolute -top-1 -right-1">FEAT</span>' : ''}
-                                    <div class="absolute -bottom-2 left-0">${this.getVariantBadge(variant)}</div>
+                                    ${this.getVariantBadge(variant)}
                                 </div>
                                 <div>
-                                    <h3 class="font-semibold">${track.title}</h3>
-                                    <p class="text-gray-400">${track.artist}</p>
-                                    ${track.variantName ? `<p class="text-purple-400 text-sm">${track.variantName}</p>` : ''}
-                                    <div class="flex gap-1">${track.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
+                                    <h3 class="font-semibold">${item.title}</h3>
+                                    <p class="text-gray-400">${item.artist}</p>
+                                    <div class="flex gap-1">${item.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
+                                    ${!isPlayable ? `<p class="text-blue-400 text-xs mt-1">Collection: ${this.getReferencedTracks(item).length} tracks</p>` : ''}
                                     ${isFeature ? `<p class="text-xs text-purple-400 mt-1">Artists: ${artists.join(', ')}</p>` : ''}
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="player.editTrack(${index})" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">Edit</button>
-                                <button onclick="player.deleteTrack(${index})" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm">Delete</button>
+                                <button onclick="player.editEntry(${index})" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">Edit</button>
+                                <button onclick="player.deleteEntry(${index})" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm">Delete</button>
                             </div>
                         </div>
                     `;
                 }).join('');
             }
 
-            playTrack(index) {
-                if (index < 0 || index >= this.filteredMusic.length) return;
-                
-                this.currentTrack = this.filteredMusic[index];
-                this.currentIndex = index;
-                this.audio.src = this.currentTrack.file;
-                this.audio.play();
-                
-                this.updateNowPlaying();
-                this.addToRecent(this.currentTrack);
-                this.updateStats();
-            }
-
-            playFromLibrary(index) {
-                const track = this.adminData.likes[index];
-                const globalIndex = this.musicData.findIndex(t => t.title === track.title && t.artist === track.artist);
-                if (globalIndex !== -1) {
-                    this.filteredMusic = [...this.musicData];
-                    this.playTrack(globalIndex);
-                }
-            }
-
             togglePlay() {
                 if (!this.currentTrack) {
-                    if (this.filteredMusic.length > 0) this.playTrack(0);
+                    // Find first playable track
+                    const firstPlayable = this.musicData.find(item => item.file);
+                    if (firstPlayable) {
+                        this.playTrackById(firstPlayable.id);
+                    }
                     return;
                 }
                 
@@ -1138,14 +1162,18 @@
 
             nextTrack() {
                 if (!this.currentTrack) return;
-                let nextIndex = this.shuffle ? Math.floor(Math.random() * this.filteredMusic.length) : (this.currentIndex + 1) % this.filteredMusic.length;
-                this.playTrack(nextIndex);
+                const playableTracks = this.musicData.filter(item => item.file);
+                const currentPlayableIndex = playableTracks.findIndex(track => track.id === this.currentTrack.id);
+                const nextIndex = (currentPlayableIndex + 1) % playableTracks.length;
+                this.playTrackById(playableTracks[nextIndex].id);
             }
 
             prevTrack() {
                 if (!this.currentTrack) return;
-                let prevIndex = this.shuffle ? Math.floor(Math.random() * this.filteredMusic.length) : (this.currentIndex - 1 + this.filteredMusic.length) % this.filteredMusic.length;
-                this.playTrack(prevIndex);
+                const playableTracks = this.musicData.filter(item => item.file);
+                const currentPlayableIndex = playableTracks.findIndex(track => track.id === this.currentTrack.id);
+                const prevIndex = (currentPlayableIndex - 1 + playableTracks.length) % playableTracks.length;
+                this.playTrackById(playableTracks[prevIndex].id);
             }
 
             toggleShuffle() {
@@ -1160,19 +1188,19 @@
 
             toggleLike() {
                 if (!this.currentTrack) return;
-                this.toggleTrackLike(this.currentIndex);
+                this.toggleItemLike(this.musicData.findIndex(item => item.id === this.currentTrack.id));
             }
 
-            toggleTrackLike(index) {
-                const track = this.filteredMusic[index] || this.musicData[index];
-                if (!track) return;
+            toggleItemLike(index) {
+                const item = this.filteredMusic[index] || this.musicData[index];
+                if (!item) return;
                 
-                const likedIndex = this.adminData.likes.findIndex(t => t.title === track.title && t.artist === track.artist);
+                const likedIndex = this.adminData.likes.findIndex(i => i.id === item.id);
                 
                 if (likedIndex > -1) {
                     this.adminData.likes.splice(likedIndex, 1);
                 } else {
-                    this.adminData.likes.push(track);
+                    this.adminData.likes.push(item);
                 }
                 
                 this.saveAdminData();
@@ -1180,21 +1208,6 @@
                 this.renderMusic();
                 this.renderLibrary();
                 this.calculateStorageUsage();
-            }
-
-            search(query) {
-                if (!query.trim()) {
-                    this.filteredMusic = [...this.musicData];
-                } else {
-                    const term = query.toLowerCase();
-                    this.filteredMusic = this.musicData.filter(track => 
-                        track.title.toLowerCase().includes(term) ||
-                        track.artist.toLowerCase().includes(term) ||
-                        track.tags.some(tag => tag.toLowerCase().includes(term)) ||
-                        (track.variantName && track.variantName.toLowerCase().includes(term))
-                    );
-                }
-                this.renderMusic();
             }
 
             toggleTag(tag) {
@@ -1228,60 +1241,71 @@
                 this.renderSelectedTags();
             }
 
-            uploadTrack() {
+            createEntry() {
                 const title = document.getElementById('trackTitle').value.trim();
                 const artist = document.getElementById('trackArtist').value.trim();
                 const variant = document.getElementById('musicVariant').value;
-                const variantName = document.getElementById('variantName').value.trim();
+                const collectionTitle = document.getElementById('collectionTitle').value.trim();
                 
                 if (!title || !artist || this.selectedTags.length === 0) {
-                    alert('Please fill all fields and select tags');
+                    alert('Please fill all required fields and select tags');
                     return;
                 }
 
-                if ((variant === 'album' || variant === 'ep') && !variantName) {
-                    alert('Please enter the Album/EP name');
-                    return;
-                }
+                const newId = Math.max(...this.musicData.map(item => item.id || 0)) + 1;
                 
-                const newTrack = {
-                    file: `music/${title.replace(/\s+/g, '-')}.mp3`,
-                    title,
+                const newEntry = {
+                    id: newId,
+                    title: variant === 'single' ? title : (collectionTitle || title),
                     artist,
                     cover: `cover/${title.replace(/\s+/g, '-')}.jpg`,
                     tags: [...this.selectedTags],
-                    variant,
-                    variantName: variant === 'single' ? '' : variantName
+                    variant
                 };
+
+                if (variant === 'single') {
+                    newEntry.file = `music/${title.replace(/\s+/g, '-')}.mp3`;
+                } else {
+                    // For collections, get selected singles
+                    const selectedCheckboxes = document.querySelectorAll('.single-checkbox:checked');
+                    newEntry.references = Array.from(selectedCheckboxes).map(checkbox => ({
+                        referenceId: parseInt(checkbox.value)
+                    }));
+                    
+                    if (newEntry.references.length === 0) {
+                        alert('Please select at least one single for the collection');
+                        return;
+                    }
+                }
                 
-                this.musicData.push(newTrack);
+                this.musicData.push(newEntry);
                 this.filteredMusic = [...this.musicData];
-                this.processArtists(); // Reprocess artists after adding new track
+                this.processArtists();
                 this.resetUploadForm();
                 this.calculateMusicLibraryStats();
                 this.updateUI();
                 this.calculateStorageUsage();
-                alert('Track uploaded! Remember to save database.');
+                alert('Entry created! Remember to save database.');
             }
 
             resetUploadForm() {
                 document.getElementById('trackTitle').value = '';
                 document.getElementById('trackArtist').value = '';
                 document.getElementById('musicVariant').value = 'single';
-                document.getElementById('variantName').value = '';
-                document.getElementById('variantNameContainer').classList.add('hidden');
+                document.getElementById('collectionTitle').value = '';
+                document.getElementById('collectionContainer').classList.add('hidden');
                 this.selectedTags = [];
                 this.renderSelectedTags();
+                document.querySelectorAll('.single-checkbox').forEach(cb => cb.checked = false);
             }
 
-            editTrack(index) {
+            editEntry(index) {
                 this.editIndex = index;
-                const track = this.musicData[index];
-                document.getElementById('editTitle').value = track.title;
-                document.getElementById('editArtist').value = track.artist;
-                document.getElementById('editVariant').value = track.variant || 'single';
-                document.getElementById('editVariantName').value = track.variantName || '';
-                document.getElementById('editTags').value = track.tags.join(', ');
+                const item = this.musicData[index];
+                document.getElementById('editTitle').value = item.title;
+                document.getElementById('editArtist').value = item.artist;
+                document.getElementById('editVariant').value = item.variant || 'single';
+                document.getElementById('editTags').value = item.tags.join(', ');
                 document.getElementById('editModal').classList.remove('hidden');
                 document.getElementById('editModal').classList.add('flex');
             }
@@ -1294,25 +1318,24 @@
             saveEdit() {
                 if (this.editIndex === -1) return;
                 
-                const track = this.musicData[this.editIndex];
-                track.title = document.getElementById('editTitle').value.trim();
-                track.artist = document.getElementById('editArtist').value.trim();
-                track.variant = document.getElementById('editVariant').value;
-                track.variantName = document.getElementById('editVariantName').value.trim();
-                track.tags = document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(t => t);
+                const item = this.musicData[this.editIndex];
+                item.title = document.getElementById('editTitle').value.trim();
+                item.artist = document.getElementById('editArtist').value.trim();
+                item.variant = document.getElementById('editVariant').value;
+                item.tags = document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(t => t);
                 
                 this.filteredMusic = [...this.musicData];
-                this.processArtists(); // Reprocess artists after editing
+                this.processArtists();
                 this.closeEditModal();
                 this.updateUI();
-                alert('Track updated!');
+                alert('Entry updated!');
             }
 
-            deleteTrack(index) {
-                if (confirm('Delete this track?')) {
+            deleteEntry(index) {
+                if (confirm('Delete this entry?')) {
                     this.musicData.splice(index, 1);
                     this.filteredMusic = [...this.musicData];
-                    this.processArtists(); // Reprocess artists after deletion
+                    this.processArtists();
                     this.calculateMusicLibraryStats();
                     this.updateUI();
                     this.calculateStorageUsage();
@@ -1385,55 +1408,36 @@
             }
 
             addToRecent(track) {
-                this.adminData.recent = this.adminData.recent.filter(t => t.title !== track.title || t.artist !== track.artist);
+                this.adminData.recent = this.adminData.recent.filter(t => t.id !== track.id);
                 this.adminData.recent.unshift(track);
                 if (this.adminData.recent.length > 10) this.adminData.recent.pop();
                 this.saveAdminData();
             }
 
-            updateStats() {
-                if (this.currentTrack) {
-                    if (!this.adminData.artistStreams[this.currentTrack.title]) {
-                        this.adminData.artistStreams[this.currentTrack.title] = 0;
-                    }
-                    this.adminData.artistStreams[this.currentTrack.title]++;
-                    this.adminData.totalListens++;
-                    this.adminData.sessionStats.tracksPlayed++;
-                    this.processArtists(); // Update artist stats
-                    this.saveAdminData();
-                }
-            }
-
             updateUI() {
-                // Count features and variants
-                const featureTracks = this.musicData.filter(track => this.parseArtists(track.artist).length > 1);
-                const singles = this.musicData.filter(track => (track.variant || 'single') === 'single');
-                const eps = this.musicData.filter(track => (track.variant || 'single') === 'ep');
-                const albums = this.musicData.filter(track => (track.variant || 'single') === 'album');
+                const singles = this.musicData.filter(item => item.variant === 'single');
+                const eps = this.musicData.filter(item => item.variant === 'ep');
+                const albums = this.musicData.filter(item => item.variant === 'album');
+                const featuredItems = this.musicData.filter(item => this.parseArtists(item.artist).length > 1);
                 
-                document.getElementById('totalTracks').textContent = this.musicData.length;
+                document.getElementById('totalItems').textContent = this.storageInfo.totalItems;
+                document.getElementById('totalPlayableTracks').textContent = this.storageInfo.playableItems;
                 document.getElementById('totalArtists').textContent = this.artists.size;
-                document.getElementById('totalFeatures').textContent = featureTracks.length;
+                document.getElementById('totalFeatures').textContent = featuredItems.length;
                 document.getElementById('totalSaved').textContent = this.adminData.likes.length;
-                document.getElementById('totalListens').textContent = this.adminData.totalListens;
                 document.getElementById('totalSingles').textContent = singles.length;
                 document.getElementById('totalEPs').textContent = eps.length;
                 document.getElementById('totalAlbums').textContent = albums.length;
                 
-                // Update additional admin stats
-                document.getElementById('newTracksToday').textContent = '0'; // This would need real tracking
-                document.getElementById('lastPlayed').textContent = this.adminData.recent.length > 0 ? 'Recently' : 'Never';
-                
                 const recentGrid = document.getElementById('recentTracks');
-                recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(track => {
-                    const variant = track.variant || 'single';
+                recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(item => {
+                    const variant = item.variant || 'single';
                     return `
                         <div class="music-card bg-gray-800 p-4 rounded-lg relative">
-                            <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
+                            <img src="${item.cover}" alt="${item.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
                             ${this.getVariantBadge(variant)}
-                            <h4 class="font-medium truncate">${track.title}</h4>
-                            <p class="text-gray-400 text-sm truncate">${track.artist}</p>
-                            ${track.variantName ? `<p class="text-purple-400 text-xs truncate">${track.variantName}</p>` : ''}
+                            <h4 class="font-medium truncate">${item.title}</h4>
+                            <p class="text-gray-400 text-sm truncate">${item.artist}</p>
                         </div>
                     `;
                 }).join('');
@@ -1452,8 +1456,8 @@
                 }
             }
 
-            isLiked(track) {
-                return this.adminData.likes.some(t => t.title === track.title && t.artist === track.artist);
+            isLiked(item) {
+                return this.adminData.likes.some(i => i.id === item.id);
             }
 
             formatTime(seconds) {
@@ -1463,12 +1467,37 @@
                 return `${mins}:${secs.toString().padStart(2, '0')}`;
             }
 
+            clearLikes() {
+                if (confirm('Are you sure you want to clear all liked items? This action cannot be undone.')) {
+                    this.adminData.likes = [];
+                    this.saveAdminData();
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    this.renderLibrary();
+                    alert('Liked items cleared successfully!');
+                }
+            }
+
+            clearAllData() {
+                if (confirm('Are you sure you want to clear ALL local data? This will reset everything. This action cannot be undone.')) {
+                    localStorage.removeItem('sotaAdminData');
+                    this.adminData = {
+                        likes: [],
+                        recent: []
+                    };
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    this.renderLibrary();
+                    alert('All local data cleared successfully!');
+                }
+            }
+
             saveAdminData() {
                 localStorage.setItem('sotaAdminData', JSON.stringify(this.adminData));
             }
         }
 
-        const player = new EnhancedMusicPlayer();
+        const player = new EnhancedReferenceMusicPlayer();
     </script>
 </body>
 </html>

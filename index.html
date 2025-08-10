@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Music Player - Enhanced with Artist Profiles</title>
+    <title>SOTA+ Music Player - Enhanced with Artist Profiles</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
+            --sota-purple: #8B5CF6;
+            --sota-dark-purple: #7C3AED;
+            --sota-light-purple: #A78BFA;
             --spotify-green: #1db954;
             --spotify-dark: #191414;
             --spotify-darker: #121212;
@@ -25,6 +28,18 @@
         .sidebar {
             background: var(--spotify-darker);
             min-height: 100vh;
+        }
+        
+        .sota-purple {
+            color: var(--sota-purple);
+        }
+        
+        .bg-sota-purple {
+            background-color: var(--sota-purple);
+        }
+        
+        .bg-sota-dark-purple {
+            background-color: var(--sota-dark-purple);
         }
         
         .spotify-green {
@@ -59,6 +74,7 @@
             background: #4f4f4f;
             border-radius: 2px;
             overflow: hidden;
+            cursor: pointer;
         }
         
         .progress-fill {
@@ -94,12 +110,12 @@
         }
         
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(139, 92, 246, 0.1);
         }
         
         .nav-item.active {
-            background: rgba(29, 185, 84, 0.2);
-            border-left: 3px solid var(--spotify-green);
+            background: rgba(139, 92, 246, 0.2);
+            border-left: 3px solid var(--sota-purple);
         }
         
         .premium-badge {
@@ -139,7 +155,7 @@
         }
         
         .tag-item {
-            background: var(--spotify-green);
+            background: var(--sota-purple);
             color: white;
             padding: 4px 8px;
             border-radius: 15px;
@@ -159,17 +175,17 @@
         }
         
         .upload-area:hover {
-            border-color: var(--spotify-green);
-            background: rgba(29, 185, 84, 0.1);
+            border-color: var(--sota-purple);
+            background: rgba(139, 92, 246, 0.1);
         }
         
         .upload-area.dragover {
-            border-color: var(--spotify-green);
-            background: rgba(29, 185, 84, 0.2);
+            border-color: var(--sota-purple);
+            background: rgba(139, 92, 246, 0.2);
         }
         
         .artist-header {
-            background: linear-gradient(180deg, rgba(29, 185, 84, 0.4) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.4) 0%, transparent 100%);
             padding: 40px 0;
         }
         
@@ -189,7 +205,7 @@
         }
         
         .pagination-btn:hover:not(:disabled) {
-            background: var(--spotify-green);
+            background: var(--sota-purple);
             transform: translateY(-1px);
         }
         
@@ -204,7 +220,7 @@
         }
         
         .breadcrumb a {
-            color: var(--spotify-green);
+            color: var(--sota-purple);
             text-decoration: none;
         }
         
@@ -219,7 +235,7 @@
         }
         
         .artist-link:hover {
-            color: var(--spotify-green);
+            color: var(--sota-purple);
             text-decoration: underline;
         }
         
@@ -237,7 +253,7 @@
         }
         
         .search-result-artist {
-            border-left: 3px solid var(--spotify-green);
+            border-left: 3px solid var(--sota-purple);
         }
         
         .search-result-track {
@@ -257,6 +273,149 @@
             overflow-y: auto;
         }
         
+        .volume-control {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: #282828;
+            padding: 16px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 60;
+            width: 200px;
+        }
+        
+        .volume-control.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .volume-slider {
+            width: 100%;
+            height: 6px;
+            background: #4f4f4f;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .volume-slider-fill {
+            height: 100%;
+            background: var(--sota-purple);
+            border-radius: 3px;
+            width: 50%;
+            transition: width 0.1s ease;
+        }
+        
+        .volume-slider-handle {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .volume-slider-handle:active {
+            cursor: grabbing;
+        }
+        
+        .fullscreen-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--spotify-darker), var(--spotify-dark));
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+        
+        .fullscreen-player.show {
+            display: flex;
+        }
+        
+        .fullscreen-content {
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            padding: 40px;
+        }
+        
+        .fullscreen-cover {
+            width: 350px;
+            height: 350px;
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+        }
+        
+        .fullscreen-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .fullscreen-controls button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 24px;
+        }
+        
+        .fullscreen-play-btn {
+            width: 80px;
+            height: 80px;
+            background: white;
+            color: black;
+            font-size: 32px;
+        }
+        
+        .fullscreen-controls button:not(.fullscreen-play-btn) {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .fullscreen-controls button:hover {
+            transform: scale(1.1);
+        }
+        
+        .fullscreen-progress {
+            width: 100%;
+            height: 6px;
+            background: #4f4f4f;
+            border-radius: 3px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        
+        .fullscreen-progress-fill {
+            height: 100%;
+            background: var(--sota-purple);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -267,6 +426,23 @@
             
             .sidebar.open {
                 left: 0;
+            }
+            
+            .fullscreen-cover {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .fullscreen-controls button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .fullscreen-play-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
             }
         }
     </style>
@@ -282,10 +458,10 @@
         <div id="sidebar" class="sidebar w-64 p-6 flex flex-col">
             <!-- Logo -->
             <div class="mb-8">
-                <h1 class="text-2xl font-bold text-white flex items-center">
-                    <i class="fab fa-spotify spotify-green mr-2"></i>
-                    Spotify
+                <h1 class="text-3xl font-bold text-white flex items-center">
+                    <span class="sota-purple mr-3 text-4xl">SOTA</span><span class="text-white text-2xl">+</span>
                 </h1>
+                <p class="text-sm text-gray-400 ml-1">Music Player</p>
             </div>
 
             <!-- Navigation -->
@@ -367,7 +543,7 @@
                                     <p class="text-gray-400 text-sm">Total Tracks</p>
                                     <p id="totalTracks" class="text-2xl font-bold">0</p>
                                 </div>
-                                <i class="fas fa-music text-spotify-green text-2xl"></i>
+                                <i class="fas fa-music sota-purple text-2xl"></i>
                             </div>
                         </div>
                         <div class="bg-gray-800 p-6 rounded-lg">
@@ -394,7 +570,7 @@
                                     <p class="text-gray-400 text-sm">Total Listens</p>
                                     <p id="homeListenCount" class="text-2xl font-bold">0</p>
                                 </div>
-                                <i class="fas fa-play text-spotify-green text-2xl"></i>
+                                <i class="fas fa-play sota-purple text-2xl"></i>
                             </div>
                         </div>
                     </div>
@@ -403,7 +579,7 @@
                     <div class="mb-8">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold">Top Artists</h3>
-                            <a href="#" class="text-spotify-green hover:underline text-sm" data-page="artists">Show all</a>
+                            <a href="#" class="sota-purple hover:underline text-sm" data-page="artists">Show all</a>
                         </div>
                         <div id="topArtists" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                             <!-- Top artists will be populated here -->
@@ -439,7 +615,7 @@
                         <h2 class="text-3xl font-bold mb-4">Browse Music</h2>
                         <div class="relative">
                             <input type="text" id="searchInput" placeholder="Search songs, artists..." 
-                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                             <div id="searchDropdown" class="search-dropdown hidden"></div>
                         </div>
@@ -456,7 +632,7 @@
                         <h2 class="text-3xl font-bold mb-4">Artists</h2>
                         <div class="relative">
                             <input type="text" id="artistSearchInput" placeholder="Search artists..." 
-                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                                   class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                             <div id="artistSearchDropdown" class="search-dropdown hidden"></div>
                         </div>
@@ -492,7 +668,7 @@
 
                     <!-- Artist Controls -->
                     <div class="flex items-center space-x-4 mb-8">
-                        <button id="playArtistBtn" class="bg-spotify-green hover:bg-green-600 text-black px-8 py-3 rounded-full font-semibold flex items-center">
+                        <button id="playArtistBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-8 py-3 rounded-full font-semibold flex items-center">
                             <i class="fas fa-play mr-2"></i>Play
                         </button>
                         <button id="followArtistBtn" class="border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold">
@@ -578,7 +754,7 @@
                             <i class="fas fa-heart text-6xl mb-6"></i>
                             <h3 class="text-xl font-semibold mb-2">Your library is empty</h3>
                             <p class="mb-4">Save music you love by clicking the heart icon</p>
-                            <button id="browseMusic" class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold">
+                            <button id="browseMusic" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
                                 Browse Music
                             </button>
                         </div>
@@ -598,12 +774,12 @@
                                 <p class="text-lg mb-2">Drop your MP3 file here</p>
                                 <p class="text-sm text-gray-400 mb-4">or click to browse</p>
                                 <input type="file" id="musicFileInput" accept=".mp3" class="hidden">
-                                <button class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded" onclick="document.getElementById('musicFileInput').click()">
+                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded" onclick="document.getElementById('musicFileInput').click()">
                                     Select File
                                 </button>
                             </div>
                             <div id="musicFileInfo" class="mt-4 hidden">
-                                <p class="text-sm text-green-400"><i class="fas fa-check mr-2"></i>File selected: <span id="musicFileName"></span></p>
+                                <p class="text-sm sota-purple"><i class="fas fa-check mr-2"></i>File selected: <span id="musicFileName"></span></p>
                             </div>
                         </div>
 
@@ -615,12 +791,12 @@
                                 <p class="text-lg mb-2">Drop your JPG file here</p>
                                 <p class="text-sm text-gray-400 mb-4">or click to browse</p>
                                 <input type="file" id="coverFileInput" accept=".jpg,.jpeg,.png" class="hidden">
-                                <button class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded" onclick="document.getElementById('coverFileInput').click()">
+                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded" onclick="document.getElementById('coverFileInput').click()">
                                     Select Image
                                 </button>
                             </div>
                             <div id="coverFileInfo" class="mt-4 hidden">
-                                <p class="text-sm text-green-400"><i class="fas fa-check mr-2"></i>Image selected: <span id="coverFileName"></span></p>
+                                <p class="text-sm sota-purple"><i class="fas fa-check mr-2"></i>Image selected: <span id="coverFileName"></span></p>
                                 <img id="coverPreview" src="" alt="Cover Preview" class="mt-2 w-32 h-32 object-cover rounded">
                             </div>
                         </div>
@@ -632,11 +808,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-medium mb-2">Track Title</label>
-                                <input type="text" id="trackTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter track title">
+                                <input type="text" id="trackTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter track title">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium mb-2">Artist Name</label>
-                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter artist name (use comma for multiple artists)">
+                                <input type="text" id="artistName" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter artist name (use comma for multiple artists)">
                             </div>
                         </div>
 
@@ -650,24 +826,24 @@
                             <div class="mb-4">
                                 <h4 class="text-sm font-medium mb-2">Popular Tags</h4>
                                 <div id="popularTags" class="flex flex-wrap gap-2">
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="hip hop">hip hop</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="rap">rap</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="pop">pop</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="trap">trap</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="albanian">albanian</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="melodic">melodic</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="energetic">energetic</button>
-                                    <button class="tag-item bg-gray-600 hover:bg-green-500 cursor-pointer" data-tag="modern">modern</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="hip hop">hip hop</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="rap">rap</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="pop">pop</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="trap">trap</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="albanian">albanian</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="melodic">melodic</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="energetic">energetic</button>
+                                    <button class="tag-item bg-gray-600 hover:bg-purple-500 cursor-pointer" data-tag="modern">modern</button>
                                 </div>
                             </div>
                             
                             <div class="flex gap-2">
-                                <input type="text" id="customTagInput" class="flex-1 bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Add custom tag">
-                                <button id="addCustomTag" class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Add</button>
+                                <input type="text" id="customTagInput" class="flex-1 bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Add custom tag">
+                                <button id="addCustomTag" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded">Add</button>
                             </div>
                         </div>
 
-                        <button id="uploadTrack" class="w-full bg-spotify-green hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="uploadTrack" class="w-full bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-3 rounded-lg font-semibold mt-6 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-upload mr-2"></i>
                             Upload & Save to Database
                         </button>
@@ -681,11 +857,11 @@
                         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                             <div class="relative">
                                 <input type="text" id="manageSearchInput" placeholder="Search tracks to edit..." 
-                                       class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500">
+                                       class="w-full max-w-md bg-gray-800 text-white px-4 py-2 pl-10 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                             </div>
                             <div class="flex gap-2">
-                                <button id="saveDatabaseBtn" class="bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                                <button id="saveDatabaseBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-save mr-2"></i>Save Database
                                 </button>
                                 <button id="refreshDatabaseBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
@@ -708,7 +884,7 @@
                         <!-- Profile Info -->
                         <div class="bg-gray-800 p-6 rounded-lg">
                             <div class="flex items-center mb-6">
-                                <div class="w-20 h-20 bg-spotify-green rounded-full flex items-center justify-center text-2xl font-bold mr-4">
+                                <div class="w-20 h-20 bg-sota-purple rounded-full flex items-center justify-center text-2xl font-bold mr-4">
                                     A
                                 </div>
                                 <div>
@@ -718,7 +894,7 @@
                                         <span class="admin-badge">ADMIN</span>
                                     </h3>
                                     <p class="text-gray-400">Music Administrator</p>
-                                    <p class="text-xs text-green-400 mt-1">
+                                    <p class="text-xs sota-purple mt-1">
                                         <i class="fas fa-crown mr-1"></i>
                                         Premium Account with Admin Privileges
                                     </p>
@@ -749,7 +925,7 @@
                         <div class="bg-gray-800 p-6 rounded-lg">
                             <h4 class="text-lg font-semibold mb-4">Data Management</h4>
                             <div class="space-y-4">
-                                <button id="exportUserData" class="w-full bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                                <button id="exportUserData" class="w-full bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded font-semibold">
                                     <i class="fas fa-download mr-2"></i>
                                     Export User Data
                                 </button>
@@ -784,9 +960,9 @@
                 <div class="flex items-center justify-between max-w-screen-xl mx-auto">
                     <!-- Current Track Info -->
                     <div class="flex items-center space-x-4 flex-1 min-w-0">
-                        <img id="currentCover" src="" alt="" class="w-14 h-14 rounded hidden">
+                        <img id="currentCover" src="" alt="" class="w-14 h-14 rounded hidden cursor-pointer hover:opacity-80 transition-opacity">
                         <div class="min-w-0">
-                            <div id="currentTitle" class="font-semibold truncate">Select a song</div>
+                            <div id="currentTitle" class="font-semibold truncate cursor-pointer hover:underline">Select a song</div>
                             <div id="currentArtist" class="text-sm text-gray-400 truncate">Start playing music</div>
                         </div>
                         <button id="likeCurrentBtn" class="text-gray-400 hover:text-white hidden">
@@ -816,7 +992,7 @@
                         
                         <div class="flex items-center space-x-2 w-full max-w-md">
                             <span id="currentTime" class="text-xs text-gray-400">0:00</span>
-                            <div class="progress-bar flex-1">
+                            <div id="playerProgressBar" class="progress-bar flex-1">
                                 <div id="progressFill" class="progress-fill"></div>
                             </div>
                             <span id="duration" class="text-xs text-gray-400">0:00</span>
@@ -824,15 +1000,71 @@
                     </div>
 
                     <!-- Volume Controls -->
-                    <div class="flex items-center space-x-2 flex-1 justify-end">
+                    <div class="flex items-center space-x-2 flex-1 justify-end relative">
                         <button id="muteBtn" class="text-gray-400 hover:text-white">
                             <i class="fas fa-volume-up"></i>
                         </button>
-                        <div class="w-24 progress-bar">
-                            <div id="volumeFill" class="progress-fill" style="width: 50%"></div>
+                        <div id="volumeControl" class="volume-control">
+                            <div class="mb-2 text-center text-sm text-gray-400">Volume</div>
+                            <div class="volume-slider" id="volumeSlider">
+                                <div class="volume-slider-fill" id="volumeSliderFill"></div>
+                                <div class="volume-slider-handle" id="volumeSliderHandle"></div>
+                            </div>
+                            <div class="text-center text-xs text-gray-400 mt-2">
+                                <span id="volumePercent">50%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Now Playing Modal -->
+    <div id="fullscreenPlayer" class="fullscreen-player">
+        <div class="fullscreen-content">
+            <!-- Close Button -->
+            <button id="closeFullscreen" class="absolute top-6 right-6 text-gray-400 hover:text-white text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Album Cover -->
+            <img id="fullscreenCover" src="" alt="" class="fullscreen-cover">
+            
+            <!-- Track Info -->
+            <h2 id="fullscreenTitle" class="text-3xl font-bold mb-2">Track Title</h2>
+            <p id="fullscreenArtist" class="text-xl text-gray-400 mb-6">Artist Name</p>
+            
+            <!-- Progress Bar -->
+            <div class="flex items-center space-x-4 mb-4">
+                <span id="fullscreenCurrentTime" class="text-sm text-gray-400">0:00</span>
+                <div id="fullscreenProgressBar" class="fullscreen-progress flex-1">
+                    <div id="fullscreenProgressFill" class="fullscreen-progress-fill"></div>
+                </div>
+                <span id="fullscreenDuration" class="text-sm text-gray-400">0:00</span>
+            </div>
+            
+            <!-- Controls -->
+            <div class="fullscreen-controls">
+                <button id="fullscreenPrevBtn" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button id="fullscreenPlayBtn" class="fullscreen-play-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="fullscreenNextBtn" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-6 mt-8">
+                <button id="fullscreenLikeBtn" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="far fa-heart"></i>
+                </button>
+                <button id="fullscreenSaveBtn" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
+                    <i class="fas fa-plus mr-2"></i>Save to Library
+                </button>
             </div>
         </div>
     </div>
@@ -848,20 +1080,20 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-2">Title</label>
-                        <input type="text" id="editTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" id="editTitle" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">Artist</label>
-                        <input type="text" id="editArtist" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" id="editArtist" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">Tags (comma-separated)</label>
-                        <input type="text" id="editTags" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="text" id="editTags" class="w-full bg-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
                     </div>
                 </div>
                 <div class="flex gap-4 mt-6">
                     <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" class="flex-1 bg-spotify-green hover:bg-green-600 text-white px-4 py-2 rounded">Save Changes</button>
+                    <button type="submit" class="flex-1 bg-sota-purple hover:bg-sota-dark-purple text-white px-4 py-2 rounded">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -896,6 +1128,8 @@
                 this.tracksPerPage = 10;
                 this.artistChart = null;
                 this.searchTimeout = null;
+                this.isVolumeControlVisible = false;
+                this.isDraggingVolume = false;
                 
                 this.audio = document.getElementById('audioPlayer');
                 this.init();
@@ -907,10 +1141,11 @@
                 this.setupEventListeners();
                 this.updateUI();
                 this.updateProfileStats();
+                this.setupVolumeControl();
             }
 
             loadUserData() {
-                const saved = localStorage.getItem('spotifyUserData');
+                const saved = localStorage.getItem('sotaUserData');
                 if (saved) {
                     try {
                         this.userData = { ...this.userData, ...JSON.parse(saved) };
@@ -921,7 +1156,7 @@
             }
 
             saveUserData() {
-                localStorage.setItem('spotifyUserData', JSON.stringify(this.userData));
+                localStorage.setItem('sotaUserData', JSON.stringify(this.userData));
                 this.updateProfileStats();
                 this.updateUserDataDisplay();
             }
@@ -958,6 +1193,88 @@
                         `;
                     }
                 }
+            }
+
+            setupVolumeControl() {
+                const volumeControl = document.getElementById('volumeControl');
+                const muteBtn = document.getElementById('muteBtn');
+                const volumeSlider = document.getElementById('volumeSlider');
+                const volumeSliderFill = document.getElementById('volumeSliderFill');
+                const volumeSliderHandle = document.getElementById('volumeSliderHandle');
+                const volumePercent = document.getElementById('volumePercent');
+
+                // Toggle volume control visibility
+                muteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.isVolumeControlVisible = !this.isVolumeControlVisible;
+                    volumeControl.classList.toggle('show', this.isVolumeControlVisible);
+                });
+
+                // Hide volume control when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!volumeControl.contains(e.target) && !muteBtn.contains(e.target)) {
+                        this.isVolumeControlVisible = false;
+                        volumeControl.classList.remove('show');
+                    }
+                });
+
+                // Volume slider functionality
+                const updateVolume = (clientX) => {
+                    const rect = volumeSlider.getBoundingClientRect();
+                    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                    this.volume = percent;
+                    this.audio.volume = percent;
+                    
+                    volumeSliderFill.style.width = `${percent * 100}%`;
+                    volumeSliderHandle.style.right = `${(1 - percent) * 100}%`;
+                    volumePercent.textContent = `${Math.round(percent * 100)}%`;
+
+                    // Update mute button icon
+                    const muteIcon = muteBtn.querySelector('i');
+                    if (percent === 0) {
+                        muteIcon.className = 'fas fa-volume-mute';
+                    } else if (percent < 0.5) {
+                        muteIcon.className = 'fas fa-volume-down';
+                    } else {
+                        muteIcon.className = 'fas fa-volume-up';
+                    }
+                };
+
+                volumeSlider.addEventListener('mousedown', (e) => {
+                    this.isDraggingVolume = true;
+                    updateVolume(e.clientX);
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDraggingVolume) {
+                        updateVolume(e.clientX);
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDraggingVolume = false;
+                });
+
+                // Touch support for mobile
+                volumeSlider.addEventListener('touchstart', (e) => {
+                    this.isDraggingVolume = true;
+                    updateVolume(e.touches[0].clientX);
+                });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (this.isDraggingVolume) {
+                        e.preventDefault();
+                        updateVolume(e.touches[0].clientX);
+                    }
+                });
+
+                document.addEventListener('touchend', () => {
+                    this.isDraggingVolume = false;
+                });
+
+                // Initialize volume
+                this.audio.volume = this.volume;
+                updateVolume(volumeSlider.getBoundingClientRect().left + (volumeSlider.getBoundingClientRect().width * this.volume));
             }
 
             buildArtistsMap() {
@@ -1185,6 +1502,22 @@
                 document.getElementById('repeatBtn').addEventListener('click', () => this.toggleRepeat());
                 document.getElementById('likeCurrentBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
 
+                // Fullscreen player controls
+                document.getElementById('fullscreenPlayBtn').addEventListener('click', () => this.togglePlay());
+                document.getElementById('fullscreenPrevBtn').addEventListener('click', () => this.prevTrack());
+                document.getElementById('fullscreenNextBtn').addEventListener('click', () => this.nextTrack());
+                document.getElementById('fullscreenLikeBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
+                document.getElementById('fullscreenSaveBtn').addEventListener('click', () => this.toggleLikeCurrentTrack());
+                document.getElementById('closeFullscreen').addEventListener('click', () => this.hideFullscreenPlayer());
+
+                // Current cover click to show fullscreen
+                document.getElementById('currentCover').addEventListener('click', () => this.showFullscreenPlayer());
+                document.getElementById('currentTitle').addEventListener('click', () => this.showFullscreenPlayer());
+
+                // Progress bar click for both regular and fullscreen
+                document.getElementById('playerProgressBar').addEventListener('click', (e) => this.seekToPosition(e));
+                document.getElementById('fullscreenProgressBar').addEventListener('click', (e) => this.seekToPosition(e));
+
                 // Enhanced search functionality
                 document.getElementById('searchInput').addEventListener('input', (e) => {
                     const query = e.target.value;
@@ -1260,6 +1593,74 @@
                 this.audio.addEventListener('ended', () => this.handleTrackEnd());
                 this.audio.addEventListener('play', () => this.handlePlay());
                 this.audio.addEventListener('pause', () => this.handlePause());
+            }
+
+            showFullscreenPlayer() {
+                if (!this.currentTrack) return;
+
+                const fullscreenPlayer = document.getElementById('fullscreenPlayer');
+                
+                // Update fullscreen player content
+                document.getElementById('fullscreenCover').src = this.currentTrack.cover;
+                document.getElementById('fullscreenTitle').textContent = this.currentTrack.title;
+                document.getElementById('fullscreenArtist').innerHTML = this.createClickableArtistNames(this.currentTrack.artist);
+                
+                // Add artist click listeners
+                this.addArtistClickListeners(document.getElementById('fullscreenArtist'));
+                
+                // Update like button
+                this.updateFullscreenLikeButton();
+                
+                // Show the fullscreen player
+                fullscreenPlayer.classList.add('show');
+                
+                // Update progress and controls
+                this.updateFullscreenProgress();
+            }
+
+            hideFullscreenPlayer() {
+                document.getElementById('fullscreenPlayer').classList.remove('show');
+            }
+
+            updateFullscreenLikeButton() {
+                if (!this.currentTrack) return;
+                
+                const likeBtn = document.getElementById('fullscreenLikeBtn');
+                const saveBtn = document.getElementById('fullscreenSaveBtn');
+                const isLiked = this.isTrackSaved(this.currentTrack);
+                
+                likeBtn.innerHTML = isLiked ? '<i class="fas fa-heart text-purple-500"></i>' : '<i class="far fa-heart"></i>';
+                saveBtn.innerHTML = isLiked ? '<i class="fas fa-check mr-2"></i>Saved' : '<i class="fas fa-plus mr-2"></i>Save to Library';
+                saveBtn.className = isLiked ? 
+                    'bg-gray-600 text-white px-6 py-2 rounded-full font-semibold cursor-default' : 
+                    'bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold';
+            }
+
+            updateFullscreenProgress() {
+                const current = this.audio.currentTime;
+                const duration = this.audio.duration;
+                
+                if (isFinite(duration) && duration > 0) {
+                    const percent = (current / duration) * 100;
+                    document.getElementById('fullscreenProgressFill').style.width = `${percent}%`;
+                    document.getElementById('fullscreenCurrentTime').textContent = this.formatTime(current);
+                    document.getElementById('fullscreenDuration').textContent = this.formatTime(duration);
+                }
+                
+                // Update play button
+                const playBtn = document.getElementById('fullscreenPlayBtn');
+                playBtn.innerHTML = this.isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+            }
+
+            seekToPosition(e) {
+                if (!this.currentTrack || !isFinite(this.audio.duration)) return;
+                
+                const progressBar = e.currentTarget;
+                const rect = progressBar.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                const seekTime = percent * this.audio.duration;
+                
+                this.audio.currentTime = seekTime;
             }
 
             setupUploadListeners() {
@@ -1369,7 +1770,7 @@
                 container.innerHTML = this.selectedTags.map(tag => `
                     <span class="tag-item">
                         ${tag}
-                        <button class="ml-2 hover:text-red-300" onclick="spotifyPlayer.removeTag('${tag}')">×</button>
+                        <button class="ml-2 hover:text-red-300" onclick="sotaPlayer.removeTag('${tag}')">×</button>
                     </span>
                 `).join('');
             }
@@ -1482,7 +1883,7 @@
                 const followBtn = document.getElementById('followArtistBtn');
                 followBtn.textContent = isFollowing ? 'Following' : 'Follow';
                 followBtn.className = isFollowing ? 
-                    'border border-spotify-green text-spotify-green px-6 py-3 rounded-full font-semibold' :
+                    'border border-sota-purple text-sota-purple px-6 py-3 rounded-full font-semibold' :
                     'border border-gray-400 hover:border-white text-white px-6 py-3 rounded-full font-semibold';
 
                 // Update statistics
@@ -1522,10 +1923,10 @@
                             </div>
                             <div class="flex items-center space-x-4">
                                 <span class="text-sm text-gray-400">${streams} streams</span>
-                                <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-green-500' : ''}" data-action="like" data-index="${globalIndex}">
+                                <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-purple-500' : ''}" data-action="like" data-index="${globalIndex}">
                                     <i class="fas fa-heart"></i>
                                 </button>
-                                <button class="opacity-0 group-hover:opacity-100 text-white hover:text-spotify-green" data-action="play" data-index="${globalIndex}">
+                                <button class="opacity-0 group-hover:opacity-100 text-white hover:text-purple-500" data-action="play" data-index="${globalIndex}">
                                     <i class="fas fa-play"></i>
                                 </button>
                             </div>
@@ -1614,8 +2015,8 @@
                         datasets: [{
                             label: 'Streams',
                             data: streamData,
-                            backgroundColor: '#1DB954',
-                            borderColor: '#1DB954',
+                            backgroundColor: '#8B5CF6',
+                            borderColor: '#8B5CF6',
                             borderWidth: 1
                         }]
                     },
@@ -1693,8 +2094,8 @@
                     <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
                         <div class="relative mb-4">
                             <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto shadow-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-black"></i>
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
+                                <i class="fas fa-play text-white"></i>
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${artist.name}</h3>
@@ -1743,8 +2144,8 @@
                     <div class="music-card p-4 rounded-lg cursor-pointer text-center group" data-artist="${artist.name}">
                         <div class="relative mb-4">
                             <img src="${artist.cover}" alt="${artist.name}" class="w-full aspect-square object-cover rounded-full mx-auto">
-                            <button class="absolute bottom-2 right-2 w-10 h-10 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                                <i class="fas fa-play text-black text-xs"></i>
+                            <button class="absolute bottom-2 right-2 w-10 h-10 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                                <i class="fas fa-play text-white text-xs"></i>
                             </button>
                         </div>
                         <h3 class="font-semibold truncate text-sm mb-1">${artist.name}</h3>
@@ -1783,15 +2184,15 @@
                     card.innerHTML = `
                         <div class="relative mb-4">
                             <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-action="play" data-index="${index}">
-                                <i class="fas fa-play text-black"></i>
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-action="play" data-index="${index}">
+                                <i class="fas fa-play text-white"></i>
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
                         <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                         <div class="flex items-center justify-between mt-2">
                             <span class="text-xs text-gray-500">${track.tags[0]}</span>
-                            <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-green-500' : ''}" data-action="like" data-index="${index}">
+                            <button class="text-gray-400 hover:text-white ${this.isTrackSaved(track) ? 'text-purple-500' : ''}" data-action="like" data-index="${index}">
                                 <i class="fas fa-heart"></i>
                             </button>
                         </div>
@@ -1827,7 +2228,7 @@
                             <i class="fas fa-music text-6xl mb-6"></i>
                             <h3 class="text-xl font-semibold mb-2">No tracks found</h3>
                             <p class="mb-4">Upload some music to get started</p>
-                            <button onclick="spotifyPlayer.showPage('upload')" class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold">
+                            <button onclick="sotaPlayer.showPage('upload')" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
                                 Upload Music
                             </button>
                         </div>
@@ -1850,13 +2251,13 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button class="bg-spotify-green hover:bg-green-600 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.playTrackFromManage(${actualIndex})">
+                                <button class="bg-sota-purple hover:bg-sota-dark-purple text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.playTrackFromManage(${actualIndex})">
                                     <i class="fas fa-play mr-1"></i>Play
                                 </button>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.editTrack(${actualIndex})">
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.editTrack(${actualIndex})">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
-                                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="spotifyPlayer.deleteTrack(${actualIndex})">
+                                <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onclick="sotaPlayer.deleteTrack(${actualIndex})">
                                     <i class="fas fa-trash mr-1"></i>Delete
                                 </button>
                             </div>
@@ -1963,6 +2364,7 @@
                 this.addToRecentlyPlayed(this.currentTrack);
                 this.updateListenData(this.currentTrack);
                 this.updateArtistStreams(this.currentTrack);
+                this.updateFullscreenLikeButton();
             }
 
             updateArtistStreams(track) {
@@ -2032,13 +2434,13 @@
             toggleShuffle() {
                 this.shuffle = !this.shuffle;
                 const btn = document.getElementById('shuffleBtn');
-                btn.classList.toggle('spotify-green', this.shuffle);
+                btn.classList.toggle('sota-purple', this.shuffle);
             }
 
             toggleRepeat() {
                 this.repeat = !this.repeat;
                 const btn = document.getElementById('repeatBtn');
-                btn.classList.toggle('spotify-green', this.repeat);
+                btn.classList.toggle('sota-purple', this.repeat);
             }
 
             toggleLikeCurrentTrack() {
@@ -2076,6 +2478,7 @@
 
                 this.saveUserData();
                 this.updateLikeButton();
+                this.updateFullscreenLikeButton();
                 this.renderMusic();
                 this.updateLibraryPage();
                 this.updateRecommendations();
@@ -2117,7 +2520,7 @@
                 const likeBtn = document.getElementById('likeCurrentBtn');
                 const isLiked = this.isTrackSaved(this.currentTrack);
                 
-                likeBtn.innerHTML = isLiked ? '<i class="fas fa-heart text-green-500"></i>' : '<i class="far fa-heart"></i>';
+                likeBtn.innerHTML = isLiked ? '<i class="fas fa-heart text-purple-500"></i>' : '<i class="far fa-heart"></i>';
             }
 
             addToRecentlyPlayed(track) {
@@ -2185,8 +2588,8 @@
                     <div class="music-card p-4 rounded-lg cursor-pointer relative group" data-track-index="${index}">
                         <div class="relative mb-4">
                             <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-black"></i>
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
+                                <i class="fas fa-play text-white"></i>
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
@@ -2228,8 +2631,8 @@
                     <div class="music-card p-4 rounded-lg cursor-pointer relative group" data-recent-index="${index}">
                         <div class="relative mb-4">
                             <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
-                                <i class="fas fa-play text-black"></i>
+                            <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110">
+                                <i class="fas fa-play text-white"></i>
                             </button>
                         </div>
                         <h3 class="font-semibold truncate mb-1">${track.title}</h3>
@@ -2262,7 +2665,7 @@
                             <i class="fas fa-heart text-6xl mb-6"></i>
                             <h3 class="text-xl font-semibold mb-2">Your library is empty</h3>
                             <p class="mb-4">Save music you love by clicking the heart icon</p>
-                            <button id="browseMusic" class="bg-spotify-green hover:bg-green-600 text-white px-6 py-2 rounded-full font-semibold">
+                            <button id="browseMusic" class="bg-sota-purple hover:bg-sota-dark-purple text-white px-6 py-2 rounded-full font-semibold">
                                 Browse Music
                             </button>
                         </div>
@@ -2278,15 +2681,15 @@
                             <div class="music-card p-4 rounded-lg cursor-pointer relative group">
                                 <div class="relative mb-4">
                                     <img src="${track.cover}" alt="${track.title}" class="w-full aspect-square object-cover rounded-lg">
-                                    <button class="absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-library-play="${index}">
-                                        <i class="fas fa-play text-black"></i>
+                                    <button class="absolute bottom-2 right-2 w-12 h-12 bg-sota-purple rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 hover:scale-110" data-library-play="${index}">
+                                        <i class="fas fa-play text-white"></i>
                                     </button>
                                 </div>
                                 <h3 class="font-semibold truncate mb-1">${track.title}</h3>
                                 <p class="text-gray-400 text-sm truncate">${this.createClickableArtistNames(track.artist)}</p>
                                 <div class="flex items-center justify-between mt-2">
                                     <span class="text-xs text-gray-500">${track.tags[0]}</span>
-                                    <button class="text-green-500 hover:text-white" data-library-unlike="${index}">
+                                    <button class="text-purple-500 hover:text-white" data-library-unlike="${index}">
                                         <i class="fas fa-heart"></i>
                                     </button>
                                 </div>
@@ -2326,169 +2729,4 @@
                     listenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
                     homeListenCount: Object.values(this.userData.listens).reduce((a, b) => a + b, 0).toFixed(0),
                     searchCount: Object.values(this.userData.searches).reduce((a, b) => a + b, 0).toFixed(0),
-                    databaseCount: this.musicData.length,
-                    totalTracks: this.musicData.length,
-                    totalArtists: this.artists.size
-                };
-
-                Object.entries(elements).forEach(([id, value]) => {
-                    const element = document.getElementById(id);
-                    if (element) element.textContent = value;
-                });
-            }
-
-            updateUserDataDisplay() {
-                const element = document.getElementById('userDataDisplay');
-                if (element) {
-                    element.textContent = JSON.stringify({
-                        likes: this.userData.likes,
-                        listens: this.userData.listens,
-                        searches: this.userData.searches,
-                        artistStreams: this.userData.artistStreams
-                    }, null, 2);
-                }
-            }
-
-            async exportUserData() {
-                try {
-                    const userData = JSON.stringify(this.userData, null, 2);
-                    
-                    if ('showSaveFilePicker' in window) {
-                        const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: 'user_data.json',
-                            types: [{
-                                description: 'JSON Files',
-                                accept: {'application/json': ['.json']},
-                            }],
-                        });
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(userData);
-                        await writable.close();
-                        alert('User data exported successfully!');
-                    } else {
-                        const blob = new Blob([userData], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'user_data.json';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        alert('User data downloaded successfully!');
-                    }
-                } catch (e) {
-                    console.error('Export failed:', e);
-                }
-            }
-
-            async exportMusicDatabase() {
-                try {
-                    const musicData = JSON.stringify(this.musicData, null, 2);
-                    
-                    if ('showSaveFilePicker' in window) {
-                        const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: 'music_database.json',
-                            types: [{
-                                description: 'JSON Files',
-                                accept: {'application/json': ['.json']},
-                            }],
-                        });
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(musicData);
-                        await writable.close();
-                        alert('Music database exported successfully!');
-                    } else {
-                        const blob = new Blob([musicData], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'music_database.json';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        alert('Music database downloaded successfully!');
-                    }
-                } catch (e) {
-                    console.error('Export failed:', e);
-                }
-            }
-
-            clearUserData() {
-                if (confirm('Are you sure you want to clear all user data? This cannot be undone.')) {
-                    this.userData = {
-                        likes: {},
-                        listens: {},
-                        searches: {},
-                        savedSongs: [],
-                        recentlyPlayed: [],
-                        artistStreams: {},
-                        followedArtists: []
-                    };
-                    localStorage.removeItem('spotifyUserData');
-                    this.updateUI();
-                    this.updateProfileStats();
-                    this.updateUserDataDisplay();
-                    alert('All user data cleared successfully!');
-                }
-            }
-
-            updateUI() {
-                this.renderMusic();
-                this.renderArtists();
-                this.updateRecommendations();
-                this.updateRecentlyPlayed();
-                this.updateLibraryPage();
-                this.updateManagePage();
-                this.updateProfileStats();
-                this.updateTopArtists();
-            }
-
-            handlePlay() {
-                this.isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-            }
-
-            handlePause() {
-                this.isPlaying = false;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-            }
-
-            handleTrackEnd() {
-                if (this.repeat) {
-                    this.audio.currentTime = 0;
-                    this.audio.play().catch(console.error);
-                } else {
-                    this.nextTrack();
-                }
-            }
-
-            updateDuration() {
-                const duration = this.audio.duration;
-                if (isFinite(duration)) {
-                    document.getElementById('duration').textContent = this.formatTime(duration);
-                }
-            }
-
-            updateProgress() {
-                const current = this.audio.currentTime;
-                const duration = this.audio.duration;
-                
-                if (isFinite(duration) && duration > 0) {
-                    const percent = (current / duration) * 100;
-                    document.getElementById('progressFill').style.width = `${percent}%`;
-                    document.getElementById('currentTime').textContent = this.formatTime(current);
-                }
-            }
-
-            formatTime(seconds) {
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.floor(seconds % 60);
-                return `${mins}:${secs.toString().padStart(2, '0')}`;
-            }
-        }
-
-        let spotifyPlayer;
-        document.addEventListener('DOMContentLoaded', () => {
-            spotifyPlayer = new EnhancedSpotifyMusicPlayer();
-        });
-    </script>
-</body>
-</html>
+pa

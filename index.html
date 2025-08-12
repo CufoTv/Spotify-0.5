@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOTA+ Music Player - Enhanced Admin Edition with Reference System</title>
+    <title>SOTA+ Music Player - Enhanced Admin Edition v2.0</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -693,6 +693,31 @@
                     console.log('Music data loaded successfully:', this.musicData.length, 'items');
                 } catch (error) {
                     console.error('Error loading music:', error);
+                    // Fallback sample data with new structure
+                    this.musicData = [
+                        {
+                            "id": 1,
+                            "title": "Sample Single",
+                            "artist": "Sample Artist",
+                            "file": "music/sample.mp3",
+                            "cover": "cover/sample.jpg",
+                            "tags": ["sample", "test"],
+                            "variant": "single"
+                        },
+                        {
+                            "id": 2,
+                            "title": "Sample Album",
+                            "artist": "Sample Artist",
+                            "cover": "cover/sample-album.jpg",
+                            "tags": ["sample", "album"],
+                            "variant": "album",
+                            "references": [
+                                { "referenceId": 1 }
+                            ]
+                        }
+                    ];
+                    this.filteredMusic = [...this.musicData];
+                    this.calculateMusicLibraryStats();
                     throw error;
                 }
             }
@@ -840,75 +865,79 @@
 
             initializeCharts() {
                 // Distribution Chart
-                const distCtx = document.getElementById('distributionChart').getContext('2d');
-                const singles = this.musicData.filter(item => item.variant === 'single').length;
-                const eps = this.musicData.filter(item => item.variant === 'ep').length;
-                const albums = this.musicData.filter(item => item.variant === 'album').length;
+                try {
+                    const distCtx = document.getElementById('distributionChart').getContext('2d');
+                    const singles = this.musicData.filter(item => item.variant === 'single').length;
+                    const eps = this.musicData.filter(item => item.variant === 'ep').length;
+                    const albums = this.musicData.filter(item => item.variant === 'album').length;
 
-                this.charts.distribution = new Chart(distCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Singles', 'EPs', 'Albums'],
-                        datasets: [{
-                            data: [singles, eps, albums],
-                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#ffffff'
+                    this.charts.distribution = new Chart(distCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Singles', 'EPs', 'Albums'],
+                            datasets: [{
+                                data: [singles, eps, albums],
+                                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#ffffff'
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
 
-                // Artist Chart
-                const artistCtx = document.getElementById('artistChart').getContext('2d');
-                const topArtists = Array.from(this.artists.values())
-                    .sort((a, b) => b.releases.length - a.releases.length)
-                    .slice(0, 5);
+                    // Artist Chart
+                    const artistCtx = document.getElementById('artistChart').getContext('2d');
+                    const topArtists = Array.from(this.artists.values())
+                        .sort((a, b) => b.releases.length - a.releases.length)
+                        .slice(0, 5);
 
-                this.charts.artist = new Chart(artistCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: topArtists.map(artist => artist.name),
-                        datasets: [{
-                            label: 'Releases',
-                            data: topArtists.map(artist => artist.releases.length),
-                            backgroundColor: '#8B5CF6',
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#ffffff'
-                                }
-                            }
+                    this.charts.artist = new Chart(artistCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: topArtists.map(artist => artist.name),
+                            datasets: [{
+                                label: 'Releases',
+                                data: topArtists.map(artist => artist.releases.length),
+                                backgroundColor: '#8B5CF6',
+                                borderWidth: 0
+                            }]
                         },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    color: '#ffffff'
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#ffffff'
+                                    }
                                 }
                             },
-                            y: {
-                                ticks: {
-                                    color: '#ffffff'
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: '#ffffff'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        color: '#ffffff'
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error initializing charts:', error);
+                }
             }
 
             startRealTimeMonitoring() {

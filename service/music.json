@@ -1,201 +1,165 @@
 [
   {
-    "file": "music/Stresi-Win-Win.mp3",
-    "title": "Win Win",
-    "artist": "Stresi",
-    "cover": "cover/Stresi-Win-Win.jpg",
-    "tags": ["hip hop","rap","stresi","albanian","street","2022"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 199000
-  },
-  {
-    "file": "music/Stealth-Non-Stop.mp3",
-    "title": "Non Stop",
-    "artist": "Stealth",
-    "cover": "cover/Stealth-Non-Stop.jpg",
-    "tags": ["hip hop","rap","stealth","albanian","energetic","club"],
-    "variant": "Album",
-    "albumName": "Energy Flow",
-    "monthlyListeners": 290728
-  },
-  {
-    "file": "music/Naldi-Nekrahetemia.mp3",
-    "title": "Ne Krahet e Mia",
-    "artist": "Naldi",
-    "cover": "cover/Naldi-Nekrahetemia.jpg",
-    "tags": ["pop","naldi","albanian","romantic","melodic","slow"],
-    "variant": "EP",
-    "albumName": "Emotional Waves",
-    "monthlyListeners": 60567
-  },
-  {
-    "file": "music/Mossi-Autor.mp3",
-    "title": "Autor",
-    "artist": "Mossi",
-    "cover": "cover/Mossi-Autor.jpg",
-    "tags": ["hip hop","rap","mossi","street","intense","modern"],
-    "variant": "Album",
-    "albumName": "Street Chronicles",
-    "monthlyListeners": 226235
-  },
-  {
-    "file": "music/Kastro-KUR-JAM.mp3",
-    "title": "KUR JAM",
-    "artist": "Kastro",
-    "cover": "cover/Kastro-KUR-JAM.jpg",
-    "tags": ["hip hop","rap","kastro","albanian","anthem","energetic"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 2549
-  },
-  {
-    "file": "music/Finem-Anakonda.mp3",
-    "title": "Anakonda",
-    "artist": "Finem",
-    "cover": "cover/Finem-Anakonda.jpg",
-    "tags": ["hip hop","rap","finem","trap","dark","energetic"],
-    "variant": "EP",
-    "albumName": "Dark Vibes",
-    "monthlyListeners": 515140
-  },
-  {
-    "file": "music/Fero-ARSENAL.mp3",
-    "title": "ARSENAL",
-    "artist": "Fero",
-    "cover": "cover/Fero-ARSENAL.jpg",
-    "tags": ["hip hop","rap","fero","albanian","modern","banger"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 144292
-  },
-  {
-    "file": "music/Ever-b-Pare-Si-Arab.mp3",
-    "title": "Pare Si ArB",
-    "artist": "Ever B",
-    "cover": "cover/Ever-b-Pare-Si-Arab.jpg",
-    "tags": ["trap","hip hop","ever b","albanian","melodic","modern"],
-    "variant": "Album",
-    "albumName": "Melodic Trap",
-    "monthlyListeners": 32400
-  },
-  {
-    "file": "music/Elai-Nokia.mp3",
-    "title": "Nokia",
-    "artist": "Elai",
-    "cover": "cover/Elai-Nokia.jpg",
-    "tags": ["hip hop","rap","elai","melodic","pop","catchy"],
-    "variant": "EP",
-    "albumName": "Digital Dreams",
-    "monthlyListeners": 524332
-  },
-  {
-    "file": "music/Elai-LALE.mp3",
-    "title": "LALE",
-    "artist": "Elai",
-    "cover": "cover/Elai-LALE.jpg",
-    "tags": ["hip hop","rap","elai","melodic","romantic","chart"],
-    "variant": "EP",
-    "albumName": "Digital Dreams",
-    "monthlyListeners": 524332
-  },
-  {
-    "file": "music/Don-Xhoni-TESTOM.mp3",
-    "title": "TESTOM",
+    "id": 3,
+    "title": "Street Code",
     "artist": "Don Xhoni",
-    "cover": "cover/Don-Xhoni-TESTOM.jpg",
-    "tags": ["hip hop","rap","don xhoni","trap","dark","intense"],
-    "variant": "Album",
-    "albumName": "Dark Mind",
-    "monthlyListeners": 857660
+    "file": "music/Street-Code.mp3",
+    "cover": "cover/Street-Code.jpg",
+    "tags": ["rap","trap","albanian","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Don-Xhoni-Katile.mp3",
-    "title": "Katile",
+    "id": 5,
+    "title": "No Sleep",
+    "artist": "Don Xhoni feat. Lyrical Son",
+    "file": "music/No-Sleep.mp3",
+    "cover": "cover/No-Sleep.jpg",
+    "tags": ["rap","hip hop","collaboration","2025"],
+    "variant": "Single"
+  },
+  {
+    "id": 7,
+    "title": "City Lights",
     "artist": "Don Xhoni",
-    "cover": "cover/Don-Xhoni-Katile.jpg",
-    "tags": ["hip hop","rap","don xhoni","trap","energetic","street"],
-    "variant": "Album",
-    "albumName": "Dark Mind",
-    "monthlyListeners": 857660
+    "file": "music/City-Lights.mp3",
+    "cover": "cover/City-Lights.jpg",
+    "tags": ["trap","urban","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Don-Xhoni-Deri-Kur.mp3",
-    "title": "Deri Kur",
+    "id": 9,
+    "title": "Grinding",
     "artist": "Don Xhoni",
-    "cover": "cover/Don-Xhoni-Deri-Kur.jpg",
-    "tags": ["hip hop","rap","don xhoni","emotional","albanian","melodic"],
-    "variant": "Album",
-    "albumName": "Dark Mind",
-    "monthlyListeners": 857660
+    "file": "music/Grinding.mp3",
+    "cover": "cover/Grinding.jpg",
+    "tags": ["rap","trap","motivational","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Don-Xhoni-DILEMA.mp3",
-    "title": "DILEMA",
+    "id": 12,
+    "title": "Block Party",
+    "artist": "Don Xhoni feat. Buta",
+    "file": "music/Block-Party.mp3",
+    "cover": "cover/Block-Party.jpg",
+    "tags": ["hip hop","party","albanian","2025"],
+    "variant": "Single"
+  },
+  {
+    "id": 14,
+    "title": "Loyalty",
     "artist": "Don Xhoni",
-    "copy": "hip hop","rap","don xhoni","trap","moody","modern"],
+    "file": "music/Loyalty.mp3",
+    "cover": "cover/Loyalty.jpg",
+    "tags": ["trap","street","2025"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 21,
+    "title": "United Streets",
+    "artist": "Don Xhoni & Friends",
+    "cover": "cover/United-Streets.jpg",
+    "tags": ["hip hop","rap","trap","albanian","collaboration","2025"],
     "variant": "Album",
-    "albumName": "Dark Mind",
-    "monthlyListeners": 857660
+    "references": [
+      { "referenceId": 3 },
+      { "referenceId": 5 },
+      { "referenceId": 7 },
+      { "referenceId": 9 },
+      { "referenceId": 12 },
+      { "referenceId": 14 }
+    ]
+  },
+
+  {
+    "id": 2,
+    "title": "Midnight Ride",
+    "artist": "Lena Marquez",
+    "file": "music/Midnight-Ride.mp3",
+    "cover": "cover/Midnight-Ride.jpg",
+    "tags": ["synthwave","retro","chill","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Buta-Nelly-Kelly.mp3",
-    "title": "Nelly Kelly",
-    "artist": "Buta",
-    "cover": "cover/Buta-Nelly-Kelly.jpg",
-    "tags": ["hip hop","rap","buta","melodic","pop-rap","modern"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 204278
+    "id": 4,
+    "title": "Neon Skies",
+    "artist": "Lena Marquez",
+    "file": "music/Neon-Skies.mp3",
+    "cover": "cover/Neon-Skies.jpg",
+    "tags": ["synthwave","retro","instrumental","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/BM-Welcome-Te-Gazza.mp3",
-    "title": "Welcome Te Gazza",
-    "artist": "BM",
-    "cover": "cover/BM-Welcome-Te-Gazza.jpg",
-    "tags": ["hip hop","rap","bm","gritty","street","drill"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 1394900
+    "id": 6,
+    "title": "Pulse",
+    "artist": "Lena Marquez",
+    "file": "music/Pulse.mp3",
+    "cover": "cover/Pulse.jpg",
+    "tags": ["synthwave","electronic","energetic","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Fero-TheMike-Collab.mp3",
-    "title": "Street Kings",
-    "artist": "Fero, The Mike",
-    "cover": "cover/Fero-TheMike-Collab.jpg",
-    "tags": ["hip hop","rap","collaboration","albanian","street","banger"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 144292
+    "id": 8,
+    "title": "Night Vision",
+    "artist": "Lena Marquez",
+    "file": "music/Night-Vision.mp3",
+    "cover": "cover/Night-Vision.jpg",
+    "tags": ["synthwave","electronic","dark","2025"],
+    "variant": "Single"
   },
   {
-    "file": "music/Stresi-Kastro-Together.mp3",
-    "title": "Bashke",
-    "artist": "Stresi, Kastro",
-    "cover": "cover/Stresi-Kastro-Together.jpg",
-    "tags": ["hip hop","rap","collaboration","albanian","anthem","energetic"],
+    "id": 10,
+    "title": "Electric Dawn",
+    "artist": "Lena Marquez",
+    "file": "music/Electric-Dawn.mp3",
+    "cover": "cover/Electric-Dawn.jpg",
+    "tags": ["synthwave","retro","bright","2025"],
+    "variant": "Single"
+  },
+  {
+    "id": 11,
+    "title": "Cyber Streets",
+    "artist": "Lena Marquez",
+    "file": "music/Cyber-Streets.mp3",
+    "cover": "cover/Cyber-Streets.jpg",
+    "tags": ["synthwave","urban","electronic","2025"],
+    "variant": "Single"
+  },
+  {
+    "id": 13,
+    "title": "Afterglow",
+    "artist": "Lena Marquez",
+    "file": "music/Afterglow.mp3",
+    "cover": "cover/Afterglow.jpg",
+    "tags": ["synthwave","romantic","slow","2025"],
+    "variant": "Single"
+  },
+  {
+    "id": 15,
+    "title": "Skyline Dreams",
+    "artist": "Lena Marquez",
+    "file": "music/Skyline-Dreams.mp3",
+    "cover": "cover/Skyline-Dreams.jpg",
+    "tags": ["synthwave","ambient","dreamy","2025"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 22,
+    "title": "Night Drive",
+    "artist": "Lena Marquez",
+    "cover": "cover/Night-Drive.jpg",
+    "tags": ["synthwave","retro","chill","electronic","late night","instrumental","2025"],
     "variant": "EP",
-    "albumName": "Unity EP",
-    "monthlyListeners": 199000
-  },
-  {
-    "file": "music/Elai-Naldi-Love.mp3",
-    "title": "Dashuri e Vertete",
-    "artist": "Elai, Naldi",
-    "cover": "cover/Elai-Naldi-Love.jpg",
-    "tags": ["pop","romantic","collaboration","melodic","albanian","chart"],
-    "variant": "Single",
-    "albumName": "",
-    "monthlyListeners": 524332
-  },
-  {
-    "file": "music/Don-Xhoni-Mossi-Power.mp3",
-    "title": "Power Move",
-    "artist": "Don Xhoni, Mossi",
-    "cover": "cover/Don-Xhoni-Mossi-Power.jpg",
-    "tags": ["hip hop","rap","collaboration","trap","intense","street"],
-    "variant": "Album",
-    "albumName": "Streets United",
-    "monthlyListeners": 857660
+    "references": [
+      { "referenceId": 2 },
+      { "referenceId": 4 },
+      { "referenceId": 6 },
+      { "referenceId": 8 },
+      { "referenceId": 10 },
+      { "referenceId": 11 },
+      { "referenceId": 13 },
+      { "referenceId": 15 }
+    ]
   }
 ]

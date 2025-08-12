@@ -13,13 +13,29 @@
             --sota-dark: #121212;
             --spotify-green: #1db954;
         }
-        body { background: var(--sota-dark); font-family: 'Segoe UI', sans-serif; }
+        body { 
+            background: var(--sota-dark); 
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
         .sota-bg { background: var(--sota-purple); }
         .music-card { transition: all 0.3s ease; }
         .music-card:hover { transform: translateY(-2px); background: #333; }
         .progress-bar { width: 100%; height: 4px; background: #444; border-radius: 2px; cursor: pointer; }
         .progress-fill { height: 100%; background: var(--spotify-green); border-radius: 2px; }
-        .sidebar { min-height: 100vh; background: #181818; }
+        .sidebar { 
+            min-height: 100vh; 
+            background: #181818;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            z-index: 40;
+        }
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
         .nav-item:hover { background: rgba(139, 92, 246, 0.1); }
         .nav-item.active { background: rgba(139, 92, 246, 0.2); border-left: 3px solid var(--sota-purple); }
         .artist-link { cursor: pointer; color: #8B5CF6; }
@@ -56,13 +72,61 @@
         .album-track { padding: 8px 0; border-bottom: 1px solid #333; cursor: pointer; transition: background 0.2s; }
         .album-track:hover { background: rgba(139, 92, 246, 0.1); border-radius: 4px; }
         .album-track:last-child { border-bottom: none; }
+        .loading-spinner {
+            border: 2px solid #333;
+            border-top: 2px solid var(--sota-purple);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .error-message {
+            background: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* PDF Export Optimizations */
+        @media print {
+            .sidebar { position: relative; width: 100%; min-height: auto; }
+            .main-content { margin-left: 0; }
+            .page { display: block !important; page-break-inside: avoid; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="text-white">
     <div class="flex">
         <!-- Sidebar -->
-        <div class="sidebar w-64 p-6 flex flex-col">
+        <div id="sidebar" class="sidebar p-6 flex flex-col">
             <h1 class="text-3xl font-bold mb-8">
                 <span style="color: var(--sota-purple)">SOTA</span><span class="text-white">+ Admin</span>
             </h1>
@@ -107,10 +171,21 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="main-content flex flex-col">
             <main class="flex-1 p-6 overflow-y-auto">
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="text-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span>Loading music library...</span>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message hidden">
+                    Failed to load music library. Please check if service/music.json exists and is accessible.
+                </div>
+
                 <!-- Admin Dashboard -->
-                <div id="homePage" class="page">
+                <div id="homePage" class="page active">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-3xl font-bold">Admin Dashboard</h2>
                         <div class="text-sm text-gray-400">
@@ -158,6 +233,22 @@
                             <p class="text-gray-400 text-sm">Albums</p>
                             <p id="totalAlbums" class="text-2xl font-bold">0</p>
                             <p class="text-xs text-red-400 mt-1">Full releases</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">Music Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">Artist Activity</h3>
+                            <div class="chart-container">
+                                <canvas id="artistChart"></canvas>
+                            </div>
                         </div>
                     </div>
 
@@ -247,7 +338,7 @@
                 </div>
 
                 <!-- Browse Page -->
-                <div id="browsePage" class="page hidden">
+                <div id="browsePage" class="page">
                     <div class="mb-6">
                         <h2 class="text-3xl font-bold mb-4">Browse Music</h2>
                         <div class="flex gap-4 mb-4">
@@ -265,13 +356,13 @@
                 </div>
 
                 <!-- Artists Page -->
-                <div id="artistsPage" class="page hidden">
+                <div id="artistsPage" class="page">
                     <h2 class="text-3xl font-bold mb-6">Artists</h2>
                     <div id="artistsGrid" class="grid grid-cols-5 gap-4"></div>
                 </div>
 
                 <!-- Artist Profile -->
-                <div id="artistProfilePage" class="page hidden">
+                <div id="artistProfilePage" class="page">
                     <div class="mb-8">
                         <div class="flex items-end space-x-6 mb-6">
                             <img id="artistImage" class="w-48 h-48 rounded-full object-cover">
@@ -296,7 +387,7 @@
                     
                     <div class="mb-8">
                         <h3 class="text-xl font-semibold mb-4">Releases</h3>
-                        <div id="artistReleases" class="space-y-4"></div>
+                        <div id="artistReleasesContainer" class="space-y-4"></div>
                     </div>
 
                     <!-- Fans also like section -->
@@ -307,13 +398,13 @@
                 </div>
 
                 <!-- Library Page -->
-                <div id="libraryPage" class="page hidden">
+                <div id="libraryPage" class="page">
                     <h2 class="text-3xl font-bold mb-6">Your Library</h2>
                     <div id="libraryGrid" class="grid grid-cols-4 gap-4"></div>
                 </div>
 
                 <!-- Upload Page -->
-                <div id="uploadPage" class="page hidden">
+                <div id="uploadPage" class="page">
                     <h2 class="text-3xl font-bold mb-6">Upload Music</h2>
                     <div class="bg-gray-800 p-6 rounded-lg">
                         <div class="grid grid-cols-2 gap-6 mb-6">
@@ -348,24 +439,26 @@
                         <div class="mb-6">
                             <label class="block mb-2">Tags</label>
                             <div id="tagButtons" class="mb-4 flex flex-wrap gap-2">
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="hip hop">hip hop</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="rap">rap</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="pop">pop</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="trap">trap</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="synthwave">synthwave</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="electronic">electronic</button>
-                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded" data-tag="albanian">albanian</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="hip hop">hip hop</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="rap">rap</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="pop">pop</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="trap">trap</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="synthwave">synthwave</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="electronic">electronic</button>
+                                <button class="tag-btn bg-gray-600 px-3 py-1 rounded text-sm" data-tag="albanian">albanian</button>
                             </div>
-                            <input id="customTag" type="text" placeholder="Custom tag" class="bg-gray-700 px-4 py-2 rounded mr-2">
-                            <button id="addTagBtn" class="sota-bg px-4 py-2 rounded">Add Tag</button>
+                            <div class="flex gap-2">
+                                <input id="customTag" type="text" placeholder="Custom tag" class="bg-gray-700 px-4 py-2 rounded flex-1">
+                                <button id="addTagBtn" class="sota-bg px-4 py-2 rounded">Add Tag</button>
+                            </div>
                             <div id="selectedTags" class="mt-4 flex flex-wrap gap-2"></div>
                         </div>
-                        <button id="uploadBtn" class="sota-bg text-white px-6 py-3 rounded">Create Entry</button>
+                        <button id="uploadBtn" class="sota-bg text-white px-6 py-3 rounded w-full">Create Entry</button>
                     </div>
                 </div>
 
                 <!-- Manage Page -->
-                <div id="managePage" class="page hidden">
+                <div id="managePage" class="page">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-3xl font-bold">Manage Music</h2>
                         <button id="saveDbBtn" class="sota-bg text-white px-4 py-2 rounded">Save Database</button>
@@ -374,7 +467,7 @@
                 </div>
 
                 <!-- Settings Page -->
-                <div id="settingsPage" class="page hidden">
+                <div id="settingsPage" class="page">
                     <h2 class="text-3xl font-bold mb-6">Settings & Data Management</h2>
                     
                     <div class="grid grid-cols-1 gap-6">
@@ -448,13 +541,13 @@
             </main>
 
             <!-- Player -->
-            <div class="bg-gray-900 p-4 border-t border-gray-700">
+            <div class="bg-gray-900 p-4 border-t border-gray-700 no-print">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4 flex-1">
                         <img id="currentCover" class="w-14 h-14 rounded hidden">
-                        <div>
-                            <div id="currentTitle" class="font-semibold">Select a song</div>
-                            <div id="currentArtist" class="text-gray-400 text-sm">Start playing</div>
+                        <div class="min-w-0 flex-1">
+                            <div id="currentTitle" class="font-semibold truncate">Select a song</div>
+                            <div id="currentArtist" class="text-gray-400 text-sm truncate">Start playing</div>
                         </div>
                         <button id="likeBtn" class="text-gray-400 hover:text-white hidden">
                             <i class="far fa-heart"></i>
@@ -497,7 +590,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal no-print">
         <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
             <h3 class="text-xl font-semibold mb-4">Edit Entry</h3>
             <div class="space-y-4">
@@ -534,6 +627,8 @@
                 this.editIndex = -1;
                 this.sessionStartTime = Date.now();
                 this.artists = new Map();
+                this.isLoading = true;
+                this.charts = {};
                 
                 // Admin-focused user data
                 this.adminData = JSON.parse(localStorage.getItem('sotaAdminData')) || {
@@ -553,12 +648,30 @@
             }
 
             async init() {
-                await this.loadMusic();
-                this.processArtists();
-                this.setupEventListeners();
-                this.calculateStorageUsage();
-                this.updateUI();
-                this.checkDeviceStorage();
+                try {
+                    await this.loadMusic();
+                    this.hideLoading();
+                    this.processArtists();
+                    this.setupEventListeners();
+                    this.calculateStorageUsage();
+                    this.updateUI();
+                    this.checkDeviceStorage();
+                    this.initializeCharts();
+                } catch (error) {
+                    this.showError();
+                    console.error('Failed to initialize player:', error);
+                }
+            }
+
+            hideLoading() {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                this.isLoading = false;
+            }
+
+            showError() {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('errorMessage').classList.remove('hidden');
+                this.isLoading = false;
             }
 
             async loadMusic() {
@@ -567,37 +680,20 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    this.musicData = await response.json();
+                    const data = await response.json();
+                    
+                    // Normalize data
+                    this.musicData = data.map(item => ({
+                        ...item,
+                        variant: (item.variant || 'single').toLowerCase()
+                    }));
+                    
                     this.filteredMusic = [...this.musicData];
                     this.calculateMusicLibraryStats();
                     console.log('Music data loaded successfully:', this.musicData.length, 'items');
                 } catch (error) {
                     console.error('Error loading music:', error);
-                    // Fallback sample data with new structure
-                    this.musicData = [
-                        {
-                            "id": 1,
-                            "title": "Sample Single",
-                            "artist": "Sample Artist",
-                            "file": "music/sample.mp3",
-                            "cover": "cover/sample.jpg",
-                            "tags": ["sample", "test"],
-                            "variant": "single"
-                        },
-                        {
-                            "id": 2,
-                            "title": "Sample Album",
-                            "artist": "Sample Artist",
-                            "cover": "cover/sample-album.jpg",
-                            "tags": ["sample", "album"],
-                            "variant": "album",
-                            "references": [
-                                { "referenceId": 1 }
-                            ]
-                        }
-                    ];
-                    this.filteredMusic = [...this.musicData];
-                    this.calculateMusicLibraryStats();
+                    throw error;
                 }
             }
 
@@ -628,7 +724,7 @@
             }
 
             parseArtists(artistString) {
-                return artistString.split(',')
+                return artistString.split(/,| feat\.| ft\.| featuring /i)
                     .map(artist => artist.trim())
                     .filter(artist => artist.length > 0);
             }
@@ -637,10 +733,9 @@
                 this.storageInfo.totalItems = this.musicData.length;
                 this.storageInfo.playableItems = this.musicData.filter(item => item.file).length;
                 
-                // Estimate file sizes for playable items
                 const playableItems = this.musicData.filter(item => item.file);
                 const estimatedSizes = playableItems.map(() => {
-                    return Math.random() * (5000 - 3000) + 3000; // 3-5MB in KB
+                    return Math.random() * (5000 - 3000) + 3000;
                 });
                 
                 this.storageInfo.totalSize = estimatedSizes.reduce((sum, size) => sum + size, 0);
@@ -706,14 +801,12 @@
                     return `${(kb / (1024 * 1024)).toFixed(1)} GB`;
                 };
 
-                // Update music storage info
                 document.getElementById('musicFileCount').textContent = `${this.storageInfo.playableItems} files`;
                 document.getElementById('totalMusicSize').textContent = formatSize(this.storageInfo.totalSize);
                 const avgSize = this.storageInfo.playableItems > 0 ? this.storageInfo.totalSize / this.storageInfo.playableItems : 0;
                 document.getElementById('averageFileSize').textContent = formatSize(avgSize);
                 document.getElementById('musicStorageSize').textContent = formatSize(this.storageInfo.totalSize);
 
-                // Reference system stats
                 const referencedTracks = new Set();
                 const collections = this.musicData.filter(item => item.references);
                 collections.forEach(collection => {
@@ -728,28 +821,97 @@
                 document.getElementById('orphanedSingles').textContent = orphanedSingles;
                 document.getElementById('totalCollections').textContent = collections.length;
 
-                // Calculate local data sizes
                 const likesSize = JSON.stringify(this.adminData.likes).length / 1024;
                 const totalLocalSize = likesSize;
 
                 document.getElementById('likesSize').textContent = formatSize(likesSize);
                 document.getElementById('allDataSize').textContent = formatSize(totalLocalSize);
 
-                // Settings page updates
                 document.getElementById('settingsTotalItems').textContent = this.storageInfo.totalItems;
                 document.getElementById('settingsSingles').textContent = this.storageInfo.playableItems;
                 document.getElementById('settingsCollections').textContent = collections.length;
                 document.getElementById('settingsReferenced').textContent = referencedTracks.size;
                 document.getElementById('settingsOrphaned').textContent = orphanedSingles;
 
-                // Storage bar
                 const storagePercent = Math.min((this.storageInfo.totalSize / (1024 * 1024)) * 10, 100);
                 document.getElementById('musicStorageBar').style.width = `${storagePercent}%`;
                 document.getElementById('storageBarFill').style.width = `${storagePercent}%`;
             }
 
+            initializeCharts() {
+                // Distribution Chart
+                const distCtx = document.getElementById('distributionChart').getContext('2d');
+                const singles = this.musicData.filter(item => item.variant === 'single').length;
+                const eps = this.musicData.filter(item => item.variant === 'ep').length;
+                const albums = this.musicData.filter(item => item.variant === 'album').length;
+
+                this.charts.distribution = new Chart(distCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Singles', 'EPs', 'Albums'],
+                        datasets: [{
+                            data: [singles, eps, albums],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Artist Chart
+                const artistCtx = document.getElementById('artistChart').getContext('2d');
+                const topArtists = Array.from(this.artists.values())
+                    .sort((a, b) => b.releases.length - a.releases.length)
+                    .slice(0, 5);
+
+                this.charts.artist = new Chart(artistCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: topArtists.map(artist => artist.name),
+                        datasets: [{
+                            label: 'Releases',
+                            data: topArtists.map(artist => artist.releases.length),
+                            backgroundColor: '#8B5CF6',
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#ffffff'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
             startRealTimeMonitoring() {
-                // Update session duration every second
                 setInterval(() => {
                     const duration = Date.now() - this.sessionStartTime;
                     const hours = Math.floor(duration / (1000 * 60 * 60));
@@ -760,7 +922,6 @@
                         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 }, 1000);
 
-                // Update real-time indicators
                 setInterval(() => {
                     const playing = this.currentTrack ? `${this.currentTrack.title} - ${this.currentTrack.artist}` : 'Nothing';
                     document.getElementById('currentlyPlaying').textContent = playing;
@@ -824,8 +985,10 @@
             }
 
             showPage(pageId) {
-                document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-                document.getElementById(pageId + 'Page').classList.remove('hidden');
+                if (this.isLoading) return;
+                
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.getElementById(pageId + 'Page').classList.add('active');
                 
                 switch(pageId) {
                     case 'browse': this.renderMusic(); break;
@@ -849,7 +1012,7 @@
 
             updateAvailableSingles() {
                 const singlesContainer = document.getElementById('availableSingles');
-                const singles = this.musicData.filter(item => item.file && item.variant !== 'album' && item.variant !== 'ep');
+                const singles = this.musicData.filter(item => item.file && item.variant === 'single');
                 
                 singlesContainer.innerHTML = singles.map(single => {
                     return `
@@ -873,6 +1036,11 @@
 
             renderMusic() {
                 const grid = document.getElementById('musicGrid');
+                if (this.filteredMusic.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-16">No music found</div>';
+                    return;
+                }
+                
                 grid.innerHTML = this.filteredMusic.map((item, index) => {
                     const artists = this.parseArtists(item.artist);
                     const isFeature = artists.length > 1;
@@ -899,10 +1067,10 @@
                             <p class="text-gray-400 text-sm truncate">${this.createArtistLinks(item.artist)}</p>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="text-xs text-gray-500">${item.tags[0]}</span>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 items-center">
                                     ${!isPlayable ? `<span class="text-xs text-blue-400">${this.getReferencedTracks(item).length} tracks</span>` : ''}
                                     <button onclick="player.toggleItemLike(${index})" class="text-gray-400 hover:text-white ${this.isLiked(item) ? 'text-purple-500' : ''}">
-                                        <i class="fas fa-heart"></i>
+                                        <i class="fas fa-heart text-xs"></i>
                                     </button>
                                 </div>
                             </div>
@@ -953,7 +1121,6 @@
                 if (item.file) {
                     this.playTrackById(item.id);
                 } else if (item.references) {
-                    // Play first track from collection
                     const firstTrack = this.getReferencedTracks(item)[0];
                     if (firstTrack) {
                         this.playTrackById(firstTrack.id);
@@ -981,7 +1148,6 @@
             showItemDetails(index) {
                 const item = this.filteredMusic[index];
                 if (item.references) {
-                    // For collections, show track list in a modal or expand view
                     console.log('Show collection details for:', item.title);
                 }
             }
@@ -1020,7 +1186,6 @@
                 document.getElementById('artistStreams').textContent = artist.totalStreams.toLocaleString();
                 document.getElementById('artistReleases').textContent = artist.releases.length;
                 
-                // Render artist releases
                 const releasesHtml = artist.releases.map((item) => {
                     const variant = item.variant || 'single';
                     const isPlayable = !!item.file;
@@ -1031,10 +1196,10 @@
                                 <img src="${item.cover}" alt="${item.title}" class="w-16 h-16 rounded">
                                 ${this.getVariantBadge(variant)}
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <h4 class="font-medium">${item.title}</h4>
                                 <p class="text-gray-400 text-sm">${item.artist}</p>
-                                <div class="flex gap-1 mt-1">
+                                <div class="flex gap-1 mt-1 flex-wrap">
                                     ${item.tags.slice(0,3).map(tag => 
                                         `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`
                                     ).join('')}
@@ -1058,7 +1223,7 @@
                     `;
                 }).join('');
                 
-                document.getElementById('artistReleases').innerHTML = releasesHtml;
+                document.getElementById('artistReleasesContainer').innerHTML = releasesHtml;
                 this.renderFansAlsoLike(artistName);
             }
 
@@ -1084,7 +1249,7 @@
             renderLibrary() {
                 const grid = document.getElementById('libraryGrid');
                 if (this.adminData.likes.length === 0) {
-                    grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-16">No saved items</div>';
+                    grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-16">No saved items</div>';
                     return;
                 }
                 
@@ -1120,21 +1285,21 @@
                     
                     return `
                         <div class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <div class="relative">
+                            <div class="flex items-center space-x-4 flex-1 min-w-0">
+                                <div class="relative flex-shrink-0">
                                     <img src="${item.cover}" alt="${item.title}" class="w-16 h-16 rounded">
                                     ${isFeature ? '<span class="feat-indicator absolute -top-1 -right-1">FEAT</span>' : ''}
                                     ${this.getVariantBadge(variant)}
                                 </div>
-                                <div>
-                                    <h3 class="font-semibold">${item.title}</h3>
-                                    <p class="text-gray-400">${item.artist}</p>
-                                    <div class="flex gap-1">${item.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="font-semibold truncate">${item.title}</h3>
+                                    <p class="text-gray-400 truncate">${item.artist}</p>
+                                    <div class="flex gap-1 flex-wrap mt-1">${item.tags.slice(0,3).map(tag => `<span class="text-xs bg-gray-700 px-2 py-1 rounded">${tag}</span>`).join('')}</div>
                                     ${!isPlayable ? `<p class="text-blue-400 text-xs mt-1">Collection: ${this.getReferencedTracks(item).length} tracks</p>` : ''}
                                     ${isFeature ? `<p class="text-xs text-purple-400 mt-1">Artists: ${artists.join(', ')}</p>` : ''}
                                 </div>
                             </div>
-                            <div class="flex gap-2">
+                            <div class="flex gap-2 flex-shrink-0">
                                 <button onclick="player.editEntry(${index})" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">Edit</button>
                                 <button onclick="player.deleteEntry(${index})" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm">Delete</button>
                             </div>
@@ -1145,7 +1310,6 @@
 
             togglePlay() {
                 if (!this.currentTrack) {
-                    // Find first playable track
                     const firstPlayable = this.musicData.find(item => item.file);
                     if (firstPlayable) {
                         this.playTrackById(firstPlayable.id);
@@ -1266,7 +1430,6 @@
                 if (variant === 'single') {
                     newEntry.file = `music/${title.replace(/\s+/g, '-')}.mp3`;
                 } else {
-                    // For collections, get selected singles
                     const selectedCheckboxes = document.querySelectorAll('.single-checkbox:checked');
                     newEntry.references = Array.from(selectedCheckboxes).map(checkbox => ({
                         referenceId: parseInt(checkbox.value)
@@ -1433,11 +1596,11 @@
                 recentGrid.innerHTML = this.adminData.recent.slice(0, 4).map(item => {
                     const variant = item.variant || 'single';
                     return `
-                        <div class="music-card bg-gray-800 p-4 rounded-lg relative">
+                        <div class="music-card bg-gray-800 p-3 rounded-lg relative">
                             <img src="${item.cover}" alt="${item.title}" class="w-full aspect-square object-cover rounded-lg mb-2">
                             ${this.getVariantBadge(variant)}
-                            <h4 class="font-medium truncate">${item.title}</h4>
-                            <p class="text-gray-400 text-sm truncate">${item.artist}</p>
+                            <h4 class="font-medium truncate text-sm">${item.title}</h4>
+                            <p class="text-gray-400 text-xs truncate">${item.artist}</p>
                         </div>
                     `;
                 }).join('');

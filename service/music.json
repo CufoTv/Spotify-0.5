@@ -14,7 +14,7 @@
     "artist": "BM",
     "file": "music/BM-Welcome-Te-Gazza.mp3",
     "cover": "cover/BM-Welcome-Te-Gazza.jpg",
-    "tags": ["rap","hip-hop","2023"],
+    "tags": ["rap","hip-hop","albanian","2023"],
     "variant": "Single"
   },
   {
@@ -23,143 +23,147 @@
     "artist": "Buta",
     "file": "music/Buta-Nelly-Kelly.mp3",
     "cover": "cover/Buta-Nelly-Kelly.jpg",
-    "tags": ["rap", "hip-hop", "2023"],
-    "variant": "Single"
-  },
-  {
-    "id": 9,
-    "title": "Grinding",
-    "artist": "Don Xhoni",
-    "file": "music/Grinding.mp3",
-    "cover": "cover/Grinding.jpg",
-    "tags": ["rap","trap","motivational","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 12,
-    "title": "Block Party",
-    "artist": "Don Xhoni feat. Buta",
-    "file": "music/Block-Party.mp3",
-    "cover": "cover/Block-Party.jpg",
-    "tags": ["hip hop","party","albanian","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 14,
-    "title": "Loyalty",
-    "artist": "Don Xhoni",
-    "file": "music/Loyalty.mp3",
-    "cover": "cover/Loyalty.jpg",
-    "tags": ["trap","street","2025"],
+    "tags": ["rap","hip-hop","albanian","2023"],
     "variant": "Single"
   },
 
-  {
-    "id": 21,
-    "title": "United Streets",
-    "artist": "Don Xhoni & Friends",
-    "cover": "cover/United-Streets.jpg",
-    "tags": ["hip hop","rap","trap","albanian","collaboration","2025"],
-    "variant": "Album",
-    "references": [
-      { "referenceId": 3 },
-      { "referenceId": 5 },
-      { "referenceId": 7 },
-      { "referenceId": 9 },
-      { "referenceId": 12 },
-      { "referenceId": 14 }
-    ]
-  },
-
-  {
-    "id": 2,
-    "title": "Midnight Ride",
-    "artist": "Lena Marquez",
-    "file": "music/Midnight-Ride.mp3",
-    "cover": "cover/Midnight-Ride.jpg",
-    "tags": ["synthwave","retro","chill","2025"],
-    "variant": "Single"
-  },
   {
     "id": 4,
-    "title": "Neon Skies",
-    "artist": "Lena Marquez",
-    "file": "music/Neon-Skies.mp3",
-    "cover": "cover/Neon-Skies.jpg",
-    "tags": ["synthwave","retro","instrumental","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 6,
-    "title": "Pulse",
-    "artist": "Lena Marquez",
-    "file": "music/Pulse.mp3",
-    "cover": "cover/Pulse.jpg",
-    "tags": ["synthwave","electronic","energetic","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 8,
-    "title": "Night Vision",
-    "artist": "Lena Marquez",
-    "file": "music/Night-Vision.mp3",
-    "cover": "cover/Night-Vision.jpg",
-    "tags": ["synthwave","electronic","dark","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 10,
-    "title": "Electric Dawn",
-    "artist": "Lena Marquez",
-    "file": "music/Electric-Dawn.mp3",
-    "cover": "cover/Electric-Dawn.jpg",
-    "tags": ["synthwave","retro","bright","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 11,
-    "title": "Cyber Streets",
-    "artist": "Lena Marquez",
-    "file": "music/Cyber-Streets.mp3",
-    "cover": "cover/Cyber-Streets.jpg",
-    "tags": ["synthwave","urban","electronic","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 13,
-    "title": "Afterglow",
-    "artist": "Lena Marquez",
-    "file": "music/Afterglow.mp3",
-    "cover": "cover/Afterglow.jpg",
-    "tags": ["synthwave","romantic","slow","2025"],
-    "variant": "Single"
-  },
-  {
-    "id": 15,
-    "title": "Skyline Dreams",
-    "artist": "Lena Marquez",
-    "file": "music/Skyline-Dreams.mp3",
-    "cover": "cover/Skyline-Dreams.jpg",
-    "tags": ["synthwave","ambient","dreamy","2025"],
+    "title": "DILEMA",
+    "artist": "Don Xhoni",
+    "file": "music/Don-Xhoni-DILEMA.mp3",
+    "cover": "cover/Don-Xhoni-DILEMA.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
     "variant": "Single"
   },
 
   {
-    "id": 22,
-    "title": "Night Drive",
-    "artist": "Lena Marquez",
-    "cover": "cover/Night-Drive.jpg",
-    "tags": ["synthwave","retro","chill","electronic","late night","instrumental","2025"],
-    "variant": "EP",
-    "references": [
-      { "referenceId": 2 },
-      { "referenceId": 4 },
-      { "referenceId": 6 },
-      { "referenceId": 8 },
-      { "referenceId": 10 },
-      { "referenceId": 11 },
-      { "referenceId": 13 },
-      { "referenceId": 15 }
-    ]
+    "id": 5,
+    "title": "Deri Kur",
+    "artist": "Don Xhoni",
+    "file": "music/Don-Xhoni-Deri-Kur.mp3",
+    "cover": "cover/Don-Xhoni-Deri-Kur.jpg",
+    "tags": ["rap","hip-hop","albanian","2021"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 6,
+    "title": "TESTOM",
+    "artist": "Don Xhoni",
+    "file": "music/Don-Xhoni-TESTOM.mp3",
+    "cover": "cover/Don-Xhoni-TESTOM.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 7,
+    "title": "LALE",
+    "artist": "Elai",
+    "file": "music/Elai-LALE.mp3",
+    "cover": "cover/Elai-LALE.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 8,
+    "title": "Nokia",
+    "artist": "Elai",
+    "file": "music/Elai-Nokia.mp3",
+    "cover": "cover/Elai-Nokia.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 9,
+    "title": "Pare Si Arab",
+    "artist": "Ever B",
+    "file": "music/Ever-b-Pare-Si-Arab.mp3",
+    "cover": "cover/Ever-b-Pare-Si-Arab.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 10,
+    "title": "ARSENAL",
+    "artist": "Fero",
+    "file": "music/Fero-ARSENAL.mp3",
+    "cover": "cover/Fero-ARSENAL.jpg",
+    "tags": ["rap","hip-hop","albanian","2022"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 11,
+    "title": "Anakonda",
+    "artist": "Finem",
+    "file": "music/Finem-Anakonda.mp3",
+    "cover": "cover/Finem-Anakonda.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 12,
+    "title": "KUR JAM",
+    "artist": "Kastro",
+    "file": "music/Kastro-KUR-JAM.mp3",
+    "cover": "cover/Kastro-KUR-JAM.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 13,
+    "title": "Autor",
+    "artist": "Mossi",
+    "file": "music/Mossi-Autor.mp3",
+    "cover": "cover/Mossi-Autor.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 14,
+    "title": "Nekrahetemia",
+    "artist": "Naldi",
+    "file": "music/Naldi-Nekrahetemia.mp3",
+    "cover": "cover/Naldi-Nekrahetemia.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 15,
+    "title": "Solo",
+    "artist": "Selmo",
+    "file": "music/Selmo-Solo-Finem-Tipa.mp3",
+    "cover": "cover/Selmo-Solo-Finem-Tipa.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 16,
+    "title": "Non Stop",
+    "artist": "Stealth",
+    "file": "music/Stealth-Non-Stop.mp3",
+    "cover": "cover/Stealth-Non-Stop.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
+  },
+
+  {
+    "id": 17,
+    "title": "Win Win",
+    "artist": "Stresi",
+    "file": "music/Stresi-Win-Win.mp3",
+    "cover": "cover/Stresi-Win-Win.jpg",
+    "tags": ["rap","hip-hop","albanian","2023"],
+    "variant": "Single"
   }
 ]

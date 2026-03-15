@@ -1,6 +1,6 @@
 [
   {
-    "id": 3,
+    "id": 1,
     "title": "Katile",
     "artist": "Don Xhoni",
     "file": "music/Don-Xhoni-Katile.mp3",
@@ -9,12 +9,12 @@
     "variant": "Single"
   },
   {
-    "id": 5,
-    "title": "No Sleep",
-    "artist": "Don Xhoni feat. Lyrical Son",
-    "file": "music/No-Sleep.mp3",
-    "cover": "cover/No-Sleep.jpg",
-    "tags": ["rap","hip hop","collaboration","2025"],
+    "id": 2,
+    "title": "Welcome Te Gazza",
+    "artist": "BM",
+    "file": "music/BM-Welcome-Te-Gazza.mp3",
+    "cover": "cover/BM-Welcome-Te-Gazza.jpg",
+    "tags": ["rap","hip-hop","2023"],
     "variant": "Single"
   },
   {
